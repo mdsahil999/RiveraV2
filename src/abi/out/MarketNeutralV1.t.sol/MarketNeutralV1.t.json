@@ -1,0 +1,20 @@
+{
+  "abi": [],
+  "bytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "test/strategies/cake/MarketNeutralV1.t.sol",
+    "id": 43760,
+    "exportedSymbols": {},
+    "nodeType": "SourceUnit",
+    "src": "17046:0:83",
+    "nodes": []
+  },
+  "id": 83
+}

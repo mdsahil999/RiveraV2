@@ -1,0 +1,521 @@
+{
+  "abi": [],
+  "bytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "linkReferences": {}
+  },
+  "ast": {
+    "absolutePath": "src/libs/DexV3CalculationStruct.sol",
+    "id": 30229,
+    "exportedSymbols": {
+      "ChangeInAmountsForNewRatioParams": [
+        30228
+      ],
+      "LiquidityDeltaForAssetAmountParams": [
+        30219
+      ],
+      "LiquidityToAmountCalcParams": [
+        30208
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "0:588:46",
+    "nodes": [
+      {
+        "id": 30193,
+        "nodeType": "PragmaDirective",
+        "src": "0:23:46",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ]
+      },
+      {
+        "id": 30208,
+        "nodeType": "StructDefinition",
+        "src": "27:221:46",
+        "nodes": [],
+        "canonicalName": "LiquidityToAmountCalcParams",
+        "members": [
+          {
+            "constant": false,
+            "id": 30195,
+            "mutability": "mutable",
+            "name": "tickLower",
+            "nameLocation": "75:9:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30208,
+            "src": "69:15:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_int24",
+              "typeString": "int24"
+            },
+            "typeName": {
+              "id": 30194,
+              "name": "int24",
+              "nodeType": "ElementaryTypeName",
+              "src": "69:5:46",
+              "typeDescriptions": {
+                "typeIdentifier": "t_int24",
+                "typeString": "int24"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30197,
+            "mutability": "mutable",
+            "name": "tickUpper",
+            "nameLocation": "97:9:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30208,
+            "src": "91:15:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_int24",
+              "typeString": "int24"
+            },
+            "typeName": {
+              "id": 30196,
+              "name": "int24",
+              "nodeType": "ElementaryTypeName",
+              "src": "91:5:46",
+              "typeDescriptions": {
+                "typeIdentifier": "t_int24",
+                "typeString": "int24"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30199,
+            "mutability": "mutable",
+            "name": "liquidityDelta",
+            "nameLocation": "121:14:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30208,
+            "src": "113:22:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint128",
+              "typeString": "uint128"
+            },
+            "typeName": {
+              "id": 30198,
+              "name": "uint128",
+              "nodeType": "ElementaryTypeName",
+              "src": "113:7:46",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint128",
+                "typeString": "uint128"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30201,
+            "mutability": "mutable",
+            "name": "safeCastLib",
+            "nameLocation": "150:11:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30208,
+            "src": "142:19:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 30200,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "142:7:46",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30203,
+            "mutability": "mutable",
+            "name": "sqrtPriceMathLib",
+            "nameLocation": "176:16:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30208,
+            "src": "168:24:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 30202,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "168:7:46",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30205,
+            "mutability": "mutable",
+            "name": "tickMathLib",
+            "nameLocation": "207:11:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30208,
+            "src": "199:19:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 30204,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "199:7:46",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30207,
+            "mutability": "mutable",
+            "name": "poolAddress",
+            "nameLocation": "233:11:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30208,
+            "src": "225:19:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 30206,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "225:7:46",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "visibility": "internal"
+          }
+        ],
+        "name": "LiquidityToAmountCalcParams",
+        "nameLocation": "34:27:46",
+        "scope": 30229,
+        "visibility": "public"
+      },
+      {
+        "id": 30219,
+        "nodeType": "StructDefinition",
+        "src": "252:183:46",
+        "nodes": [],
+        "canonicalName": "LiquidityDeltaForAssetAmountParams",
+        "members": [
+          {
+            "constant": false,
+            "id": 30210,
+            "mutability": "mutable",
+            "name": "isTokenZeroDeposit",
+            "nameLocation": "306:18:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30219,
+            "src": "301:23:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_bool",
+              "typeString": "bool"
+            },
+            "typeName": {
+              "id": 30209,
+              "name": "bool",
+              "nodeType": "ElementaryTypeName",
+              "src": "301:4:46",
+              "typeDescriptions": {
+                "typeIdentifier": "t_bool",
+                "typeString": "bool"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30212,
+            "mutability": "mutable",
+            "name": "poolFee",
+            "nameLocation": "338:7:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30219,
+            "src": "331:14:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint24",
+              "typeString": "uint24"
+            },
+            "typeName": {
+              "id": 30211,
+              "name": "uint24",
+              "nodeType": "ElementaryTypeName",
+              "src": "331:6:46",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint24",
+                "typeString": "uint24"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30214,
+            "mutability": "mutable",
+            "name": "assetAmount",
+            "nameLocation": "360:11:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30219,
+            "src": "352:19:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 30213,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "352:7:46",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30216,
+            "mutability": "mutable",
+            "name": "fullMathLib",
+            "nameLocation": "386:11:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30219,
+            "src": "378:19:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 30215,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "378:7:46",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30218,
+            "mutability": "mutable",
+            "name": "liquidityAmountsLib",
+            "nameLocation": "412:19:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30219,
+            "src": "404:27:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 30217,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "404:7:46",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "visibility": "internal"
+          }
+        ],
+        "name": "LiquidityDeltaForAssetAmountParams",
+        "nameLocation": "259:34:46",
+        "scope": 30229,
+        "visibility": "public"
+      },
+      {
+        "id": 30228,
+        "nodeType": "StructDefinition",
+        "src": "439:149:46",
+        "nodes": [],
+        "canonicalName": "ChangeInAmountsForNewRatioParams",
+        "members": [
+          {
+            "constant": false,
+            "id": 30221,
+            "mutability": "mutable",
+            "name": "poolFee",
+            "nameLocation": "493:7:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30228,
+            "src": "486:14:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint24",
+              "typeString": "uint24"
+            },
+            "typeName": {
+              "id": 30220,
+              "name": "uint24",
+              "nodeType": "ElementaryTypeName",
+              "src": "486:6:46",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint24",
+                "typeString": "uint24"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30223,
+            "mutability": "mutable",
+            "name": "currAmount0Bal",
+            "nameLocation": "515:14:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30228,
+            "src": "507:22:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 30222,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "507:7:46",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30225,
+            "mutability": "mutable",
+            "name": "currAmount1Bal",
+            "nameLocation": "544:14:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30228,
+            "src": "536:22:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
+            },
+            "typeName": {
+              "id": 30224,
+              "name": "uint256",
+              "nodeType": "ElementaryTypeName",
+              "src": "536:7:46",
+              "typeDescriptions": {
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
+              }
+            },
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 30227,
+            "mutability": "mutable",
+            "name": "fullMathLib",
+            "nameLocation": "573:11:46",
+            "nodeType": "VariableDeclaration",
+            "scope": 30228,
+            "src": "565:19:46",
+            "stateVariable": false,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 30226,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "565:7:46",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "visibility": "internal"
+          }
+        ],
+        "name": "ChangeInAmountsForNewRatioParams",
+        "nameLocation": "446:32:46",
+        "scope": 30229,
+        "visibility": "public"
+      }
+    ]
+  },
+  "id": 46
+}
