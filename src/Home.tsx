@@ -31,6 +31,8 @@ import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import buttonArrowImg from './assets/images/button_arrow.png';
 import saftyImg from './assets/images/safty.png';
+import keyCircleImg from './assets/images/keyCircle.png';
+import seetingCircleImg from './assets/images/seetingCircle.png';
 import erc20Json from './abi/out/ERC20.sol/ERC20.json'
 import pancakeWhitelistedVaultFactoryV2Json from './abi/out/PancakeWhitelistedVaultFactoryV2.sol/PancakeWhitelistedVaultFactoryV2.json'
 import RiveraAutoCompoundingVaultV2WhitelistedJson from './abi/out/RiveraAutoCompoundingVaultV2Whitelisted.sol/RiveraAutoCompoundingVaultV2Whitelisted.json'
@@ -113,7 +115,73 @@ function Home() {
     // const provider = new ethers.providers.Web3Provider(window.ethereum as ethers.providers.ExternalProvider, "any");
     // const signerVal = provider.getSigner();
 
-     const localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
+    const localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
+    const contract = getContract(whitelistedFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, localProvider.getSigner());
+
+    let valutListVal = await contract.listAllVaults();
+
+    let totalTvlVal = 0;
+    let totalPortfolio = 0;
+    let totalOverallreturnVal = 0;
+    valutListVal = await Promise.all(valutListVal?.map(async (vaultAddress: any) => {
+
+      const vaultContract = getContract(vaultAddress, RiveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
+
+      const asset = await vaultContract.asset(); //it will return the name of the asset of the valut
+      const totalAssets = await vaultContract.totalAssets(); //it will return the total assets of the valut
+      const valutName = await vaultContract.name();
+      const convertedPrice = await getPriceInUsd(asset);
+      const tvl = Number(((totalAssets / Math.pow(10, 18)) * convertedPrice).toFixed(2));
+      totalTvlVal = totalTvlVal + tvl;
+      if (address) {
+        const share = await vaultContract.balanceOf(address);
+        const totalSupply = await vaultContract.totalSupply();
+        const userShare = ((totalAssets / Math.pow(10, 18)) * (share / Math.pow(10, 18))) / (totalSupply / Math.pow(10, 18));
+        console.log("user agre", userShare);
+
+        //calculate total deposit amount
+        const depositFilter = vaultContract.filters.Deposit();
+        const depositLogs = await vaultContract.queryFilter(depositFilter, FACTORY_CONTRACT_DEPLOYMENT_BLOCK);
+        const depositEvents = depositLogs.map((log: any) => vaultContract.interface.parseLog(log));
+        let totalDeposit = 0;
+        depositEvents.forEach((depositEvent: any) => totalDeposit = totalDeposit + Number(depositEvent.args.assets));
+
+
+        //calculate total withdraw amount
+        const withdrawFilter = vaultContract.filters.Withdraw();
+        const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, FACTORY_CONTRACT_DEPLOYMENT_BLOCK);
+        const withdrawEvents = withdrawLogs.map((log: any) => vaultContract.interface.parseLog(log));
+        let totalwithdraw = 0;
+        withdrawEvents.forEach((withdrawEvent: any) => totalwithdraw = totalwithdraw + Number(withdrawEvent.args.assets));
+
+        const overallReturn = (Number(totalSupply) + (totalwithdraw)) - (totalDeposit);
+
+        totalPortfolio = totalPortfolio + Number(userShare.toFixed(2));
+        setPortfolio(totalPortfolio);
+
+        totalOverallreturnVal = totalOverallreturnVal + Number((overallReturn / Math.pow(10, 18) * convertedPrice).toFixed(2));
+        setOverallReturn(totalOverallreturnVal);
+      }
+
+      console.log("tvl tvl", tvl);
+      return {
+        "name": valutName,
+        "saftyRating": "9.1",
+        "tvl": tvl,
+        "averageApy": "23.84%",
+        "valutAddress": vaultAddress
+      };
+
+    }));
+
+    Promise.all(valutListVal).then((values) => {
+      setTotalTvl(totalTvlVal);
+      setvalutList(values as any);
+    });
+  }
+
+  async function afterLogin() {
+    const localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
     const contract = getContract(whitelistedFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, localProvider.getSigner());
 
     let valutListVal = await contract.listAllVaults();
@@ -132,7 +200,7 @@ function Home() {
       const tvl = Number((totalAssets / Math.pow(10, 18) * convertedPrice).toFixed(2));
       const share = await vaultContract.balanceOf(address);
       const totalSupply = await vaultContract.totalSupply();
-      const userShare = (tvl * (share/ Math.pow(10, 18))) / (totalSupply/ Math.pow(10, 18));
+      const userShare = (tvl * (share / Math.pow(10, 18))) / (totalSupply / Math.pow(10, 18));
       console.log("user agre", userShare);
 
       //calculate total deposit amount
@@ -175,34 +243,6 @@ function Home() {
 
     Promise.all(valutListVal).then((values) => {
       setvalutList(values as any);
-    });
-  }
-
-  async function afterLogin() {
-    const contract = getContract(whitelistedFactoryAddress, 'this.factoryAbi', signer);
-
-    let valutListVal = await contract['listAllVaults']();
-    let portfolio: any;
-    let overallReturn: any;
-    valutListVal?.map(async (e: any) => {
-
-      //calculae tvl 
-      const assetName = await contract.asset(); //it will return the name of the asset of the valut
-      const totalAssets = await contract.totalAssets(); //it will return the total assets of the valut
-      await getPriceInUsd(assetName);
-      //const tvl = Number((totalAssets / Math.pow(10, 18) * priceInUsd).toFixed(2));
-
-      //calculate portfolio value
-      const share = e.balanceOf(address);
-      const totalSupply = e.totalSupply();
-      // const val = (tvl * share)/totalSupply;
-      // portfolio = portfolio + val;
-
-      //calculate overall return
-      const totalDepositAmount = contract.filters.Deposit();
-      const totalWithdrawAmount = contract.filters.Withdraw();
-      // const returnVal = ((portfolio + totalWithdrawAmount) - totalDepositAmount)
-      // overallReturn = overallReturn + returnVal;
     });
   }
 
@@ -290,16 +330,16 @@ function Home() {
             <div className='wdth_30'>
               <div className='tvl_back pddng_20'>
                 <div className='dsp redHatFont fnt_wgt_600'>TVL <img src={tvlIMg} alt='tvl' /></div>
-                <div className='holding_header_inner'>$1.2 M</div>
+                <div className='holding_header_inner'>${totalTvl}</div>
               </div>
               <div className='dspl_between'>
                 <div className='tvl_back pddng_20 width_48'>
-                  <div className='dsp redHatFont fnt_wgt_600'>TVL <img src={tvlIMg} alt='tvl' /></div>
-                  <div className='holding_header_inner'>$1.2 M</div>
+                  <div className='dsp redHatFont fnt_wgt_600'>Vaults <img src={keyCircleImg} alt='tvl' /></div>
+                  <div className='holding_header_inner'>2</div>
                 </div>
                 <div className='tvl_back pddng_20 width_48'>
-                  <div className='dsp redHatFont fnt_wgt_600'>TVL <img src={tvlIMg} alt='tvl' /></div>
-                  <div className='holding_header_inner'>$1.2 M</div>
+                  <div className='dsp redHatFont fnt_wgt_600'>Automations <img src={seetingCircleImg} alt='tvl' /></div>
+                  <div className='holding_header_inner'>142</div>
                 </div>
               </div>
 
