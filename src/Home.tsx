@@ -398,7 +398,7 @@ function Home() {
       {loading ? <><div className="loader-container">
         <div className="spinner"></div>
       </div></> : <>
-        <div className="container">
+        <div className="custom-container">
 
           {/* <button onClick={getDeployedValut}>Check</button> */}
           {/* <button onClick={() =>{getPriceInUsd('0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE')}}>convert</button> */}
