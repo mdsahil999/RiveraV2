@@ -1,4 +1,9 @@
 import { BigNumber, ethers } from 'ethers';
+import { of } from 'rxjs';
+import { pipe } from 'rxjs';
+import { distinct } from 'rxjs/operators';
+import { from } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAccount, useContract, useContractRead, useProvider, useSigner } from 'wagmi';
@@ -26,6 +31,8 @@ import arrowUpImg from './assets/images/arrow-up-right.png';
 import copyImg from './assets/images/copy.png';
 import eternalLinkImg from './assets/images/external-link.png';
 import helpCircle2 from './assets/images/help-circle-2.png';
+import bnbImg from './assets/images/bnb.png';
+import ethImg from './assets/images/eth.png';
 import riveraAutoCompoundingVaultV2PublicJson from './abi/out/RiveraAutoCompoundingVaultV2Public.sol/RiveraAutoCompoundingVaultV2Public.json'
 import vaultAbiJson from '../src/assets/json/RiveraAutoCompoundingVaultV2Public.json'
 import assetsAbiJson from '../src/assets/json/assets.json'
@@ -57,17 +64,27 @@ export default function VaultDetails() {
   const [deatils, setDeatils] = useState({
     "vaultName": "",
     "assetName": "",
+    "assetImg": "",
     "tvl": "",
     "tvlInusd": "",
     "holding": "",
     // "userShare": "",
     // "overallReturn": "",
   });
+  const [tvlCap, setTvlCal] = useState("");
+  const [userTvlCap, setUserTvlCap] = useState("");
+
+  const [tvlCapInUsd, setTvlCalInUsd] = useState("");
+  const [userTvlCapInUsd, setUserTvlCapInUsd] = useState("");
+
+  const [depositerNumber, setDepositerNumber] = useState("");
+
   const [userApy, setUserApy] = useState("");
   const [vaultApy, setVaultApy] = useState("");
   const [holding, setHolding] = useState("");
   const [userShare, setUserShare] = useState("");
-  const [overallReturn, setOverallReturn] = useState("");
+  const [userShareInUsd, setUserShareInUsd] = useState("");
+  const [useroverallReturn, setUserOverallReturn] = useState("");
   const [isApproved, setisApproved] = useState(false);
   const [depositAmout, setdepositAmout] = useState(0);
   const [withdrawAmout, setwithdrawAmout] = useState(0);
@@ -232,10 +249,14 @@ export default function VaultDetails() {
     const asset = await vaultContract.asset(); //it will return the name of the asset of the valut
 
     let assetName = "";
+    let assetImg = "";
     if (asset === "0x2170Ed0880ac9A755fd29B2688956BD959F933F8") {
       assetName = "ETH";
+      assetImg = ethImg;
+
     } else if (asset === "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c") {
       assetName = "BNB";
+      assetImg = bnbImg;
     }
 
     //get asset current price
@@ -255,18 +276,34 @@ export default function VaultDetails() {
     const detailsVal = {
       "vaultName": valutName.toString(),
       "assetName": assetName,
+      "assetImg": assetImg,
       "tvl": tvl.toString(),
       "tvlInusd": tvlInUsd.toString(),
       "holding": "",
     }
     setDeatils(detailsVal);
+
+
     if (address) {
+      let tvlCap = await vaultContract.totalTvlCap();
+      tvlCap = tvlCap / Math.pow(10, 18);
+      setTvlCal(tvlCap);
+      const tvlCapInUsdval = (tvlCap * convertedPrice).toFixed(2);
+      setTvlCalInUsd(tvlCapInUsdval);
+
+      let userTvlCap = await vaultContract.userTvlCap(address);
+      userTvlCap = userTvlCap / Math.pow(10, 18);
+      setUserTvlCap(userTvlCap);
+      const userTvlCapInUsdval = (userTvlCap * convertedPrice).toFixed(2);
+      setUserTvlCapInUsd(userTvlCapInUsdval);
+
       let share = await vaultContract.balanceOf(address);
       share = share / Math.pow(10, 18);
       let totalSupply = await vaultContract.totalSupply();
       totalSupply = totalSupply / Math.pow(10, 18);
       const userShareVal = (totalAssets * share) / totalSupply;
       setUserShare(userShareVal.toFixed(2));
+      setUserShareInUsd((userShareVal * convertedPrice).toFixed(2));
 
 
       //deposit event call to get alldesopit amout
@@ -283,9 +320,26 @@ export default function VaultDetails() {
         };
       }));
 
-      let totalDeposit = 0;
-      let totalDepositWithTime = 0;
+      let totalValutDeposit = 0;
+      let totalValutDepositWithTime = 0;
 
+      //set unique depositer
+      const despositer = depositEvents.map((depositEvent) => { return depositEvent.log.args[0] });
+      const distinctDepositer = despositer.filter((n, i) => despositer.indexOf(n) === i);
+      setDepositerNumber(distinctDepositer.length.toString());
+
+      //calculate all deposit amount
+      depositEvents.forEach((depositEvent) => totalValutDeposit = totalValutDeposit + Number(depositEvent.log.args.assets));
+      totalValutDeposit = totalValutDeposit / Math.pow(10, 18);
+
+      //add all deposit amount with time
+      depositEvents.forEach((depositEvent) => totalValutDepositWithTime = totalValutDepositWithTime + Number(depositEvent.log.args.assets * depositEvent.dateTime));
+      totalValutDepositWithTime = totalValutDepositWithTime / Math.pow(10, 18);
+
+
+
+      let totalUserDeposit = 0;
+      let totalUserDepositWithTime = 0;
       // filter by user
       depositEvents = depositEvents.reduce((acc, day) => {
         if (day.log.args[0] === address) {
@@ -295,13 +349,12 @@ export default function VaultDetails() {
       }, [] as any);
 
       //calculate all deposit amount
-      depositEvents.forEach((depositEvent) => totalDeposit = totalDeposit + Number(depositEvent.log.args.assets));
-      totalDeposit = totalDeposit / Math.pow(10, 18);
+      depositEvents.forEach((depositEvent) => totalUserDeposit = totalUserDeposit + Number(depositEvent.log.args.assets));
+      totalUserDeposit = totalUserDeposit / Math.pow(10, 18);
 
-       //add all deposit amount with time
-       depositEvents.forEach((depositEvent) => totalDepositWithTime = totalDepositWithTime + Number(depositEvent.log.args.assets * depositEvent.dateTime));
-       totalDepositWithTime = totalDepositWithTime / Math.pow(10, 18);
-
+      //add all deposit amount with time
+      depositEvents.forEach((depositEvent) => totalUserDepositWithTime = totalUserDepositWithTime + Number(depositEvent.log.args.assets * depositEvent.dateTime));
+      totalUserDepositWithTime = totalUserDepositWithTime / Math.pow(10, 18);
 
 
 
@@ -321,30 +374,44 @@ export default function VaultDetails() {
         };
       }));
 
-      //const withdrawEvents = withdrawLogs.map((log) => vaultContract.interface.parseLog(log));
 
-      let totalwithdraw = 0;
-      let totalwithdrawWithTime = 0;
-       // filter by user
-       withdrawEvents = withdrawEvents.reduce((acc, day) => {
+      let totalValutwithdraw = 0;
+      let totalValutwithdrawWithTime = 0;
+      // filter by user
+      //calculate total withdraw
+      withdrawEvents.forEach((withdrawEvent) => totalValutwithdraw = totalValutwithdraw + Number(withdrawEvent.log.args.assets));
+      totalValutwithdraw = totalValutwithdraw / Math.pow(10, 18);
+      //calculate total withdraw with time
+      withdrawEvents.forEach((withdrawEvent) => totalValutwithdrawWithTime = totalValutwithdrawWithTime + Number(withdrawEvent.log.args.assets * withdrawEvent.dateTime));
+      totalValutwithdrawWithTime = totalValutwithdrawWithTime / Math.pow(10, 18);
+
+      let totalUserwithdraw = 0;
+      let totalUserwithdrawWithTime = 0;
+      // filter by user
+      withdrawEvents = withdrawEvents.reduce((acc, day) => {
         if (day.log.args[0] === address) {
           acc.push(day);
         }
         return acc;
       }, [] as any);
       //calculate total withdraw
-      withdrawEvents.forEach((withdrawEvent) => totalwithdraw = totalwithdraw + Number(withdrawEvent.log.args.assets));
-      totalwithdraw = totalwithdraw / Math.pow(10, 18);
+      withdrawEvents.forEach((withdrawEvent) => totalUserwithdraw = totalUserwithdraw + Number(withdrawEvent.log.args.assets));
+      totalUserwithdraw = totalUserwithdraw / Math.pow(10, 18);
       //calculate total withdraw with time
-      withdrawEvents.forEach((withdrawEvent) => totalwithdrawWithTime = totalwithdrawWithTime + Number(withdrawEvent.log.args.assets * withdrawEvent.dateTime));
-      totalwithdrawWithTime = totalwithdrawWithTime / Math.pow(10, 18);
+      withdrawEvents.forEach((withdrawEvent) => totalUserwithdrawWithTime = totalUserwithdrawWithTime + Number(withdrawEvent.log.args.assets * withdrawEvent.dateTime));
+      totalUserwithdrawWithTime = totalUserwithdrawWithTime / Math.pow(10, 18);
 
 
-      let overallReturn = ((userShareVal + totalwithdraw) - totalDeposit);
-      setOverallReturn(overallReturn.toFixed(2));
 
-      const averageApyVal = (userShareVal - (totalDeposit - totalwithdraw))/ (totalDepositWithTime - totalwithdrawWithTime);
-      setUserApy(averageApyVal.toFixed(2));
+
+      let overallReturn = ((userShareVal + totalUserwithdraw) - totalUserDeposit);
+      setUserOverallReturn(overallReturn.toFixed(2));
+
+      const userApyVal = (userShareVal - (totalUserDeposit - totalUserwithdraw)) / (totalUserDepositWithTime - totalUserwithdrawWithTime);
+      setUserApy(userApyVal.toFixed(2));
+
+      const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
+      setVaultApy(valutApyVal.toFixed(2));
 
     }
     setLoading(false);
@@ -371,477 +438,477 @@ export default function VaultDetails() {
 
   return (
     <>
-      {/* {loading ? <><div className="loader-container">
+      {loading ? <><div className="loader-container">
         <div className="spinner"></div>
-      </div></> : <> */}
-        <div className='container mt-4'>
-          <div className='row'>
-            <div className='col-md-8'>
-              <div className="small-div-1"></div>
-              <div className='first_section outer_section'>
+      </div></> : <>
+      <div className='container mt-4'>
+        <div className='row'>
+          <div className='col-md-8'>
+            <div className="small-div-1"></div>
+            <div className='first_section outer_section'>
+              <div className='dsp'>
+                <div className='header_font_size'><span><img src={deatils?.assetImg} alt='btc img' className='btc_img_width' /></span>{deatils?.vaultName}</div>
+                <div>
+                  <span className='wthlist_back'><img src={lockImg} alt='lock img' className='wthlist_back_img' />Whitelisted</span>
+                  <span className='kyc_back'><img src={checkCircleImg} alt='lock img' className='wthlist_back_img' /> KYC Completed</span>
+                </div>
+              </div>
+              <div className='trdng_outer'>
+                <span className='trdng_width'><img src={arrowImg} className='trdnImgMargn' alt='arrow img' />Trending</span>
+              </div>
+              <div className='dsp mb-3'>
+                <div>Average APY <br /> <span className='holding_val'>{vaultApy}%</span></div>
+                <div>TVL <br /> <span className='fnt_wgt_600'>${deatils.tvlInusd}</span></div>
+                <div>Safety Score <br /> <span className='holding_val'>9.1 <img src={saftyImg} alt='safty img' className='sftyImgWdth' /></span></div>
+                <div>Protocols <br /> <span><img className='pancakeWdth' src={pancakeImg} alt='pancake' /></span></div>
+              </div>
+              <div className='backGrd'>
+                <div className='mb-2'><img src={cashaaImg} alt='lock img' className='cashaa logo' /></div>
                 <div className='dsp'>
-                  <div className='header_font_size'><span><img src={require('./assets/images/usdt.png')} alt='btc img' className='btc_img_width' /></span>{deatils?.vaultName}</div>
-                  <div>
-                    <span className='wthlist_back'><img src={lockImg} alt='lock img' className='wthlist_back_img' />Whitelisted</span>
-                    <span className='kyc_back'><img src={checkCircleImg} alt='lock img' className='wthlist_back_img' /> KYC Completed</span>
-                  </div>
+                  <div>Fund Manager <br /> <span className='fnt_wgt_600'>Cashaa Ltd.</span></div>
+                  <div>Year Founded <br /> <span className='fnt_wgt_600'>2016</span></div>
+                  <div>Location <br /> <span className='fnt_wgt_600'>London, UK</span></div>
+                  <div><img src={licensedImg} alt='licensed' /></div>
                 </div>
-                <div className='trdng_outer'>
-                  <span className='trdng_width'><img src={arrowImg} className='trdnImgMargn' alt='arrow img' />Trending</span>
+                <div className='mt-2'>
+                  <span className='mrInf'>More Info</span>
                 </div>
-                <div className='dsp mb-3'>
-                  <div>Average APY <br /> <span className='holding_val'>34.5%</span></div>
-                  <div>TVL <br /> <span className='fnt_wgt_600'>${deatils.tvlInusd}</span></div>
-                  <div>Safety Score <br /> <span className='holding_val'>9.1 <img src={saftyImg} alt='safty img' className='sftyImgWdth' /></span></div>
-                  <div>Protocols <br /> <span><img className='venusWdth' src={venusImg} alt='venus' /><img className='pancakeWdth' src={pancakeImg} alt='pancake' /></span></div>
+              </div>
+
+            </div>
+            <div className='second_section outer_section nav_design'>
+              <nav className="navigation">
+                <ul>
+                  <li><a href="#overview">Overview</a></li>
+                  <li><a href="#strategy">Strategy</a></li>
+                  <li><a href="#risk">Risk</a></li>
+                  <li><a href="#portfolioManager">Portfolio Manager</a></li>
+                  <li><a href="#fees">Fees</a></li>
+                  <li><a href="#transactions">Transactions</a></li>
+                  <li><a href="#depositors">Depositors</a></li>
+                  <li><a href="#fAQ">FAQ</a></li>
+                </ul>
+              </nav>
+            </div>
+            <section id='overview'>
+              <div className='third_section outer_section'>
+                <div className='hdr_txt mb-3'>Overview</div>
+                <div className='dsp_cont'>
+                  <div className='brdr_blck pdng_box'>TVL <div className='mt-2 fnt_wgt_600'>${deatils.tvlInusd}</div></div>
+                  <div className='brdr_blck pdng_box'>Depositors  <div className='mt-2 fnt_wgt_600'>{depositerNumber}</div></div>
+                  <div className='brdr_blck pdng_box'>Avg. Monthly Returns <div className='mt-2 txt_clr_grn'>{vaultApy}%</div></div>
+                  <div className='brdr_blck pdng_box'>Denomination Asset <div className='mt-2 fnt_wgt_600'> <img src={deatils.assetImg} alt='btc img' className='wdth_28' /> {deatils.assetName}</div></div>
+                </div>
+                <div className='mt-3'><img src={graphIMg} className='wdth_100' alt='licensed' /></div>
+              </div>
+            </section>
+            <section id='strategy'>
+              <div className='third_section outer_section'>
+                <div className='hdr_txt mb-2'>Strategy</div>
+                <div className='fnt_wgt_600 mb-2 redHatFont'>Summary</div>
+                <span>
+                  <ul>
+                    <li>A Market-Neutral Strategy (Pseudo-Delta-Neutral) is a yield farming strategy where you can yield farm
+                      high APY pairs while minimizing your risk by hedging out market exposure. The Automated Vault eliminates
+                      market risk by farming long & short positions simultaneously, and rebalancing them for you to maintain
+                      neutral exposure.
+                    </li>
+                    <li>Underlying Farming Pool: Thena Finance USDT-BNB</li>
+                    <li>A professional team of asset managers active manage liquidity range of the farming pool</li>
+                  </ul>
+                </span>
+              </div>
+            </section>
+            <section id='risk'>
+              <div className='fourth_section outer_section'>
+                <span className='hdr_txt mb-2'>Risk</span>
+                <div className='backGrd mb-3 mt-3'>
+                  <div className='mb-2'><div className='opt_67'>Safety Score </div> <span className='holding_val'>9.1 <img src={saftyImg} alt='safty img' className='sftyImgWdth' /></span></div>
+                  <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>Low-complexity strategy </span><img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Rivera</span></div>
+                  <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>Strategy is battle tested</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Rivera</span></div>
+                  <div className='mb-2'><img src={downImg} alt='down' /><span className='opt_67 mrgn_18'>High expected IL</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Asset</span></div>
+                  <div className='mb-2'><img src={downImg} alt='down' /><span className='opt_67 mrgn_18'>Medium market-capitalziation, average volatility asset</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Rivera</span></div>
+                  <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>Project assets are verified</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Platform</span></div>
+                </div>
+                <div className='fnt_wgt_600 mb-3 font_18 redHatFont'>Risks</div>
+                <div>
+                  <ul className='pdng_18'>
+                    <li className='mrgn_btm_15'><span className='fnt_wgt_600'>Principal Risk:</span> Impermanent loss associated with AMM liquidity farming can lead to a
+                      loss of principal amount.</li>
+                    <li><span className='fnt_wgt_600'>Smart Contract Risk:</span> There is a risk of smart contract failure in the underlying vault or the protocols we work with.  </li>
+                  </ul>
                 </div>
                 <div className='backGrd'>
-                  <div className='mb-2'><img src={cashaaImg} alt='lock img' className='cashaa logo' /></div>
+                  <div className='dsp mb-2'>
+                    <div className='fnt_wgt_600'><img src={pancakeImg} alt='pancake' /> PancakeSwap Finance</div>
+                    <div className='d-flex'>
+                      <div>
+                        <span className='westBtn'><img src={globeImg} alt='website' /> Website</span>
+                      </div>
+                      <div>
+                        <span className='westBtn'><img src={arrowUpImg} alt='website' /> Contract</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className='fnt_14 mt-3'>
+                    Lorem ipsum dolor sit amet consectetur. Pretium sit consequat odio egestas placerat integer viverra eu ut.
+                    Commodo porttitor diam vitae viverra rutrum adipiscing.
+                  </div>
+                </div>
+                <div className='backGrd mt-3 mb-3'>
+                  <div className='dsp mb-2'>
+                    <div className='fnt_wgt_600'><img src={levelFinanceImg} alt='pancake' /> Level Finance</div>
+                    <div className='d-flex'>
+                      <div>
+                        <span className='westBtn'><img src={globeImg} alt='website' /> Website</span>
+                      </div>
+                      <div>
+                        <span className='westBtn'><img src={arrowUpImg} alt='website' /> Contract</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className='fnt_14 mt-3'>
+                    Lorem ipsum dolor sit amet consectetur. Pretium sit consequat odio egestas placerat integer viverra eu ut.
+                    Commodo porttitor diam vitae viverra rutrum adipiscing.
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section id='portfolioManager'>
+              <div className='fifth_section outer_section'>
+                <div className='hdr_txt mb-2'>Portfolio Manager</div>
+                <div className='mb-3'><img src={cashaaImg} alt='cashaa logo' /></div>
+                <div className='dsp mb-3'>
+                  <div>Fund Manager <br /> <span className='fnt_wgt_600'>Cashaa Ltd.</span></div>
+                  <div>Year Founded <br /> <span className='fnt_wgt_600'>2016</span></div>
+                  <div>Location <br /> <span className='fnt_wgt_600'>London, UK</span></div>
+                  <div><img src={licensedImg} alt='licensed' /></div>
+                </div>
+                <div>
+                  Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra. Sit eu nisl
+                  semper justo. Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra.
+                  Sit eu nisl semper justo.
+                </div>
+                <div className='mt-4'>
+                  <span className='fnt_wgt_600'>Vault owner</span>
+                  <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>
+                    <div className='fnt_14'>0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0</div>
+                    <div><img src={copyImg} alt='copy img' /></div>
+                    <div><img src={eternalLinkImg} alt='external link img' /></div>
+                  </div>
+                </div>
+                <div className='mt-4'>
+                  <span className='fnt_wgt_600'>Fund Manager</span>
+                  <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>
+                    <div className='fnt_14'>0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0</div>
+                    <div><img src={copyImg} alt='copy img' /></div>
+                    <div><img src={eternalLinkImg} alt='external link img' /></div>
+                  </div>
+                </div>
+                <div className='mt-4'>
+                  <span className='fnt_wgt_600'>Compliance Manger</span>
+                  <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>
+                    <div className='fnt_14'>0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0</div>
+                    <div><img src={copyImg} alt='copy img' /></div>
+                    <div><img src={eternalLinkImg} alt='external link img' /></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section id='fees'>
+              <div className='sixth_section outer_section'>
+                <div className='hdr_txt mb-2'>Fees</div>
+                <div>
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Fee type</th>
+                        <th scope="col">Settings</th>
+                        <th scope="col">Recipent</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Management Fee</td>
+                        <td>Rate <br /> 2.00%</td>
+                        <td>Vault Owner <br />
+                          0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0 <span className='mrgn_5'><img src={eternalLinkImg} alt='external link img' /></span> <span ><img src={copyImg} alt='copy img' /></span></td>
+                      </tr>
+                      <tr>
+                        <td >Performance Fee</td>
+                        <td>Rate <br /> 2.00%</td>
+                        <td>Vault Owner <br />
+                          0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0 <span className='mrgn_5'><img src={eternalLinkImg} alt='external link img' /></span> <span ><img src={copyImg} alt='copy img' /></span></td>
+                      </tr>
+                      <tr>
+                        <td >Exit Fee</td>
+                        <td>Rate <br /> 2.00%</td>
+                        <td>Vault <span><img src={helpCircle2} alt='external link img' /></span></td>
+                      </tr>
+                      <tr>
+                        <td >Protocol Fee</td>
+                        <td>Rate <br /> 0.25% <img src={helpCircle2} alt='copy img' /></td>
+                        <td> Protocol Fee contract <span><img src={helpCircle2} alt='copy img' /></span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+            </section>
+            <section id='transactions'>
+              <div className='sixth_section outer_section'>
+                <div className='hdr_txt mb-2'>Transactions</div>
+                <div>
+                  <table className="table">
+                    <tbody>
+                      <tr>
+                        <td ><span className='fnt_14'>April-05-2023 11:19:33Am</span>  <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>Deposit</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> 0x6db5.........sff0 <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
+                        <td>Value <br /> Txn. fee</td>
+                        <td>100 CAKE <br />
+                          0.02BNB</td>
+                      </tr>
+                      <tr>
+                        <td><span className='fnt_14'>April-05-2023 11:19:33Am</span> <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>Deposit</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> 0x6db5.........sff0 <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
+                        <td>Value <br /> Txn. fee</td>
+                        <td>100 CAKE <br />
+                          0.02BNB</td>
+                      </tr>
+                      <tr>
+                        <td ><span className='fnt_14'>April-05-2023 11:19:33Am</span> <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>Deposit</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> 0x6db5.........sff0 <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
+                        <td>Value <br /> Txn. fee</td>
+                        <td>100 CAKE <br />
+                          0.02BNB</td>
+                      </tr>
+                      <tr>
+                        <td ><span className='fnt_14'>April-05-2023 11:19:33Am</span> <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>Deposit</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> 0x6db5.........sff0 <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
+                        <td>Value <br /> Txn. fee</td>
+                        <td>100 CAKE <br />
+                          0.02BNB</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+            <section id='depositors'>
+              <div className='sixth_section outer_section'>
+                <div className='hdr_txt mb-2'>Depositors</div>
+                <div>
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Depositor</th>
+                        <th scope="col">Assets</th>
+                        <th scope="col">Numbers of Shares</th>
+                        <th scope="col">Percentage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td >0X920........8383</td>
+                        <td>BTC 0.02</td>
+                        <td>11,563</td>
+                        <td>100.00%</td>
+                      </tr>
+                      <tr>
+                        <td >0X920........8383</td>
+                        <td>BTC 0.02</td>
+                        <td>11,563</td>
+                        <td>100.00%</td>
+                      </tr>
+                      <tr>
+                        <td >0X920........8383</td>
+                        <td>BTC 0.02</td>
+                        <td>11,563</td>
+                        <td>100.00%</td>
+                      </tr>
+                      <tr>
+                        <td >0X920........8383</td>
+                        <td>BTC 0.02</td>
+                        <td>11,563</td>
+                        <td>100.00%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+            <section id='fAQ'>
+              <div className='sixth_section outer_section mb-5'>
+                <div className='hdr_txt mb-4'>FAQ</div>
+                <div>
+                  <Accordion activeIndex={0}>
+                    <AccordionTab header="What asset are the vault yields paid in?">
+                      <p className="m-0">
+                        Yields on every strategy are paid in the same asset you deposit. So, for the MVLP vault, your yields will be paid out in MVLP itself.
+                      </p>
+                    </AccordionTab>
+                    <AccordionTab header="What happens if I don't withdraw at the end of a cycle?">
+                      <p className="m-0">
+                        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa
+                        quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas
+                        sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+                        Consectetur, adipisci velit, sed quia non numquam eius modi.
+                      </p>
+                    </AccordionTab>
+                    <AccordionTab header="What are the fees associated with using the vault?">
+                      <p className="m-0">
+                        At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti
+                        quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt
+                        mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio.
+                        Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
+                      </p>
+                    </AccordionTab>
+                    <AccordionTab header="I'm having trouble using the app. What should I do?">
+                      <p className="m-0">
+                        At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti
+                        quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt
+                        mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio.
+                        Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
+                      </p>
+                    </AccordionTab>
+                  </Accordion>
+                </div>
+              </div>
+            </section>
+          </div>
+          <div className='col-md-4'>
+            <div className="small-div-2"></div>
+            {address ?
+              <>
+                <div className='first_section outer_section'>
                   <div className='dsp'>
-                    <div>Fund Manager <br /> <span className='fnt_wgt_600'>Cashaa Ltd.</span></div>
-                    <div>Year Founded <br /> <span className='fnt_wgt_600'>2016</span></div>
-                    <div>Location <br /> <span className='fnt_wgt_600'>London, UK</span></div>
-                    <div><img src={licensedImg} alt='licensed' /></div>
-                  </div>
-                  <div className='mt-2'>
-                    <span className='mrInf'>More Info</span>
-                  </div>
-                </div>
-
-              </div>
-              <div className='second_section outer_section nav_design'>
-                <nav className="navigation">
-                  <ul>
-                    <li><a href="#overview">Overview</a></li>
-                    <li><a href="#strategy">Strategy</a></li>
-                    <li><a href="#risk">Risk</a></li>
-                    <li><a href="#portfolioManager">Portfolio Manager</a></li>
-                    <li><a href="#fees">Fees</a></li>
-                    <li><a href="#transactions">Transactions</a></li>
-                    <li><a href="#depositors">Depositors</a></li>
-                    <li><a href="#fAQ">FAQ</a></li>
-                  </ul>
-                </nav>
-              </div>
-              <section id='overview'>
-                <div className='third_section outer_section'>
-                  <div className='hdr_txt mb-3'>Overview</div>
-                  <div className='dsp_cont'>
-                    <div className='brdr_blck pdng_box'>TVL <div className='mt-2 fnt_wgt_600'>${deatils.tvlInusd}</div></div>
-                    <div className='brdr_blck pdng_box'>Depositors  <div className='mt-2 fnt_wgt_600'>2</div></div>
-                    <div className='brdr_blck pdng_box'>Avg. Monthly Returns <div className='mt-2 txt_clr_grn'>23.84%</div></div>
-                    <div className='brdr_blck pdng_box'>Denomination Asset <div className='mt-2 fnt_wgt_600'> <img src={btcImg} alt='btc img' className='wdth_28' /> BTCB</div></div>
-                  </div>
-                  <div className='mt-3'><img src={graphIMg} className='wdth_100' alt='licensed' /></div>
-                </div>
-              </section>
-              <section id='strategy'>
-                <div className='third_section outer_section'>
-                  <div className='hdr_txt mb-2'>Strategy</div>
-                  <div className='fnt_wgt_600 mb-2 redHatFont'>Summary</div>
-                  <span>
-                    <ul>
-                      <li>A Market-Neutral Strategy (Pseudo-Delta-Neutral) is a yield farming strategy where you can yield farm
-                        high APY pairs while minimizing your risk by hedging out market exposure. The Automated Vault eliminates
-                        market risk by farming long & short positions simultaneously, and rebalancing them for you to maintain
-                        neutral exposure.
-                      </li>
-                      <li>Underlying Farming Pool: Thena Finance USDT-BNB</li>
-                      <li>A professional team of asset managers active manage liquidity range of the farming pool</li>
-                    </ul>
-                  </span>
-                </div>
-              </section>
-              <section id='risk'>
-                <div className='fourth_section outer_section'>
-                  <span className='hdr_txt mb-2'>Risk</span>
-                  <div className='backGrd mb-3 mt-3'>
-                    <div className='mb-2'><div className='opt_67'>Safety Score </div> <span className='holding_val'>9.1 <img src={saftyImg} alt='safty img' className='sftyImgWdth' /></span></div>
-                    <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>Low-complexity strategy </span><img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Rivera</span></div>
-                    <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>Strategy is battle tested</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Rivera</span></div>
-                    <div className='mb-2'><img src={downImg} alt='down' /><span className='opt_67 mrgn_18'>High expected IL</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Asset</span></div>
-                    <div className='mb-2'><img src={downImg} alt='down' /><span className='opt_67 mrgn_18'>Medium market-capitalziation, average volatility asset</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Rivera</span></div>
-                    <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>Project assets are verified</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Platform</span></div>
-                  </div>
-                  <div className='fnt_wgt_600 mb-3 font_18 redHatFont'>Risks</div>
-                  <div>
-                    <ul className='pdng_18'>
-                      <li className='mrgn_btm_15'><span className='fnt_wgt_600'>Principal Risk:</span> Impermanent loss associated with AMM liquidity farming can lead to a
-                        loss of principal amount.</li>
-                      <li><span className='fnt_wgt_600'>Smart Contract Risk:</span> There is a risk of smart contract failure in the underlying vault or the protocols we work with.  </li>
-                    </ul>
-                  </div>
-                  <div className='backGrd'>
-                    <div className='dsp mb-2'>
-                      <div className='fnt_wgt_600'><img src={pancakeImg} alt='pancake' /> PancakeSwap Finance</div>
-                      <div className='d-flex'>
-                        <div>
-                          <span className='westBtn'><img src={globeImg} alt='website' /> Website</span>
-                        </div>
-                        <div>
-                          <span className='westBtn'><img src={arrowUpImg} alt='website' /> Contract</span>
-                        </div>
-                      </div>
+                    <div>
+                      <div className='holding_header'>Your Holdings</div>
+                      <div className='holding_header_inner mb-3'>{userShare} {deatils?.assetName}</div>
                     </div>
-                    <div className='fnt_14 mt-3'>
-                      Lorem ipsum dolor sit amet consectetur. Pretium sit consequat odio egestas placerat integer viverra eu ut.
-                      Commodo porttitor diam vitae viverra rutrum adipiscing.
+                    <div className='txtAlgnRight'>
+                      <img src={dollarImg} className='dllrImgwdth' alt='dollar' />
                     </div>
-                  </div>
-                  <div className='backGrd mt-3 mb-3'>
-                    <div className='dsp mb-2'>
-                      <div className='fnt_wgt_600'><img src={levelFinanceImg} alt='pancake' /> Level Finance</div>
-                      <div className='d-flex'>
-                        <div>
-                          <span className='westBtn'><img src={globeImg} alt='website' /> Website</span>
-                        </div>
-                        <div>
-                          <span className='westBtn'><img src={arrowUpImg} alt='website' /> Contract</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className='fnt_14 mt-3'>
-                      Lorem ipsum dolor sit amet consectetur. Pretium sit consequat odio egestas placerat integer viverra eu ut.
-                      Commodo porttitor diam vitae viverra rutrum adipiscing.
-                    </div>
-                  </div>
-                </div>
-              </section>
-              <section id='portfolioManager'>
-                <div className='fifth_section outer_section'>
-                  <div className='hdr_txt mb-2'>Portfolio Manager</div>
-                  <div className='mb-3'><img src={cashaaImg} alt='cashaa logo' /></div>
-                  <div className='dsp mb-3'>
-                    <div>Fund Manager <br /> <span className='fnt_wgt_600'>Cashaa Ltd.</span></div>
-                    <div>Year Founded <br /> <span className='fnt_wgt_600'>2016</span></div>
-                    <div>Location <br /> <span className='fnt_wgt_600'>London, UK</span></div>
-                    <div><img src={licensedImg} alt='licensed' /></div>
-                  </div>
-                  <div>
-                    Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra. Sit eu nisl
-                    semper justo. Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra.
-                    Sit eu nisl semper justo.
-                  </div>
-                  <div className='mt-4'>
-                    <span className='fnt_wgt_600'>Vault owner</span>
-                    <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>
-                      <div className='fnt_14'>0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0</div>
-                      <div><img src={copyImg} alt='copy img' /></div>
-                      <div><img src={eternalLinkImg} alt='external link img' /></div>
-                    </div>
-                  </div>
-                  <div className='mt-4'>
-                    <span className='fnt_wgt_600'>Fund Manager</span>
-                    <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>
-                      <div className='fnt_14'>0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0</div>
-                      <div><img src={copyImg} alt='copy img' /></div>
-                      <div><img src={eternalLinkImg} alt='external link img' /></div>
-                    </div>
-                  </div>
-                  <div className='mt-4'>
-                    <span className='fnt_wgt_600'>Compliance Manger</span>
-                    <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>
-                      <div className='fnt_14'>0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0</div>
-                      <div><img src={copyImg} alt='copy img' /></div>
-                      <div><img src={eternalLinkImg} alt='external link img' /></div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-              <section id='fees'>
-                <div className='sixth_section outer_section'>
-                  <div className='hdr_txt mb-2'>Fees</div>
-                  <div>
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th scope="col">Fee type</th>
-                          <th scope="col">Settings</th>
-                          <th scope="col">Recipent</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>Management Fee</td>
-                          <td>Rate <br /> 2.00%</td>
-                          <td>Vault Owner <br />
-                            0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0 <span className='mrgn_5'><img src={eternalLinkImg} alt='external link img' /></span> <span ><img src={copyImg} alt='copy img' /></span></td>
-                        </tr>
-                        <tr>
-                          <td >Performance Fee</td>
-                          <td>Rate <br /> 2.00%</td>
-                          <td>Vault Owner <br />
-                            0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0 <span className='mrgn_5'><img src={eternalLinkImg} alt='external link img' /></span> <span ><img src={copyImg} alt='copy img' /></span></td>
-                        </tr>
-                        <tr>
-                          <td >Exit Fee</td>
-                          <td>Rate <br /> 2.00%</td>
-                          <td>Vault <span><img src={helpCircle2} alt='external link img' /></span></td>
-                        </tr>
-                        <tr>
-                          <td >Protocol Fee</td>
-                          <td>Rate <br /> 0.25% <img src={helpCircle2} alt='copy img' /></td>
-                          <td> Protocol Fee contract <span><img src={helpCircle2} alt='copy img' /></span></td>
-                        </tr>
-                      </tbody>
-                    </table>
                   </div>
 
-                </div>
-              </section>
-              <section id='transactions'>
-                <div className='sixth_section outer_section'>
-                  <div className='hdr_txt mb-2'>Transactions</div>
-                  <div>
-                    <table className="table">
-                      <tbody>
-                        <tr>
-                          <td ><span className='fnt_14'>April-05-2023 11:19:33Am</span>  <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>Deposit</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> 0x6db5.........sff0 <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
-                          <td>Value <br /> Txn. fee</td>
-                          <td>100 CAKE <br />
-                            0.02BNB</td>
-                        </tr>
-                        <tr>
-                          <td><span className='fnt_14'>April-05-2023 11:19:33Am</span> <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>Deposit</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> 0x6db5.........sff0 <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
-                          <td>Value <br /> Txn. fee</td>
-                          <td>100 CAKE <br />
-                            0.02BNB</td>
-                        </tr>
-                        <tr>
-                          <td ><span className='fnt_14'>April-05-2023 11:19:33Am</span> <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>Deposit</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> 0x6db5.........sff0 <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
-                          <td>Value <br /> Txn. fee</td>
-                          <td>100 CAKE <br />
-                            0.02BNB</td>
-                        </tr>
-                        <tr>
-                          <td ><span className='fnt_14'>April-05-2023 11:19:33Am</span> <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>Deposit</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> 0x6db5.........sff0 <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
-                          <td>Value <br /> Txn. fee</td>
-                          <td>100 CAKE <br />
-                            0.02BNB</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  <div className='dsp'>
+                    <div>Overall Returns <br /> <span className='holding_val'>{useroverallReturn} {deatils?.assetName}</span></div>
+                    <div>Average APY <br /> <span className='holding_val'>{userApy}%</span></div>
                   </div>
                 </div>
-              </section>
-              <section id='depositors'>
-                <div className='sixth_section outer_section'>
-                  <div className='hdr_txt mb-2'>Depositors</div>
-                  <div>
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th scope="col">Depositor</th>
-                          <th scope="col">Assets</th>
-                          <th scope="col">Numbers of Shares</th>
-                          <th scope="col">Percentage</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td >0X920........8383</td>
-                          <td>BTC 0.02</td>
-                          <td>11,563</td>
-                          <td>100.00%</td>
-                        </tr>
-                        <tr>
-                          <td >0X920........8383</td>
-                          <td>BTC 0.02</td>
-                          <td>11,563</td>
-                          <td>100.00%</td>
-                        </tr>
-                        <tr>
-                          <td >0X920........8383</td>
-                          <td>BTC 0.02</td>
-                          <td>11,563</td>
-                          <td>100.00%</td>
-                        </tr>
-                        <tr>
-                          <td >0X920........8383</td>
-                          <td>BTC 0.02</td>
-                          <td>11,563</td>
-                          <td>100.00%</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </section>
-              <section id='fAQ'>
-                <div className='sixth_section outer_section mb-5'>
-                  <div className='hdr_txt mb-4'>FAQ</div>
-                  <div>
-                    <Accordion activeIndex={0}>
-                      <AccordionTab header="What asset are the vault yields paid in?">
-                        <p className="m-0">
-                          Yields on every strategy are paid in the same asset you deposit. So, for the MVLP vault, your yields will be paid out in MVLP itself.
-                        </p>
-                      </AccordionTab>
-                      <AccordionTab header="What happens if I don't withdraw at the end of a cycle?">
-                        <p className="m-0">
-                          Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa
-                          quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas
-                          sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
-                          Consectetur, adipisci velit, sed quia non numquam eius modi.
-                        </p>
-                      </AccordionTab>
-                      <AccordionTab header="What are the fees associated with using the vault?">
-                        <p className="m-0">
-                          At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti
-                          quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt
-                          mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio.
-                          Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
-                        </p>
-                      </AccordionTab>
-                      <AccordionTab header="I'm having trouble using the app. What should I do?">
-                        <p className="m-0">
-                          At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti
-                          quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt
-                          mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio.
-                          Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
-                        </p>
-                      </AccordionTab>
-                    </Accordion>
-                  </div>
-                </div>
-              </section>
-            </div>
-            <div className='col-md-4'>
-              <div className="small-div-2"></div>
-              {address ?
-                <>
-                  <div className='first_section outer_section'>
+              </> : <></>}
+
+
+            <div className='second_section outer_section pos_sticky'>
+              <TabView>
+                <TabPanel header="Deposit">
+                  <div className='mt-3'>
                     <div className='dsp'>
-                      <div>
-                        <div className='holding_header'>Your Holdings</div>
-                        <div className='holding_header_inner mb-3'>{userShare} {deatils?.assetName}</div>
-                      </div>
-                      <div className='txtAlgnRight'>
-                        <img src={dollarImg} className='dllrImgwdth' alt='dollar' />
-                      </div>
+                      <div>Deposits</div>
+                      <div>${userShareInUsd}</div>
                     </div>
-
+                    <div>
+                      <ProgressBar value={50}></ProgressBar>
+                    </div>
+                    <div className='dsp mb-3'>
+                      <div>Capacity</div>
+                      <div>${tvlCapInUsd}</div>
+                    </div>
+                    <div className='dsp backGrd mb-3'>
+                      <div className='fnt_wgt_600'><img src={deatils?.assetImg} className='wdth_50' alt='usdt' /> <br /> {deatils?.assetName}</div>
+                      <div><input
+                        maxLength={5}
+                        type="text"
+                        id="first_name"
+                        name="first_name"
+                        value={depositAmout}
+                        onChange={handledepositAmoutChange}
+                      /></div>
+                    </div>
                     <div className='dsp'>
-                      <div>Overall Returns <br /> <span className='holding_val'>{overallReturn} {deatils?.assetName}</span></div>
-                      <div>Average APY <br /> <span className='holding_val'>{userApy}%</span></div>
+                      <div>Wallet balance</div>
+                      <div>500 {deatils?.assetName}</div>
+                    </div>
+                    <div className='buy_cake mt-1 mb-2'>Buy {deatils?.assetName}</div>
+                    <div className='dsp'>
+                      <div>Min. Limit </div>
+                      <div>50 {deatils?.assetName}</div>
+                    </div>
+                    <div className='dsp'>
+                      <div>Max. Limit</div>
+                      <div>10,000 {deatils?.assetName}</div>
+                    </div>
+                    <hr />
+                    <div className='dsp'>
+                      <div>Deposit fee</div>
+                      <div>0%</div>
+                    </div>
+                    <div className='dsp'>
+                      <div>Withdraw fee</div>
+                      <div>0%</div>
+                    </div>
+                    <div className='mt-3 text-center'>
+                      {isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Continue</button>
+                        : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} >Approve</button>}
+
                     </div>
                   </div>
-                </> : <></>}
-
-
-              <div className='second_section outer_section pos_sticky'>
-                <TabView>
-                  <TabPanel header="Deposit">
-                    <div className='mt-3'>
-                      <div className='dsp'>
-                        <div>Deposits</div>
-                        <div>$1.2 M</div>
-                      </div>
-                      <div>
-                        <ProgressBar value={50}></ProgressBar>
-                      </div>
-                      <div className='dsp mb-3'>
-                        <div>Capacity</div>
-                        <div>2 M</div>
-                      </div>
-                      <div className='dsp backGrd mb-3'>
-                        <div className='fnt_wgt_600'><img src={usdtImg} className='wdth_50' alt='usdt' /> <br /> USDT</div>
-                        <div><input
-                          maxLength={5}
-                          type="text"
-                          id="first_name"
-                          name="first_name"
-                          value={depositAmout}
-                          onChange={handledepositAmoutChange}
-                        /></div>
-                      </div>
-                      <div className='dsp'>
-                        <div>Wallet balance</div>
-                        <div>500 USDT</div>
-                      </div>
-                      <div className='buy_cake mt-1 mb-2'>Buy USDT</div>
-                      <div className='dsp'>
-                        <div>Min. Limit </div>
-                        <div>50 USDT</div>
-                      </div>
-                      <div className='dsp'>
-                        <div>Max. Limit</div>
-                        <div>10,000 USDT</div>
-                      </div>
-                      <hr />
-                      <div className='dsp'>
-                        <div>Deposit fee</div>
-                        <div>0%</div>
-                      </div>
-                      <div className='dsp'>
-                        <div>Withdraw fee</div>
-                        <div>0%</div>
-                      </div>
-                      <div className='mt-3 text-center'>
-                        {isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Continue</button>
-                          : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} >Approve</button>}
-
-                      </div>
+                </TabPanel>
+                <TabPanel header="Withdraw">
+                  <div className='mt-3'>
+                    <div className='dsp'>
+                      <div>Deposits</div>
+                      <div>${userShareInUsd}</div>
                     </div>
-                  </TabPanel>
-                  <TabPanel header="Withdraw">
-                    <div className='mt-3'>
-                      <div className='dsp'>
-                        <div>Deposits</div>
-                        <div>$1.2 M</div>
-                      </div>
-                      <div>
-                        <ProgressBar value={50}></ProgressBar>
-                      </div>
-                      <div className='dsp mb-3'>
-                        <div>Capacity</div>
-                        <div>2 M</div>
-                      </div>
-                      <div className='dsp backGrd mb-3'>
-                        <div className='fnt_wgt_600'><img src={usdtImg} className='wdth_50' alt='usdt' /> <br /> USDT</div>
-                        <div><input
-                          maxLength={5}
-                          type="text"
-                          id="first_name_2"
-                          name="first_name_2"
-                          value={withdrawAmout}
-                          onChange={handlewithdrawAmoutChange}
-                        /></div>
-                      </div>
-                      <div className='dsp'>
-                        <div>Wallet balance</div>
-                        <div>20.5 USDT</div>
-                      </div>
-                      <div className='buy_cake mt-1 mb-2'>Buy CAKE</div>
-                      <div className='dsp'>
-                        <div>Min. Limit </div>
-                        <div>0.5 USDT</div>
-                      </div>
-                      <div className='dsp'>
-                        <div>Max. Limit</div>
-                        <div>20 USDT</div>
-                      </div>
-                      <hr />
-                      <div className='dsp'>
-                        <div>Deposit fee</div>
-                        <div>0%</div>
-                      </div>
-                      <div className='dsp'>
-                        <div>Withdraw fee</div>
-                        <div>0%</div>
-                      </div>
-                      <div className='mt-3 text-center'>
-                        <button className='btn btn-riv-primary wdth_100' onClick={withdraw}>Continue</button>
-                      </div>
+                    <div>
+                      <ProgressBar value={50}></ProgressBar>
                     </div>
-                  </TabPanel>
-                </TabView>
+                    <div className='dsp mb-3'>
+                      <div>Capacity</div>
+                      <div>${tvlCapInUsd}</div>
+                    </div>
+                    <div className='dsp backGrd mb-3'>
+                      <div className='fnt_wgt_600'><img src={deatils?.assetImg} className='wdth_50' alt='usdt' /> <br /> {deatils?.assetName}</div>
+                      <div><input
+                        maxLength={5}
+                        type="text"
+                        id="first_name_2"
+                        name="first_name_2"
+                        value={withdrawAmout}
+                        onChange={handlewithdrawAmoutChange}
+                      /></div>
+                    </div>
+                    <div className='dsp'>
+                      <div>Wallet balance</div>
+                      <div>20.5 {deatils?.assetName}</div>
+                    </div>
+                    <div className='buy_cake mt-1 mb-2'>Buy {deatils?.assetName}</div>
+                    <div className='dsp'>
+                      <div>Min. Limit </div>
+                      <div>0.5 {deatils?.assetName}</div>
+                    </div>
+                    <div className='dsp'>
+                      <div>Max. Limit</div>
+                      <div>20 {deatils?.assetName}</div>
+                    </div>
+                    <hr />
+                    <div className='dsp'>
+                      <div>Deposit fee</div>
+                      <div>0%</div>
+                    </div>
+                    <div className='dsp'>
+                      <div>Withdraw fee</div>
+                      <div>0%</div>
+                    </div>
+                    <div className='mt-3 text-center'>
+                      <button className='btn btn-riv-primary wdth_100' onClick={withdraw}>Continue</button>
+                    </div>
+                  </div>
+                </TabPanel>
+              </TabView>
 
-              </div>
             </div>
           </div>
         </div>
-      {/* </>} */}
+      </div>
+      </>}
 
     </>
   )
