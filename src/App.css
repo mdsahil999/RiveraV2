@@ -711,3 +711,21 @@ thead {
       transform: rotate(360deg);
   }
 }
+
+.custom-container{
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 1200px){
+  .custom-container{
+      max-width: 11400px;
+  }
+  }
+  
+  @media (min-width: 1400px){
+  .custom-container{
+      max-width: 1320px;
+  }
+  }

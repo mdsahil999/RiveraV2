@@ -137,16 +137,6 @@ export default function VaultDetails() {
     const contract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, signer);
     const assetAdress = await contract.asset();
     console.log("assetAdress:", assetAdress);
-    //check allowance before call the approve method
-    // const allowance = await contract.allowance(address, assetAdress); //address:- login user address  //assetAdress:-valut asset address
-    // let convertedallowance = allowance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 18 });
-    // convertedallowance = convertedallowance.replace(/,/g, '');
-    // console.log("allowance value ", convertedallowance)
-
-    // if (+convertedallowance <= 0) {
-    //   await approve(assetAdress);
-    // }
-
     //convverting the deposit ampount to 10^18 format
     const amount = depositAmout * Math.pow(10, 18);
     let convertedAmount = amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 18 });
@@ -155,8 +145,9 @@ export default function VaultDetails() {
     //calling the deposit method
     debugger
     const aprvTxt = await contract.deposit(convertedAmount, address, { value: 70e14 });
+    setLoading(true);
     await aprvTxt.wait().then((e: any) => {
-      debugger
+      getAllDetails();
       console.log("Deposit working fine", e);
     });
   }
@@ -171,7 +162,10 @@ export default function VaultDetails() {
 
     //calling the deposit method
     const aprvTxt = await contract.withdraw(convertedAmount, address, address);
+    setLoading(true);
     await aprvTxt.wait().then((e: any) => {
+      getAllDetails();
+      //setLoading(false);
       console.log("Deposit working fine", e);
     });
   }
@@ -441,7 +435,7 @@ export default function VaultDetails() {
       {loading ? <><div className="loader-container">
         <div className="spinner"></div>
       </div></> : <>
-      <div className='container mt-4'>
+      <div className='custom-container mt-4'>
         <div className='row'>
           <div className='col-md-8'>
             <div className="small-div-1"></div>

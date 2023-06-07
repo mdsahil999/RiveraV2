@@ -37,6 +37,8 @@ import erc20Json from './abi/out/ERC20.sol/ERC20.json'
 import pancakeWhitelistedVaultFactoryV2Json from './abi/out/PancakeWhitelistedVaultFactoryV2.sol/PancakeWhitelistedVaultFactoryV2.json'
 import RiveraAutoCompoundingVaultV2WhitelistedJson from './abi/out/RiveraAutoCompoundingVaultV2Whitelisted.sol/RiveraAutoCompoundingVaultV2Whitelisted.json'
 import { take } from 'rxjs/operators';
+import bnbImg from './assets/images/bnb.png';
+import ethImg from './assets/images/eth.png';
 
 function Home() {
   const [totalTvl, setTotalTvl] = useState("");
@@ -134,6 +136,16 @@ function Home() {
       const vaultContract = getContract(vaultAddress, RiveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
 
       const asset = await vaultContract.asset(); //it will return the name of the asset of the valut
+
+      let assetImg = "";
+
+      if (asset === "0x2170Ed0880ac9A755fd29B2688956BD959F933F8") {
+        assetImg = ethImg;
+  
+      } else if (asset === "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c") {
+        assetImg = bnbImg;
+      }
+
       let totalAssets = await vaultContract.totalAssets(); //it will return the total assets of the valut
       totalAssets = totalAssets / Math.pow(10, 18);
       const valutName = await vaultContract.name();
@@ -292,6 +304,7 @@ function Home() {
       console.log("tvl tvl", tvl);
       return {
         "name": valutName,
+        "assetImg": assetImg,
         "saftyRating": "9.1",
         "tvlInUsd": tvlInUsd.toFixed(2),
         "tvl": tvl,
@@ -496,7 +509,7 @@ function Home() {
                 <div className='first_section outer_section'>
                   <div className="small-home-div-3"></div>
                   <div className='dsp'>
-                    <div className='header_font_size'><span><img src={require('./assets/images/usdt.png')} alt='btc img' className='btc_img_width' /></span>{e.name}</div>
+                    <div className='header_font_size'><span><img src={e.assetImg} alt='btc img' className='btc_img_width' /></span>{e.name}</div>
                     <div>
                       <span><span className='holding_val ml_8'>9.1</span><img src={saftyImg} alt='lock img' className='wthlist_back_img' /></span>
                     </div>
