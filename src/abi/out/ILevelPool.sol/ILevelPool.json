@@ -60,7 +60,7 @@
   "methodIdentifiers": {
     "positions(bytes32)": "514ea4bf"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"positions\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"size\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"collateralValue\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"reserveAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"entryPrice\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"borrowIndex\",\"type\":\"uint256\"}],\"internalType\":\"struct Position\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/strategies/cake/interfaces/ILevelPool.sol\":\"ILevelPool\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/\",\":@pancakeswap-v2-core/=lib/pancake-swap-core/contracts/\",\":@pancakeswap-v2-exchange-protocol/=lib/pancake-smart-contracts/projects/exchange-protocol/contracts/\",\":@pancakeswap-v3-core/=lib/pancake-v3-contracts/projects/v3-core/contracts/\",\":@pancakeswap-v3-masterchef/=lib/pancake-v3-contracts/projects/masterchef-v3/contracts/\",\":@pancakeswap-v3-periphery/=lib/pancake-v3-contracts/projects/v3-periphery/contracts/\",\":@pancakeswap-v3-router/=lib/pancake-v3-contracts/projects/router/contracts/\",\":@pancakeswap/=lib/pancake-v3-contracts/projects/\",\":@rivera/=src/\",\":@uniswap/v3-core/=lib/v3-core/\",\":@uniswap/v3-periphery/=lib/v3-periphery/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":erc4626-tests/=lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":pancake-smart-contracts/=lib/pancake-smart-contracts/\",\":pancake-swap-core/=lib/pancake-swap-core/contracts/\",\":pancake-v3-contracts/=lib/pancake-v3-contracts/\",\":solmate/=lib/solmate/src/\"]},\"sources\":{\"src/strategies/cake/interfaces/ILevelPool.sol\":{\"keccak256\":\"0x09cf45341a1fb3b630c9b88730ff61a31bb6d8ba570992e4aba4736e3b2608fb\",\"urls\":[\"bzz-raw://7ef7c5749c83e8f1eb067101861572ecdfa57db9ee22f70a0ffe007f5e03512a\",\"dweb:/ipfs/QmYMLUwVwr2q2ybRg5mWctLDB6wn7NBVBnYAG5eVeNdbVH\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"positions\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"size\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"collateralValue\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"reserveAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"entryPrice\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"borrowIndex\",\"type\":\"uint256\"}],\"internalType\":\"struct Position\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/strategies/cake/interfaces/ILevelPool.sol\":\"ILevelPool\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@chainlink/=lib/pancake-v3-contracts/node_modules/@chainlink/contracts/src/v0.8/dev/vendor/@arbitrum/nitro-contracts/src/\",\":@ensdomains/=lib/pancake-v3-contracts/node_modules/@ensdomains/\",\":@eth-optimism/=lib/pancake-v3-contracts/node_modules/@eth-optimism/contracts/\",\":@openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/\",\":@pancakeswap-v2-core/=lib/pancake-swap-core/contracts/\",\":@pancakeswap-v2-exchange-protocol/=lib/pancake-smart-contracts/projects/exchange-protocol/contracts/\",\":@pancakeswap-v3-core/=lib/pancake-v3-contracts/projects/v3-core/contracts/\",\":@pancakeswap-v3-masterchef/=lib/pancake-v3-contracts/projects/masterchef-v3/contracts/\",\":@pancakeswap-v3-periphery/=lib/pancake-v3-contracts/projects/v3-periphery/contracts/\",\":@pancakeswap-v3-router/=lib/pancake-v3-contracts/projects/router/contracts/\",\":@pancakeswap/=lib/pancake-v3-contracts/projects/\",\":@rivera/=src/\",\":@uniswap/=lib/pancake-v3-contracts/node_modules/@uniswap/\",\":@uniswap/v3-core/=lib/v3-core/\",\":@uniswap/v3-periphery/=lib/v3-periphery/\",\":base64-sol/=lib/pancake-v3-contracts/node_modules/base64-sol/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":erc4626-tests/=lib/erc4626-tests/\",\":eth-gas-reporter/=lib/pancake-v3-contracts/node_modules/eth-gas-reporter/\",\":forge-std/=lib/forge-std/src/\",\":hardhat/=lib/pancake-v3-contracts/node_modules/hardhat/\",\":pancake-smart-contracts/=lib/pancake-smart-contracts/\",\":pancake-swap-core/=lib/pancake-swap-core/contracts/\",\":pancake-v3-contracts/=lib/pancake-v3-contracts/\"]},\"sources\":{\"src/strategies/cake/interfaces/ILevelPool.sol\":{\"keccak256\":\"0x09cf45341a1fb3b630c9b88730ff61a31bb6d8ba570992e4aba4736e3b2608fb\",\"urls\":[\"bzz-raw://7ef7c5749c83e8f1eb067101861572ecdfa57db9ee22f70a0ffe007f5e03512a\",\"dweb:/ipfs/QmYMLUwVwr2q2ybRg5mWctLDB6wn7NBVBnYAG5eVeNdbVH\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.17+commit.8df45f5f"
@@ -128,6 +128,9 @@
     },
     "settings": {
       "remappings": [
+        ":@chainlink/=lib/pancake-v3-contracts/node_modules/@chainlink/contracts/src/v0.8/dev/vendor/@arbitrum/nitro-contracts/src/",
+        ":@ensdomains/=lib/pancake-v3-contracts/node_modules/@ensdomains/",
+        ":@eth-optimism/=lib/pancake-v3-contracts/node_modules/@eth-optimism/contracts/",
         ":@openzeppelin/=lib/openzeppelin-contracts/contracts/",
         ":@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
         ":@pancakeswap-v2-core/=lib/pancake-swap-core/contracts/",
@@ -138,15 +141,18 @@
         ":@pancakeswap-v3-router/=lib/pancake-v3-contracts/projects/router/contracts/",
         ":@pancakeswap/=lib/pancake-v3-contracts/projects/",
         ":@rivera/=src/",
+        ":@uniswap/=lib/pancake-v3-contracts/node_modules/@uniswap/",
         ":@uniswap/v3-core/=lib/v3-core/",
         ":@uniswap/v3-periphery/=lib/v3-periphery/",
+        ":base64-sol/=lib/pancake-v3-contracts/node_modules/base64-sol/",
         ":ds-test/=lib/forge-std/lib/ds-test/src/",
         ":erc4626-tests/=lib/erc4626-tests/",
+        ":eth-gas-reporter/=lib/pancake-v3-contracts/node_modules/eth-gas-reporter/",
         ":forge-std/=lib/forge-std/src/",
+        ":hardhat/=lib/pancake-v3-contracts/node_modules/hardhat/",
         ":pancake-smart-contracts/=lib/pancake-smart-contracts/",
         ":pancake-swap-core/=lib/pancake-swap-core/contracts/",
-        ":pancake-v3-contracts/=lib/pancake-v3-contracts/",
-        ":solmate/=lib/solmate/src/"
+        ":pancake-v3-contracts/=lib/pancake-v3-contracts/"
       ],
       "optimizer": {
         "enabled": true,
@@ -174,22 +180,22 @@
   },
   "ast": {
     "absolutePath": "src/strategies/cake/interfaces/ILevelPool.sol",
-    "id": 37078,
+    "id": 39897,
     "exportedSymbols": {
       "ILevelPool": [
-        37077
+        39896
       ],
       "Position": [
-        37068
+        39887
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "0:280:57",
+    "src": "0:280:71",
     "nodes": [
       {
-        "id": 37057,
+        "id": 39876,
         "nodeType": "PragmaDirective",
-        "src": "0:23:57",
+        "src": "0:23:71",
         "nodes": [],
         "literals": [
           "solidity",
@@ -199,21 +205,21 @@
         ]
       },
       {
-        "id": 37068,
+        "id": 39887,
         "nodeType": "StructDefinition",
-        "src": "27:148:57",
+        "src": "27:148:71",
         "nodes": [],
         "canonicalName": "Position",
         "members": [
           {
             "constant": false,
-            "id": 37059,
+            "id": 39878,
             "mutability": "mutable",
             "name": "size",
-            "nameLocation": "58:4:57",
+            "nameLocation": "58:4:71",
             "nodeType": "VariableDeclaration",
-            "scope": 37068,
-            "src": "50:12:57",
+            "scope": 39887,
+            "src": "50:12:71",
             "stateVariable": false,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -221,10 +227,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 37058,
+              "id": 39877,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "50:7:57",
+              "src": "50:7:71",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -234,13 +240,13 @@
           },
           {
             "constant": false,
-            "id": 37061,
+            "id": 39880,
             "mutability": "mutable",
             "name": "collateralValue",
-            "nameLocation": "77:15:57",
+            "nameLocation": "77:15:71",
             "nodeType": "VariableDeclaration",
-            "scope": 37068,
-            "src": "69:23:57",
+            "scope": 39887,
+            "src": "69:23:71",
             "stateVariable": false,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -248,10 +254,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 37060,
+              "id": 39879,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "69:7:57",
+              "src": "69:7:71",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -261,13 +267,13 @@
           },
           {
             "constant": false,
-            "id": 37063,
+            "id": 39882,
             "mutability": "mutable",
             "name": "reserveAmount",
-            "nameLocation": "107:13:57",
+            "nameLocation": "107:13:71",
             "nodeType": "VariableDeclaration",
-            "scope": 37068,
-            "src": "99:21:57",
+            "scope": 39887,
+            "src": "99:21:71",
             "stateVariable": false,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -275,10 +281,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 37062,
+              "id": 39881,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "99:7:57",
+              "src": "99:7:71",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -288,13 +294,13 @@
           },
           {
             "constant": false,
-            "id": 37065,
+            "id": 39884,
             "mutability": "mutable",
             "name": "entryPrice",
-            "nameLocation": "135:10:57",
+            "nameLocation": "135:10:71",
             "nodeType": "VariableDeclaration",
-            "scope": 37068,
-            "src": "127:18:57",
+            "scope": 39887,
+            "src": "127:18:71",
             "stateVariable": false,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -302,10 +308,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 37064,
+              "id": 39883,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "127:7:57",
+              "src": "127:7:71",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -315,13 +321,13 @@
           },
           {
             "constant": false,
-            "id": 37067,
+            "id": 39886,
             "mutability": "mutable",
             "name": "borrowIndex",
-            "nameLocation": "160:11:57",
+            "nameLocation": "160:11:71",
             "nodeType": "VariableDeclaration",
-            "scope": 37068,
-            "src": "152:19:57",
+            "scope": 39887,
+            "src": "152:19:71",
             "stateVariable": false,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -329,10 +335,10 @@
               "typeString": "uint256"
             },
             "typeName": {
-              "id": 37066,
+              "id": 39885,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
-              "src": "152:7:57",
+              "src": "152:7:71",
               "typeDescriptions": {
                 "typeIdentifier": "t_uint256",
                 "typeString": "uint256"
@@ -342,39 +348,39 @@
           }
         ],
         "name": "Position",
-        "nameLocation": "34:8:57",
-        "scope": 37078,
+        "nameLocation": "34:8:71",
+        "scope": 39897,
         "visibility": "public"
       },
       {
-        "id": 37077,
+        "id": 39896,
         "nodeType": "ContractDefinition",
-        "src": "179:99:57",
+        "src": "179:99:71",
         "nodes": [
           {
-            "id": 37076,
+            "id": 39895,
             "nodeType": "FunctionDefinition",
-            "src": "207:68:57",
+            "src": "207:68:71",
             "nodes": [],
             "functionSelector": "514ea4bf",
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "positions",
-            "nameLocation": "216:9:57",
+            "nameLocation": "216:9:71",
             "parameters": {
-              "id": 37071,
+              "id": 39890,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 37070,
+                  "id": 39889,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37076,
-                  "src": "226:7:57",
+                  "scope": 39895,
+                  "src": "226:7:71",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -382,10 +388,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 37069,
+                    "id": 39888,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "226:7:57",
+                    "src": "226:7:71",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -394,53 +400,53 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "225:9:57"
+              "src": "225:9:71"
             },
             "returnParameters": {
-              "id": 37075,
+              "id": 39894,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 37074,
+                  "id": 39893,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 37076,
-                  "src": "258:15:57",
+                  "scope": 39895,
+                  "src": "258:15:71",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_struct$_Position_$37068_memory_ptr",
+                    "typeIdentifier": "t_struct$_Position_$39887_memory_ptr",
                     "typeString": "struct Position"
                   },
                   "typeName": {
-                    "id": 37073,
+                    "id": 39892,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 37072,
+                      "id": 39891,
                       "name": "Position",
                       "nameLocations": [
-                        "258:8:57"
+                        "258:8:71"
                       ],
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 37068,
-                      "src": "258:8:57"
+                      "referencedDeclaration": 39887,
+                      "src": "258:8:71"
                     },
-                    "referencedDeclaration": 37068,
-                    "src": "258:8:57",
+                    "referencedDeclaration": 39887,
+                    "src": "258:8:71",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Position_$37068_storage_ptr",
+                      "typeIdentifier": "t_struct$_Position_$39887_storage_ptr",
                       "typeString": "struct Position"
                     }
                   },
                   "visibility": "internal"
                 }
               ],
-              "src": "257:17:57"
+              "src": "257:17:71"
             },
-            "scope": 37077,
+            "scope": 39896,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -453,14 +459,14 @@
         "contractKind": "interface",
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          37077
+          39896
         ],
         "name": "ILevelPool",
-        "nameLocation": "189:10:57",
-        "scope": 37078,
+        "nameLocation": "189:10:71",
+        "scope": 39897,
         "usedErrors": []
       }
     ]
   },
-  "id": 57
+  "id": 71
 }

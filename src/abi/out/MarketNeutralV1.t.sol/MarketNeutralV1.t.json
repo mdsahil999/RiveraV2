@@ -10,11 +10,11 @@
   },
   "ast": {
     "absolutePath": "test/strategies/cake/MarketNeutralV1.t.sol",
-    "id": 43760,
+    "id": 49060,
     "exportedSymbols": {},
     "nodeType": "SourceUnit",
-    "src": "17046:0:83",
+    "src": "17046:0:101",
     "nodes": []
   },
-  "id": 83
+  "id": 101
 }

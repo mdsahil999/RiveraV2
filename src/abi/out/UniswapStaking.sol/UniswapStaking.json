@@ -10,11 +10,11 @@
   },
   "ast": {
     "absolutePath": "src/strategies/cake/UniswapStaking.sol",
-    "id": 37039,
+    "id": 39143,
     "exportedSymbols": {},
     "nodeType": "SourceUnit",
-    "src": "22656:0:55",
+    "src": "22656:0:68",
     "nodes": []
   },
-  "id": 55
+  "id": 68
 }

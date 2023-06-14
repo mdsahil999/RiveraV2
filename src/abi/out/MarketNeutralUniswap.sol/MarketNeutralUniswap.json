@@ -10,11 +10,11 @@
   },
   "ast": {
     "absolutePath": "src/strategies/cake/MarketNeutralUniswap.sol",
-    "id": 36500,
+    "id": 39141,
     "exportedSymbols": {},
     "nodeType": "SourceUnit",
-    "src": "6594:0:53",
+    "src": "6594:0:66",
     "nodes": []
   },
-  "id": 53
+  "id": 66
 }

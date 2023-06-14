@@ -1,0 +1,354 @@
+{
+  "0xAeED41EB9A471391E99415C656ebeef0e32B97D4": {
+    "fundManager": {
+      "name": "Cashaa Ltd.",
+      "yearFounded": "2016",
+      "location": "London, UK",
+      "details": "Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra. Sit eu nisl semper justo. Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra. Sit eu nisl semper justo.",
+      "vaultOwner": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0",
+      "Fund Manager": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0",
+      "Compliance Manger": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0"
+    },
+    "risk": {
+      "safetyScore": "9.1",
+      "safetyScorePoint": [
+        { "details": "Low-complexity strategy", "type": "Rivera" },
+        { "details": "Strategy is battle tested", "type": "Rivera" },
+        { "details": "High expected IL", "type": "Asset" },
+        {
+          "details": "Medium market-capitalziation, average volatility asset",
+          "type": "Rivera"
+        },
+        { "details": "Project assets are verified", "type": "Platform" }
+      ],
+      "riskType": [
+        {
+          "details": "Principal Risk",
+          "tyep": "Impermanent loss associated with AMM liquidity farming can lead to a loss of principal amount."
+        },
+        {
+          "details": "Smart Contract Risk",
+          "tyep": "There is a risk of smart contract failure in the underlying vault or the protocols we work with."
+        }
+      ]
+    },
+    "protocols": [
+      {
+        "name": "PancakeSwap Finance",
+        "details": "Lorem ipsum dolor sit amet consectetur. Pretium sit consequat odio egestas placerat integer viverra eu ut. Commodo porttitor diam vitae viverra rutrum adipiscing.",
+        "contract": "",
+        "website": ""
+      }
+    ],
+    "fees": [
+      {
+        "feeType": "Management Fee",
+        "settings": {
+          "name": "Rate",
+          "value": "2.00%"
+        },
+        "recipent": {
+          "name": "Vault Owner",
+          "value": "Vault Owner"
+        }
+      },
+      {
+        "feeType": "Performance Fee",
+        "settings": {
+          "name": "Rate",
+          "value": "2.00%"
+        },
+        "recipent": {
+          "name": "Vault Owner",
+          "value": "Vault Owner"
+        }
+      },
+      {
+        "feeType": "Exit Fee",
+        "settings": {
+          "name": "Rate",
+          "value": "2.00%"
+        },
+        "recipent": {
+          "name": "Vault",
+          "value": ""
+        }
+      },
+      {
+        "feeType": "Protocol Fee",
+        "settings": {
+          "name": "Rate",
+          "value": "2.00%"
+        },
+        "recipent": {
+          "name": "Vault",
+          "value": ""
+        }
+      }
+    ],
+    "transactions": [
+      {
+        "type": "Deposit",
+        "date": "April-05-2023 11:19:33Am",
+        "value": "100 CAKE",
+        "tnxFee": "0.02BNB",
+        "address": "0x6db5.........sff0"
+      },
+      {
+        "type": "Deposit",
+        "date": "April-05-2023 11:19:33Am",
+        "value": "100 CAKE",
+        "tnxFee": "0.02BNB",
+        "address": "0x6db5.........sff0"
+      },
+      {
+        "type": "Deposit",
+        "date": "April-05-2023 11:19:33Am",
+        "value": "100 CAKE",
+        "tnxFee": "0.02BNB",
+        "address": "0x6db5.........sff0"
+      },
+      {
+        "type": "Deposit",
+        "date": "April-05-2023 11:19:33Am",
+        "value": "100 CAKE",
+        "tnxFee": "0.02BNB",
+        "address": "0x6db5.........sff0"
+      },
+      {
+        "type": "Deposit",
+        "date": "April-05-2023 11:19:33Am",
+        "value": "100 CAKE",
+        "tnxFee": "0.02BNB",
+        "address": "0x6db5.........sff0"
+      },
+      {
+        "type": "Deposit",
+        "date": "April-05-2023 11:19:33Am",
+        "value": "100 CAKE",
+        "tnxFee": "0.02BNB",
+        "address": "0x6db5.........sff0"
+      }
+    ],
+    "depositors": [
+      {
+        "depositor": "0X920........8383",
+        "assets": "BTC 0.02",
+        "numbersOfShares": "BTC 0.02",
+        "percentage": "100.00%"
+      },
+      {
+        "depositor": "0X920........8383",
+        "assets": "BTC 0.02",
+        "numbersOfShares": "BTC 0.02",
+        "percentage": "100.00%"
+      },
+      {
+        "depositor": "0X920........8383",
+        "assets": "BTC 0.02",
+        "numbersOfShares": "BTC 0.02",
+        "percentage": "100.00%"
+      },
+      {
+        "depositor": "0X920........8383",
+        "assets": "BTC 0.02",
+        "numbersOfShares": "BTC 0.02",
+        "percentage": "100.00%"
+      }
+    ],
+    "faq": [
+      {
+        "name": "What asset are the vault yields paid in?",
+        "description": "Yields on every strategy are paid in the same asset you deposit. So, for the MVLP vault, your yields will be paid out in MVLP itself."
+      },
+      {
+        "name": "What happens if I don't withdraw at the end of a cycle?",
+        "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non numquam eius modi."
+      },
+      {
+        "name": "What are the fees associated with using the vault?",
+        "description": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus."
+      },
+      {
+        "name": "I'm having trouble using the app. What should I do?",
+        "description": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus."
+      }
+    ]
+  },
+  "0xAeED41EB9A471391E99415C656ebeef0e32B97D5": {
+    "fundManager": {
+      "name": "Cashaa Ltd.",
+      "yearFounded": "2016",
+      "location": "London, UK",
+      "details": "Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra. Sit eu nisl semper justo. Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra. Sit eu nisl semper justo.",
+      "vaultOwner": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0",
+      "Fund Manager": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0",
+      "Compliance Manger": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0"
+    },
+    "risk": {
+      "safetyScore": "9.1",
+      "safetyScorePoint": [
+        { "details": "Low-complexity strategy", "type": "Rivera" },
+        { "details": "Strategy is battle tested", "type": "Rivera" },
+        { "details": "High expected IL", "type": "Asset" },
+        {
+          "details": "Medium market-capitalziation, average volatility asset",
+          "type": "Rivera"
+        },
+        { "details": "Project assets are verified", "type": "Platform" }
+      ],
+      "riskType": [
+        {
+          "details": "Principal Risk",
+          "tyep": "Impermanent loss associated with AMM liquidity farming can lead to a loss of principal amount."
+        },
+        {
+          "details": "Smart Contract Risk",
+          "tyep": "There is a risk of smart contract failure in the underlying vault or the protocols we work with."
+        }
+      ]
+    },
+    "protocols": [
+      {
+        "name": "PancakeSwap Finance",
+        "details": "Lorem ipsum dolor sit amet consectetur. Pretium sit consequat odio egestas placerat integer viverra eu ut. Commodo porttitor diam vitae viverra rutrum adipiscing.",
+        "contract": "",
+        "website": ""
+      }
+    ],
+    "fees": [
+      {
+        "feeType": "Management Fee",
+        "settings": {
+          "name": "Rate",
+          "value": "2.00%"
+        },
+        "recipent": {
+          "name": "Vault Owner",
+          "value": "Vault Owner"
+        }
+      },
+      {
+        "feeType": "Performance Fee",
+        "settings": {
+          "name": "Rate",
+          "value": "2.00%"
+        },
+        "recipent": {
+          "name": "Vault Owner",
+          "value": "Vault Owner"
+        }
+      },
+      {
+        "feeType": "Exit Fee",
+        "settings": {
+          "name": "Rate",
+          "value": "2.00%"
+        },
+        "recipent": {
+          "name": "Vault",
+          "value": ""
+        }
+      },
+      {
+        "feeType": "Protocol Fee",
+        "settings": {
+          "name": "Rate",
+          "value": "2.00%"
+        },
+        "recipent": {
+          "name": "Vault",
+          "value": ""
+        }
+      }
+    ],
+    "transactions": [
+      {
+        "type": "Deposit",
+        "date": "April-05-2023 11:19:33Am",
+        "value": "100 CAKE",
+        "tnxFee": "0.02BNB",
+        "address": "0x6db5.........sff0"
+      },
+      {
+        "type": "Deposit",
+        "date": "April-05-2023 11:19:33Am",
+        "value": "100 CAKE",
+        "tnxFee": "0.02BNB",
+        "address": "0x6db5.........sff0"
+      },
+      {
+        "type": "Deposit",
+        "date": "April-05-2023 11:19:33Am",
+        "value": "100 CAKE",
+        "tnxFee": "0.02BNB",
+        "address": "0x6db5.........sff0"
+      },
+      {
+        "type": "Deposit",
+        "date": "April-05-2023 11:19:33Am",
+        "value": "100 CAKE",
+        "tnxFee": "0.02BNB",
+        "address": "0x6db5.........sff0"
+      },
+      {
+        "type": "Deposit",
+        "date": "April-05-2023 11:19:33Am",
+        "value": "100 CAKE",
+        "tnxFee": "0.02BNB",
+        "address": "0x6db5.........sff0"
+      },
+      {
+        "type": "Deposit",
+        "date": "April-05-2023 11:19:33Am",
+        "value": "100 CAKE",
+        "tnxFee": "0.02BNB",
+        "address": "0x6db5.........sff0"
+      }
+    ],
+    "depositors": [
+      {
+        "depositor": "0X920........8383",
+        "assets": "BTC 0.02",
+        "numbersOfShares": "BTC 0.02",
+        "percentage": "100.00%"
+      },
+      {
+        "depositor": "0X920........8383",
+        "assets": "BTC 0.02",
+        "numbersOfShares": "BTC 0.02",
+        "percentage": "100.00%"
+      },
+      {
+        "depositor": "0X920........8383",
+        "assets": "BTC 0.02",
+        "numbersOfShares": "BTC 0.02",
+        "percentage": "100.00%"
+      },
+      {
+        "depositor": "0X920........8383",
+        "assets": "BTC 0.02",
+        "numbersOfShares": "BTC 0.02",
+        "percentage": "100.00%"
+      }
+    ],
+    "faq": [
+      {
+        "name": "What asset are the vault yields paid in?",
+        "description": "Yields on every strategy are paid in the same asset you deposit. So, for the MVLP vault, your yields will be paid out in MVLP itself."
+      },
+      {
+        "name": "What happens if I don't withdraw at the end of a cycle?",
+        "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Consectetur, adipisci velit, sed quia non numquam eius modi."
+      },
+      {
+        "name": "What are the fees associated with using the vault?",
+        "description": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus."
+      },
+      {
+        "name": "I'm having trouble using the app. What should I do?",
+        "description": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus."
+      }
+    ]
+  }
+}
