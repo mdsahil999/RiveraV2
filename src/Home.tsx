@@ -208,12 +208,7 @@ function Home() {
       //calculate total withdraw with time
       withdrawEvents.forEach((withdrawEvent) => totalValutwithdrawWithTime = totalValutwithdrawWithTime + Number(withdrawEvent.log.args.assets * withdrawEvent.dateTime));
       totalValutwithdrawWithTime = totalValutwithdrawWithTime / Math.pow(10, 18);
-      debugger
       const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
-      debugger
-
-
-
 
       if (address) {
         let share = await vaultContract.balanceOf(address);

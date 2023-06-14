@@ -200,7 +200,6 @@ export default function VaultDetails() {
       convertedAmount = convertedAmount.replace(/,/g, '')
       const aprvTxt = await contract.approve(vaultAddress, BigNumber.from(convertedAmount));
       await aprvTxt.wait().then((e: any) => {
-        debugger
         setisApproved(true);
       });
 
@@ -315,101 +314,107 @@ export default function VaultDetails() {
       setUserShareInUsd((userShareVal * convertedPrice).toFixed(2));
 
 
-      //deposit event call to get alldesopit amout
-      const depositFilter = vaultContract.filters.Deposit();
-      const depositLogs = await vaultContract.queryFilter(depositFilter, FACTORY_CONTRACT_DEPLOYMENT_BLOCK);
+      //mofied code start
 
-      //add date time to the list
-      let depositEvents = await Promise.all(depositLogs.map(async (log) => {
-        const timestamp = (await log.getBlock()).timestamp;
-        const dateTime = new Date(timestamp * 1000);
-        return {
-          log: vaultContract.interface.parseLog(log),
-          dateTime: timestamp
-        };
-      }));
+      const depositFilter = vaultContract.filters.Deposit();
 
       let totalValutDeposit = 0;
       let totalValutDepositWithTime = 0;
-
-      //set unique depositer
-      const despositer = depositEvents.map((depositEvent) => { return depositEvent.log.args[0] });
-      const distinctDepositer = despositer.filter((n, i) => despositer.indexOf(n) === i);
-      setDepositerNumber(distinctDepositer.length.toString());
-
-      //calculate all deposit amount
-      depositEvents.forEach((depositEvent) => totalValutDeposit = totalValutDeposit + Number(depositEvent.log.args.assets));
-      totalValutDeposit = totalValutDeposit / Math.pow(10, 18);
-
-      //add all deposit amount with time
-      depositEvents.forEach((depositEvent) => totalValutDepositWithTime = totalValutDepositWithTime + Number(depositEvent.log.args.assets * depositEvent.dateTime));
-      totalValutDepositWithTime = totalValutDepositWithTime / Math.pow(10, 18);
-
-
-
       let totalUserDeposit = 0;
       let totalUserDepositWithTime = 0;
-      // filter by user
-      depositEvents = depositEvents.reduce((acc, day) => {
-        if (day.log.args[0] === address) {
-          acc.push(day);
-        }
-        return acc;
-      }, [] as any);
+      const distinctDepositerSet = new Set();
+      const latestBlockNumberval = await provider.getBlockNumber();
+      console.log("latestBlockNumberval", latestBlockNumberval)
+      const batchSize = 10000;
+      const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
 
-      //calculate all deposit amount
-      depositEvents.forEach((depositEvent) => totalUserDeposit = totalUserDeposit + Number(depositEvent.log.args.assets));
-      totalUserDeposit = totalUserDeposit / Math.pow(10, 18);
+      for (let i = 0; i < blocksToProcess; i += batchSize) {
+        const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
+        const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
+        console.log("firstBlock", firstBlock);
+        console.log("lastBlock", lastBlock);
 
-      //add all deposit amount with time
-      depositEvents.forEach((depositEvent) => totalUserDepositWithTime = totalUserDepositWithTime + Number(depositEvent.log.args.assets * depositEvent.dateTime));
-      totalUserDepositWithTime = totalUserDepositWithTime / Math.pow(10, 18);
+        const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
+
+        // eslint-disable-next-line no-loop-func
+        await Promise.all(depositLogs.map(async (log: any) => {
+          const timestamp = (await log.getBlock()).timestamp;
+          const depositer = log.args[0];
+          const assets = Number(log.args.assets);
+          const dateTime = timestamp;
+
+          totalValutDeposit += assets;
+          totalValutDepositWithTime += assets * dateTime;
+          distinctDepositerSet.add(depositer);
+
+          if (depositer === address) {
+            totalUserDeposit += assets;
+            totalUserDepositWithTime += assets * dateTime;
+          }
+        }));
+
+        const distinctDepositerCount = distinctDepositerSet.size;
+        setDepositerNumber(distinctDepositerCount.toString());
+
+        totalValutDeposit /= Math.pow(10, 18);
+        totalValutDepositWithTime /= Math.pow(10, 18);
+        totalUserDeposit /= Math.pow(10, 18);
+        totalUserDepositWithTime /= Math.pow(10, 18);
+
+      }
 
 
 
 
+      console.log("totalValutDeposit", totalValutDeposit);
+      console.log("totalValutDepositWithTime", totalValutDepositWithTime);
+      console.log("totalUserDeposit", totalUserDeposit);
+      console.log("totalUserDepositWithTime", totalUserDepositWithTime);
 
-      //withdraw event call to get allwithdraw amout
-      const withdrawFilter = vaultContract.filters.Withdraw();
-      const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, FACTORY_CONTRACT_DEPLOYMENT_BLOCK);
-
-      //add date time to the list
-      let withdrawEvents = await Promise.all(withdrawLogs.map(async (log) => {
-        const timestamp = (await log.getBlock()).timestamp;
-        const dateTime = new Date(timestamp * 1000);
-        return {
-          log: vaultContract.interface.parseLog(log),
-          dateTime: timestamp
-        };
-      }));
+      //mofied code end
 
 
+      //modied code start
       let totalValutwithdraw = 0;
       let totalValutwithdrawWithTime = 0;
-      // filter by user
-      //calculate total withdraw
-      withdrawEvents.forEach((withdrawEvent) => totalValutwithdraw = totalValutwithdraw + Number(withdrawEvent.log.args.assets));
-      totalValutwithdraw = totalValutwithdraw / Math.pow(10, 18);
-      //calculate total withdraw with time
-      withdrawEvents.forEach((withdrawEvent) => totalValutwithdrawWithTime = totalValutwithdrawWithTime + Number(withdrawEvent.log.args.assets * withdrawEvent.dateTime));
-      totalValutwithdrawWithTime = totalValutwithdrawWithTime / Math.pow(10, 18);
-
       let totalUserwithdraw = 0;
       let totalUserwithdrawWithTime = 0;
-      // filter by user
-      withdrawEvents = withdrawEvents.reduce((acc, day) => {
-        if (day.log.args[0] === address) {
-          acc.push(day);
-        }
-        return acc;
-      }, [] as any);
-      //calculate total withdraw
-      withdrawEvents.forEach((withdrawEvent) => totalUserwithdraw = totalUserwithdraw + Number(withdrawEvent.log.args.assets));
-      totalUserwithdraw = totalUserwithdraw / Math.pow(10, 18);
-      //calculate total withdraw with time
-      withdrawEvents.forEach((withdrawEvent) => totalUserwithdrawWithTime = totalUserwithdrawWithTime + Number(withdrawEvent.log.args.assets * withdrawEvent.dateTime));
-      totalUserwithdrawWithTime = totalUserwithdrawWithTime / Math.pow(10, 18);
+      const withdrawFilter = vaultContract.filters.Withdraw();
+      for (let i = 0; i < blocksToProcess; i += batchSize) {
+        const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
+        const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
+        const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
+        //await Promise.all(depositLogs.map(async (log: any) => {
+        // eslint-disable-next-line no-loop-func
+        await Promise.all(withdrawLogs.map(async (log: any) => {
+          const timestamp = (await log.getBlock()).timestamp;
+          const assets = Number(log.args.assets);
+          const dateTime = timestamp;
+          const isUserWithdrawal = log.args[0] === address
 
+          totalValutwithdraw += assets;
+          totalValutwithdrawWithTime += assets * dateTime;
+
+          if (isUserWithdrawal) {
+            totalUserwithdraw += assets;
+            totalUserwithdrawWithTime += assets * dateTime;
+          }
+
+        }));
+
+
+        totalValutwithdraw /= Math.pow(10, 18);
+        totalValutwithdrawWithTime /= Math.pow(10, 18);
+        totalUserwithdraw /= Math.pow(10, 18);
+        totalUserwithdrawWithTime /= Math.pow(10, 18);
+
+        console.log("totalValutwithdraw", totalValutwithdraw);
+        console.log("totalValutwithdrawWithTime", totalValutwithdrawWithTime);
+        console.log("totalUserwithdraw", totalUserwithdraw);
+        console.log("totalUserwithdrawWithTime", totalUserwithdrawWithTime);
+      }
+
+      //modofide code end
 
 
 
