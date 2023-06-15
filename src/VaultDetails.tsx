@@ -291,6 +291,15 @@ export default function VaultDetails() {
     }
     setDeatils(detailsVal);
 
+    let totalValutDeposit = 0;
+    let totalValutDepositWithTime = 0;
+    let totalUserDeposit = 0;
+    let totalUserDepositWithTime = 0;
+
+    let totalValutwithdraw = 0;
+    let totalValutwithdrawWithTime = 0;
+    let totalUserwithdraw = 0;
+    let totalUserwithdrawWithTime = 0;
 
     if (address) {
       let tvlCap = await vaultContract.totalTvlCap();
@@ -317,13 +326,10 @@ export default function VaultDetails() {
       //mofied code start
 
       const depositFilter = vaultContract.filters.Deposit();
+      const withdrawFilter = vaultContract.filters.Withdraw();
 
-      let totalValutDeposit = 0;
-      let totalValutDepositWithTime = 0;
-      let totalUserDeposit = 0;
-      let totalUserDepositWithTime = 0;
       const distinctDepositerSet = new Set();
-      const latestBlockNumberval = await provider.getBlockNumber();
+      const latestBlockNumberval = await localProvider.getBlockNumber();
       console.log("latestBlockNumberval", latestBlockNumberval)
       const batchSize = 10000;
       const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
@@ -361,30 +367,8 @@ export default function VaultDetails() {
         totalUserDeposit /= Math.pow(10, 18);
         totalUserDepositWithTime /= Math.pow(10, 18);
 
-      }
 
-
-
-
-      console.log("totalValutDeposit", totalValutDeposit);
-      console.log("totalValutDepositWithTime", totalValutDepositWithTime);
-      console.log("totalUserDeposit", totalUserDeposit);
-      console.log("totalUserDepositWithTime", totalUserDepositWithTime);
-
-      //mofied code end
-
-
-      //modied code start
-      let totalValutwithdraw = 0;
-      let totalValutwithdrawWithTime = 0;
-      let totalUserwithdraw = 0;
-      let totalUserwithdrawWithTime = 0;
-      const withdrawFilter = vaultContract.filters.Withdraw();
-      for (let i = 0; i < blocksToProcess; i += batchSize) {
-        const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
-        const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
         const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
-        //await Promise.all(depositLogs.map(async (log: any) => {
         // eslint-disable-next-line no-loop-func
         await Promise.all(withdrawLogs.map(async (log: any) => {
           const timestamp = (await log.getBlock()).timestamp;
@@ -402,20 +386,20 @@ export default function VaultDetails() {
 
         }));
 
-
         totalValutwithdraw /= Math.pow(10, 18);
         totalValutwithdrawWithTime /= Math.pow(10, 18);
         totalUserwithdraw /= Math.pow(10, 18);
         totalUserwithdrawWithTime /= Math.pow(10, 18);
 
-        console.log("totalValutwithdraw", totalValutwithdraw);
-        console.log("totalValutwithdrawWithTime", totalValutwithdrawWithTime);
-        console.log("totalUserwithdraw", totalUserwithdraw);
-        console.log("totalUserwithdrawWithTime", totalUserwithdrawWithTime);
       }
 
-      //modofide code end
 
+
+
+      console.log("totalValutDeposit", totalValutDeposit);
+      console.log("totalValutDepositWithTime", totalValutDepositWithTime);
+      console.log("totalUserDeposit", totalUserDeposit);
+      console.log("totalUserDepositWithTime", totalUserDepositWithTime);
 
 
       let overallReturn = ((userShareVal + totalUserwithdraw) - totalUserDeposit);
@@ -427,6 +411,68 @@ export default function VaultDetails() {
       const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
       setVaultApy(valutApyVal.toFixed(2));
 
+    } else{
+      let tvlCap = await vaultContract.totalTvlCap();
+      tvlCap = tvlCap / Math.pow(10, 18);
+      setTvlCal(tvlCap);
+      const tvlCapInUsdval = (tvlCap * convertedPrice).toFixed(2);
+      setTvlCalInUsd(tvlCapInUsdval);
+
+      //mofied code start
+
+      const depositFilter = vaultContract.filters.Deposit();
+      const withdrawFilter = vaultContract.filters.Withdraw();
+
+      const distinctDepositerSet = new Set();
+      const latestBlockNumberval = await localProvider.getBlockNumber();
+      console.log("latestBlockNumberval", latestBlockNumberval)
+      const batchSize = 10000;
+      const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
+
+      for (let i = 0; i < blocksToProcess; i += batchSize) {
+        const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
+        const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
+        console.log("firstBlock", firstBlock);
+        console.log("lastBlock", lastBlock);
+
+        const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
+
+        // eslint-disable-next-line no-loop-func
+        await Promise.all(depositLogs.map(async (log: any) => {
+          const timestamp = (await log.getBlock()).timestamp;
+          const depositer = log.args[0];
+          const assets = Number(log.args.assets);
+          const dateTime = timestamp;
+
+          totalValutDeposit += assets;
+          totalValutDepositWithTime += assets * dateTime;
+          distinctDepositerSet.add(depositer);
+        }));
+
+        const distinctDepositerCount = distinctDepositerSet.size;
+        setDepositerNumber(distinctDepositerCount.toString());
+
+        totalValutDeposit /= Math.pow(10, 18);
+        totalValutDepositWithTime /= Math.pow(10, 18);
+
+        const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
+        // eslint-disable-next-line no-loop-func
+        await Promise.all(withdrawLogs.map(async (log: any) => {
+          const timestamp = (await log.getBlock()).timestamp;
+          const assets = Number(log.args.assets);
+          const dateTime = timestamp;
+
+          totalValutwithdraw += assets;
+          totalValutwithdrawWithTime += assets * dateTime;
+
+        }));
+
+        totalValutwithdraw /= Math.pow(10, 18);
+        totalValutwithdrawWithTime /= Math.pow(10, 18);
+      }
+
+      const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
+      setVaultApy(valutApyVal.toFixed(2));
     }
     setLoading(false);
   }

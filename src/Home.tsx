@@ -58,13 +58,32 @@ function Home() {
 
   useEffect(() => {
     setLoading(true);
+
+
+    fetch('/vaultDetails.json')
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        //setPosts(data);
+        //console.log("valutData", data['abc']);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+
     getDeployedValut();
   }, []);
 
-  // const intializeAbi = () =>{
-  //   //intialize erc20Abi
-  //   seterc20Abi(erc20Json.abi);
-  // }
+  const fetchData = async () => {
+    try {
+      const response = await fetch('/vaultDetails.json'); // Assuming the JSON file is named "data.json" and located in the public folder.
+      const data = await response.json();
+      console.log("data", data);
+      //setJsonData(data);
+    } catch (error) {
+      console.log('Error fetching JSON data:', error);
+    }
+  };
 
   const goTovaultDeatils = (path: string) => {
     navigate('valutDeatils/' + path);
@@ -93,26 +112,11 @@ function Home() {
     const priceFeed = new ethers.Contract(priceAddress, aggregatorV3InterfaceABI, providerVal)
     const roundData = await priceFeed.latestRoundData();
     let decimals = await priceFeed.decimals();
-    // return new Promise((resolve, reject)=>{
-    //     resolve(2);
-    // })
+
     return new Promise((resolve, reject) => {
       resolve(Number((roundData.answer.toString() / Math.pow(10, decimals)).toFixed(2)));
     });
-    // Promise.all([roundData, decimals]).then((values) => {
-    //   return Number((values[0].answer.toString() / Math.pow(10, values[1])).toFixed(2));
-    //   //setBnbPriceInUsd(price);
-    // });
 
-    // aprvTxt.then(async (roundData: any) => {
-
-    //   // Do something with roundData
-    //   let decimals = await priceFeed.decimals();
-    //   // We convert the price to a number and return it
-    //   const a = Number((roundData.answer.toString() / Math.pow(10, decimals)).toFixed(2));
-    //   console.log("Latest Round Data", a)
-    //   return a;
-    // })
 
   }
 
@@ -141,7 +145,7 @@ function Home() {
 
       if (asset === "0x2170Ed0880ac9A755fd29B2688956BD959F933F8") {
         assetImg = ethImg;
-  
+
       } else if (asset === "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c") {
         assetImg = bnbImg;
       }
@@ -161,54 +165,15 @@ function Home() {
 
       //deposit event call to get alldesopit amout
       const depositFilter = vaultContract.filters.Deposit();
-      const depositLogs = await vaultContract.queryFilter(depositFilter, FACTORY_CONTRACT_DEPLOYMENT_BLOCK);
-
-      //add date time to the list
-      let depositEvents = await Promise.all(depositLogs.map(async (log) => {
-        const timestamp = (await log.getBlock()).timestamp;
-        return {
-          log: vaultContract.interface.parseLog(log),
-          dateTime: timestamp
-        };
-      }));
-
       let totalValutDeposit = 0;
       let totalValutDepositWithTime = 0;
-
-      //calculate all deposit amount
-      depositEvents.forEach((depositEvent) => totalValutDeposit = totalValutDeposit + Number(depositEvent.log.args.assets));
-      totalValutDeposit = totalValutDeposit / Math.pow(10, 18);
-
-      //add all deposit amount with time
-      depositEvents.forEach((depositEvent) => totalValutDepositWithTime = totalValutDepositWithTime + Number(depositEvent.log.args.assets * depositEvent.dateTime));
-      totalValutDepositWithTime = totalValutDepositWithTime / Math.pow(10, 18);
-
-
-
-      //withdraw event call to get allwithdraw amout
-      const withdrawFilter = vaultContract.filters.Withdraw();
-      const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, FACTORY_CONTRACT_DEPLOYMENT_BLOCK);
-
-      //add date time to the list
-      let withdrawEvents = await Promise.all(withdrawLogs.map(async (log) => {
-        const timestamp = (await log.getBlock()).timestamp;
-        return {
-          log: vaultContract.interface.parseLog(log),
-          dateTime: timestamp
-        };
-      }));
-
+      let totalUserDeposit = 0;
+      let totalUserDepositWithTime = 0;
 
       let totalValutwithdraw = 0;
       let totalValutwithdrawWithTime = 0;
-
-      //calculate total withdraw
-      withdrawEvents.forEach((withdrawEvent) => totalValutwithdraw = totalValutwithdraw + Number(withdrawEvent.log.args.assets));
-      totalValutwithdraw = totalValutwithdraw / Math.pow(10, 18);
-      //calculate total withdraw with time
-      withdrawEvents.forEach((withdrawEvent) => totalValutwithdrawWithTime = totalValutwithdrawWithTime + Number(withdrawEvent.log.args.assets * withdrawEvent.dateTime));
-      totalValutwithdrawWithTime = totalValutwithdrawWithTime / Math.pow(10, 18);
-      const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
+      let totalUserwithdraw = 0;
+      let totalUserwithdrawWithTime = 0;
 
       if (address) {
         let share = await vaultContract.balanceOf(address);
@@ -216,74 +181,91 @@ function Home() {
         let totalSupply = await vaultContract.totalSupply();
         totalSupply = totalSupply / Math.pow(10, 18);
         const userShareVal = (totalAssets * share) / totalSupply;
-        console.log("");
         const userShareInUsd = userShareVal * convertedPrice;
         totalPortfolio = totalPortfolio + userShareInUsd;
         setPortfolio(totalPortfolio.toFixed(2));
 
-
         //deposit event call to get alldesopit amout
+        //mofied code start
+
         const depositFilter = vaultContract.filters.Deposit();
-        const depositLogs = await vaultContract.queryFilter(depositFilter, FACTORY_CONTRACT_DEPLOYMENT_BLOCK);
-
-        //add date time to the list
-        let depositEvents = await Promise.all(depositLogs.map(async (log) => {
-          const timestamp = (await log.getBlock()).timestamp;
-          const dateTime = new Date(timestamp * 1000);
-          return {
-            log: vaultContract.interface.parseLog(log),
-            dateTime: timestamp
-          };
-        }));
-
-        let totalUserDeposit = 0;
-        let totalUserDepositWithTime = 0;
-        // filter by user
-        depositEvents = depositEvents.reduce((acc, day) => {
-          if (day.log.args[0] === address) {
-            acc.push(day);
-          }
-          return acc;
-        }, [] as any);
-
-        //calculate all deposit amount
-        depositEvents.forEach((depositEvent) => totalUserDeposit = totalUserDeposit + Number(depositEvent.log.args.assets));
-        totalUserDeposit = totalUserDeposit / Math.pow(10, 18);
-
-        //add all deposit amount with time
-        depositEvents.forEach((depositEvent) => totalUserDepositWithTime = totalUserDepositWithTime + Number(depositEvent.log.args.assets * depositEvent.dateTime));
-        totalUserDepositWithTime = totalUserDepositWithTime / Math.pow(10, 18);
-
-
-        //withdraw event call to get allwithdraw amout
         const withdrawFilter = vaultContract.filters.Withdraw();
-        const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, FACTORY_CONTRACT_DEPLOYMENT_BLOCK);
-
-        //add date time to the list
-        let withdrawEvents = await Promise.all(withdrawLogs.map(async (log) => {
-          const timestamp = (await log.getBlock()).timestamp;
-          return {
-            log: vaultContract.interface.parseLog(log),
-            dateTime: timestamp
-          };
-        }));
 
 
-        let totalUserwithdraw = 0;
-        let totalUserwithdrawWithTime = 0;
-        // filter by user
-        withdrawEvents = withdrawEvents.reduce((acc, day) => {
-          if (day.log.args[0] === address) {
-            acc.push(day);
-          }
-          return acc;
-        }, [] as any);
-        //calculate total withdraw
-        withdrawEvents.forEach((withdrawEvent) => totalUserwithdraw = totalUserwithdraw + Number(withdrawEvent.log.args.assets));
-        totalUserwithdraw = totalUserwithdraw / Math.pow(10, 18);
-        //calculate total withdraw with time
-        withdrawEvents.forEach((withdrawEvent) => totalUserwithdrawWithTime = totalUserwithdrawWithTime + Number(withdrawEvent.log.args.assets * withdrawEvent.dateTime));
-        totalUserwithdrawWithTime = totalUserwithdrawWithTime / Math.pow(10, 18);
+        const distinctDepositerSet = new Set();
+        const latestBlockNumberval = await localProvider.getBlockNumber();
+        console.log("latestBlockNumberval", latestBlockNumberval)
+        const batchSize = 10000;
+        const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
+
+        for (let i = 0; i < blocksToProcess; i += batchSize) {
+          const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
+          const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
+          console.log("firstBlock", firstBlock);
+          console.log("lastBlock", lastBlock);
+
+          const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
+
+          // eslint-disable-next-line no-loop-func
+          await Promise.all(depositLogs.map(async (log: any) => {
+            const timestamp = (await log.getBlock()).timestamp;
+            const depositer = log.args[0];
+            const assets = Number(log.args.assets);
+            const dateTime = timestamp;
+
+            totalValutDeposit += assets;
+            totalValutDepositWithTime += assets * dateTime;
+            distinctDepositerSet.add(depositer);
+
+            if (depositer === address) {
+              totalUserDeposit += assets;
+              totalUserDepositWithTime += assets * dateTime;
+            }
+          }));
+
+          totalValutDeposit /= Math.pow(10, 18);
+          totalValutDepositWithTime /= Math.pow(10, 18);
+          totalUserDeposit /= Math.pow(10, 18);
+          totalUserDepositWithTime /= Math.pow(10, 18);
+
+
+        
+          const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
+          // eslint-disable-next-line no-loop-func
+          await Promise.all(withdrawLogs.map(async (log: any) => {
+            const timestamp = (await log.getBlock()).timestamp;
+            const assets = Number(log.args.assets);
+            const dateTime = timestamp;
+            const isUserWithdrawal = log.args[0] === address
+
+            totalValutwithdraw += assets;
+            totalValutwithdrawWithTime += assets * dateTime;
+
+            if (isUserWithdrawal) {
+              totalUserwithdraw += assets;
+              totalUserwithdrawWithTime += assets * dateTime;
+            }
+
+          }));
+
+
+          totalValutwithdraw /= Math.pow(10, 18);
+          totalValutwithdrawWithTime /= Math.pow(10, 18);
+          totalUserwithdraw /= Math.pow(10, 18);
+          totalUserwithdrawWithTime /= Math.pow(10, 18);
+
+        }
+
+
+
+
+        console.log("totalValutDeposit", totalValutDeposit);
+        console.log("totalValutDepositWithTime", totalValutDepositWithTime);
+        console.log("totalUserDeposit", totalUserDeposit);
+        console.log("totalUserDepositWithTime", totalUserDepositWithTime);
+
+        //mofied code end
+
 
 
         let overallReturn = ((userShareVal + totalUserwithdraw) - totalUserDeposit);
@@ -294,7 +276,62 @@ function Home() {
 
         totalAverageApy = totalAverageApy + userApyVal;
 
+      } else {
+        // let totalValutDeposit = 0;
+        // let totalValutDepositWithTime = 0;
+        const latestBlockNumberval = await localProvider.getBlockNumber();
+        // console.log("latestBlockNumberval", latestBlockNumberval)
+        const batchSize = 10000;
+        const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
+
+
+        const withdrawFilter = vaultContract.filters.Withdraw();
+
+
+        for (let i = 0; i < blocksToProcess; i += batchSize) {
+          const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
+          const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
+          // console.log("firstBlock", firstBlock);
+          // console.log("lastBlock", lastBlock);
+
+          const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
+
+          // eslint-disable-next-line no-loop-func
+          await Promise.all(depositLogs.map(async (log: any) => {
+            const timestamp = (await log.getBlock()).timestamp;
+            const assets = Number(log.args.assets);
+            const dateTime = timestamp;
+
+            totalValutDeposit += assets;
+            totalValutDepositWithTime += assets * dateTime;
+          }));
+
+          totalValutDeposit /= Math.pow(10, 18);
+          totalValutDepositWithTime /= Math.pow(10, 18);
+
+          console.log("totalValutDeposit", totalValutDeposit);
+          console.log("totalValutDepositWithTime", totalValutDepositWithTime);
+
+          const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
+          // eslint-disable-next-line no-loop-func
+          await Promise.all(withdrawLogs.map(async (log: any) => {
+            const timestamp = (await log.getBlock()).timestamp;
+            const assets = Number(log.args.assets);
+            const dateTime = timestamp;
+            totalValutwithdraw += assets;
+            totalValutwithdrawWithTime += assets * dateTime;
+          }));
+
+          totalValutwithdraw /= Math.pow(10, 18);
+          totalValutwithdrawWithTime /= Math.pow(10, 18);
+
+          // console.log("totalValutwithdraw", totalValutwithdraw);
+          // console.log("totalValutwithdrawWithTime", totalValutwithdrawWithTime);
+
+        }
       }
+
+      const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
 
       console.log("tvl tvl", tvl);
       return {
@@ -310,6 +347,8 @@ function Home() {
       };
 
     }));
+
+    console.log();
 
     Promise.all(valutListVal).then((values) => {
       setTotalTvl(totalTvlVal.toFixed(2));
