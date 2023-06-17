@@ -6,7 +6,7 @@ import { from } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAccount, useBalance, useContract, useContractRead, useProvider, useSigner } from 'wagmi';
+import { useAccount, useBalance, useContract, useContractRead, useNetwork, useProvider, useSigner, useSwitchNetwork } from 'wagmi';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { ProductService } from './service/ProductService';
 import { DataTable } from 'primereact/datatable';
@@ -99,16 +99,19 @@ export default function VaultDetails() {
   const [loading, setLoading] = useState(false);
   const balance = useBalance({
     address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  })
+  });
+  const switchNetwork = useSwitchNetwork();
+  const { chain } = useNetwork();
 
   useEffect(() => {
     //for static design(will remove in the future)
 
     setLoading(true);
     ProductService.getProductsMini().then(data => setProducts(data));
+    fetchJsonData();
     if (address) {
       console.log("balance", balance);
-      fetchJsonData();
+      console.log("chain", (chain as any).id);
       checkAllowance();
     }
     getAllDetails();
@@ -501,6 +504,10 @@ export default function VaultDetails() {
     setLoading(false);
   }
 
+  const networkSwitchHandler = (networkId: number) => {
+    (switchNetwork as any).switchNetwork(networkId)
+  };
+
   async function getPriceInUsd(address: string): Promise<any> {
     let priceAddress = "";
     if (address === "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c") {
@@ -636,7 +643,7 @@ export default function VaultDetails() {
                 <div className='fourth_section outer_section'>
                   <span className='hdr_txt mb-2'>Risk</span>
                   <div className='backGrd mb-3 mt-3'>
-                    <div className='mb-2'><div className='opt_67'>Safety Score </div> <span className='holding_val'>{valutJsonData?.risk.safetyScore} <img src={saftyImg} alt='safty img' className='sftyImgWdth' /></span></div>
+                    <div className='mb-2'><div className='opt_67'>Safety Score </div> <span className='holding_val'>{valutJsonData?.risk?.safetyScore} <img src={saftyImg} alt='safty img' className='sftyImgWdth' /></span></div>
                     {valutJsonData?.risk?.safetyScorePoint.map((data: any) => {
                       return <>
                         <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>{data.details} </span><img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>{data.type}</span></div>
@@ -687,9 +694,9 @@ export default function VaultDetails() {
                   <div className='hdr_txt mb-2'>Portfolio Manager</div>
                   <div className='mb-3'><img src={cashaaImg} alt='cashaa logo' /></div>
                   <div className='dsp mb-3'>
-                    <div>Fund Manager <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager.name}</span></div>
-                    <div>Year Founded <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager.yearFounded}</span></div>
-                    <div>Location <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager.location}</span></div>
+                    <div>Fund Manager <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager?.name}</span></div>
+                    <div>Year Founded <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager?.yearFounded}</span></div>
+                    <div>Location <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager?.location}</span></div>
                     <div><img src={licensedImg} alt='licensed' /></div>
                   </div>
                   <div>
@@ -698,7 +705,7 @@ export default function VaultDetails() {
                   <div className='mt-4'>
                     <span className='fnt_wgt_600'>Vault owner</span>
                     <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>
-                      <div className='fnt_14'>{valutJsonData?.fundManager.vaultOwner}</div>
+                      <div className='fnt_14'>{valutJsonData?.fundManager?.vaultOwner}</div>
                       <div><img src={copyImg} alt='copy img' /></div>
                       <div><img src={eternalLinkImg} alt='external link img' /></div>
                     </div>
@@ -706,7 +713,7 @@ export default function VaultDetails() {
                   <div className='mt-4'>
                     <span className='fnt_wgt_600'>Fund Manager</span>
                     <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>
-                      <div className='fnt_14'>{valutJsonData?.fundManager.fundManagerAddress}</div>
+                      <div className='fnt_14'>{valutJsonData?.fundManager?.fundManagerAddress}</div>
                       <div><img src={copyImg} alt='copy img' /></div>
                       <div><img src={eternalLinkImg} alt='external link img' /></div>
                     </div>
@@ -714,7 +721,7 @@ export default function VaultDetails() {
                   <div className='mt-4'>
                     <span className='fnt_wgt_600'>Compliance Manger</span>
                     <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>
-                      <div className='fnt_14'>{valutJsonData?.fundManager.complianceManger}</div>
+                      <div className='fnt_14'>{valutJsonData?.fundManager?.complianceManger}</div>
                       <div><img src={copyImg} alt='copy img' /></div>
                       <div><img src={eternalLinkImg} alt='external link img' /></div>
                     </div>
@@ -974,8 +981,14 @@ export default function VaultDetails() {
                         <div>0%</div>
                       </div>
                       <div className='mt-3 text-center'>
-                        {isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Continue</button>
-                          : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} >Approve</button>}
+                        {(chain as any)?.id !== 56 ? <button className='btn btn-riv-primary wdth_100' onClick={() => {networkSwitchHandler(56)}} >Switch to BNB</button>
+                        : isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Continue</button>
+
+                        : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} >Approve</button>}
+                        {/* {isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Continue</button>
+
+                          : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} >Approve</button>
+                          } */}
 
                       </div>
                     </div>
