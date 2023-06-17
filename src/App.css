@@ -729,3 +729,7 @@ thead {
       max-width: 1320px;
   }
   }
+
+  .crsr_pntr{
+    cursor: pointer;
+  }

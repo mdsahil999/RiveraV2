@@ -6,7 +6,7 @@ import { from } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useAccount, useContract, useContractRead, useProvider, useSigner } from 'wagmi';
+import { useAccount, useBalance, useContract, useContractRead, useProvider, useSigner } from 'wagmi';
 import { TabView, TabPanel } from 'primereact/tabview';
 import { ProductService } from './service/ProductService';
 import { DataTable } from 'primereact/datatable';
@@ -71,6 +71,8 @@ export default function VaultDetails() {
     // "userShare": "",
     // "overallReturn": "",
   });
+  const [maxLimit, setMaxLimit] = useState(0);
+  const [valutJsonData, setValutJsonData] = useState<any>();
   const [latestBlockNumber, setLatestBlockNumber] = useState(0);
   const [tvlCap, setTvlCal] = useState("");
   const [userTvlCap, setUserTvlCap] = useState("");
@@ -95,18 +97,37 @@ export default function VaultDetails() {
   const [products, setProducts] = useState<Product[]>([]);
   let { vaultAddress } = useParams();
   const [loading, setLoading] = useState(false);
-
+  const balance = useBalance({
+    address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  })
 
   useEffect(() => {
     //for static design(will remove in the future)
+
     setLoading(true);
     ProductService.getProductsMini().then(data => setProducts(data));
     if (address) {
+      console.log("balance", balance);
+      fetchJsonData();
       checkAllowance();
     }
     getAllDetails();
 
   }, []);
+
+  const fetchJsonData = async () => {
+    try {
+      const response = await fetch('/vaultDetails.json'); // Assuming the JSON file is named "data.json" and located in the public folder.
+      const data = await response.json();
+      setValutJsonData(data[vaultAddress as string]);
+      //setValutJsonData(valtDtl);
+
+      console.log("data address 2", data[vaultAddress as string]);
+      //setJsonData(data);
+    } catch (error) {
+      console.log('Error fetching JSON data:', error);
+    }
+  };
 
   async function getLatestBlock() {
     const blockNumber = await provider.getBlockNumber();
@@ -133,6 +154,7 @@ export default function VaultDetails() {
     const allowance = await erc20Contract.allowance(address, vaultAddress); //address:- login user address  //assetAdress:-valut asset address
     let convertedallowance = allowance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 18 });
     convertedallowance = convertedallowance.replace(/,/g, '');
+    setMaxLimit(convertedallowance/Math.pow(10, 18));
     console.log("allowance value ", convertedallowance)
     if (+convertedallowance > 0) {
       setisApproved(true);
@@ -162,6 +184,7 @@ export default function VaultDetails() {
     });
     setLoading(true);
     await aprvTxt.wait().then((e: any) => {
+      checkAllowance();
       getAllDetails();
       console.log("Deposit working fine", e);
     });
@@ -179,6 +202,7 @@ export default function VaultDetails() {
     const aprvTxt = await contract.withdraw(convertedAmount, address, address);
     setLoading(true);
     await aprvTxt.wait().then((e: any) => {
+      checkAllowance();
       getAllDetails();
       //setLoading(false);
       console.log("Deposit working fine", e);
@@ -411,7 +435,7 @@ export default function VaultDetails() {
       const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
       setVaultApy(valutApyVal.toFixed(2));
 
-    } else{
+    } else {
       let tvlCap = await vaultContract.totalTvlCap();
       tvlCap = tvlCap / Math.pow(10, 18);
       setTvlCal(tvlCap);
@@ -494,6 +518,10 @@ export default function VaultDetails() {
     });
   }
 
+  const goToUrl = (url: any)=>{
+    window.open(url, '_blank');
+  }
+
 
 
   return (
@@ -525,9 +553,9 @@ export default function VaultDetails() {
                 <div className='backGrd'>
                   <div className='mb-2'><img src={cashaaImg} alt='lock img' className='cashaa logo' /></div>
                   <div className='dsp'>
-                    <div>Fund Manager <br /> <span className='fnt_wgt_600'>Cashaa Ltd.</span></div>
-                    <div>Year Founded <br /> <span className='fnt_wgt_600'>2016</span></div>
-                    <div>Location <br /> <span className='fnt_wgt_600'>London, UK</span></div>
+                    <div>Fund Manager <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager.name}</span></div>
+                    <div>Year Founded <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager.yearFounded}</span></div>
+                    <div>Location <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager.location}</span></div>
                     <div><img src={licensedImg} alt='licensed' /></div>
                   </div>
                   <div className='mt-2'>
@@ -568,54 +596,74 @@ export default function VaultDetails() {
                   <div className='fnt_wgt_600 mb-2 redHatFont'>Summary</div>
                   <span>
                     <ul>
-                      <li>A Market-Neutral Strategy (Pseudo-Delta-Neutral) is a yield farming strategy where you can yield farm
-                        high APY pairs while minimizing your risk by hedging out market exposure. The Automated Vault eliminates
-                        market risk by farming long & short positions simultaneously, and rebalancing them for you to maintain
-                        neutral exposure.
-                      </li>
-                      <li>Underlying Farming Pool: Thena Finance USDT-BNB</li>
-                      <li>A professional team of asset managers active manage liquidity range of the farming pool</li>
+                      {valutJsonData?.strategy.map((data: any, index: any)=>{
+                        return <><li key={index} className='mb-2'>{data}
+                      </li></>
+                      })}
+                      
+                      {/* <li>Underlying Farming Pool: Thena Finance USDT-BNB</li>
+                      <li>A professional team of asset managers active manage liquidity range of the farming pool</li> */}
                     </ul>
                   </span>
+
+
+                  {valutJsonData?.protocols.map((data: any) => {
+                    return <>
+                      <div className='backGrd mb-3'>
+                        <div className='dsp mb-2'>
+                          <div className='fnt_wgt_600'><img src={`../img/${data.logo}`} alt='pancake' /> {data.name}</div>
+                          <div className='d-flex'>
+                            <div className='crsr_pntr' onClick={()=>{goToUrl(data.website)}}>
+                              <span className='westBtn'><img src={globeImg} alt='website' /> Website</span>
+                            </div>
+                            <div className='crsr_pntr' onClick={()=>{goToUrl(data.contract)}}>
+                              <span className='westBtn'><img src={arrowUpImg} alt='website' /> Contract</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className='fnt_14 mt-3'>
+                          {data.details}
+                        </div>
+                      </div>
+                    </>
+                  })}
+
+
+
                 </div>
               </section>
               <section id='risk'>
                 <div className='fourth_section outer_section'>
                   <span className='hdr_txt mb-2'>Risk</span>
                   <div className='backGrd mb-3 mt-3'>
-                    <div className='mb-2'><div className='opt_67'>Safety Score </div> <span className='holding_val'>9.1 <img src={saftyImg} alt='safty img' className='sftyImgWdth' /></span></div>
-                    <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>Low-complexity strategy </span><img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Rivera</span></div>
+                    <div className='mb-2'><div className='opt_67'>Safety Score </div> <span className='holding_val'>{valutJsonData?.risk.safetyScore} <img src={saftyImg} alt='safty img' className='sftyImgWdth' /></span></div>
+                    {valutJsonData?.risk?.safetyScorePoint.map((data: any) => {
+                      return <>
+                        <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>{data.details} </span><img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>{data.type}</span></div>
+                      </>
+                    })}
+                    {/* <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>Low-complexity strategy </span><img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Rivera</span></div>
                     <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>Strategy is battle tested</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Rivera</span></div>
                     <div className='mb-2'><img src={downImg} alt='down' /><span className='opt_67 mrgn_18'>High expected IL</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Asset</span></div>
                     <div className='mb-2'><img src={downImg} alt='down' /><span className='opt_67 mrgn_18'>Medium market-capitalziation, average volatility asset</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Rivera</span></div>
-                    <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>Project assets are verified</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Platform</span></div>
+                    <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>Project assets are verified</span> <img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>Platform</span></div> */}
                   </div>
                   <div className='fnt_wgt_600 mb-3 font_18 redHatFont'>Risks</div>
                   <div>
                     <ul className='pdng_18'>
-                      <li className='mrgn_btm_15'><span className='fnt_wgt_600'>Principal Risk:</span> Impermanent loss associated with AMM liquidity farming can lead to a
-                        loss of principal amount.</li>
-                      <li><span className='fnt_wgt_600'>Smart Contract Risk:</span> There is a risk of smart contract failure in the underlying vault or the protocols we work with.  </li>
+                      {valutJsonData?.risk?.riskType.map((data: any) => {
+                        return <>
+                          <li className='mrgn_btm_15'><span className='fnt_wgt_600'>{data.details}:</span> {data.type}</li>
+                        </>
+                      })}
+                      {/* <li><span className='fnt_wgt_600'>Smart Contract Risk:</span> There is a risk of smart contract failure in the underlying vault or the protocols we work with.  </li> */}
                     </ul>
                   </div>
-                  <div className='backGrd'>
-                    <div className='dsp mb-2'>
-                      <div className='fnt_wgt_600'><img src={pancakeImg} alt='pancake' /> PancakeSwap Finance</div>
-                      <div className='d-flex'>
-                        <div>
-                          <span className='westBtn'><img src={globeImg} alt='website' /> Website</span>
-                        </div>
-                        <div>
-                          <span className='westBtn'><img src={arrowUpImg} alt='website' /> Contract</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className='fnt_14 mt-3'>
-                      Lorem ipsum dolor sit amet consectetur. Pretium sit consequat odio egestas placerat integer viverra eu ut.
-                      Commodo porttitor diam vitae viverra rutrum adipiscing.
-                    </div>
-                  </div>
-                  <div className='backGrd mt-3 mb-3'>
+
+
+                
+
+                  {/* <div className='backGrd mt-3 mb-3'>
                     <div className='dsp mb-2'>
                       <div className='fnt_wgt_600'><img src={levelFinanceImg} alt='pancake' /> Level Finance</div>
                       <div className='d-flex'>
@@ -631,7 +679,7 @@ export default function VaultDetails() {
                       Lorem ipsum dolor sit amet consectetur. Pretium sit consequat odio egestas placerat integer viverra eu ut.
                       Commodo porttitor diam vitae viverra rutrum adipiscing.
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </section>
               <section id='portfolioManager'>
@@ -639,20 +687,18 @@ export default function VaultDetails() {
                   <div className='hdr_txt mb-2'>Portfolio Manager</div>
                   <div className='mb-3'><img src={cashaaImg} alt='cashaa logo' /></div>
                   <div className='dsp mb-3'>
-                    <div>Fund Manager <br /> <span className='fnt_wgt_600'>Cashaa Ltd.</span></div>
-                    <div>Year Founded <br /> <span className='fnt_wgt_600'>2016</span></div>
-                    <div>Location <br /> <span className='fnt_wgt_600'>London, UK</span></div>
+                    <div>Fund Manager <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager.name}</span></div>
+                    <div>Year Founded <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager.yearFounded}</span></div>
+                    <div>Location <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager.location}</span></div>
                     <div><img src={licensedImg} alt='licensed' /></div>
                   </div>
                   <div>
-                    Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra. Sit eu nisl
-                    semper justo. Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra.
-                    Sit eu nisl semper justo.
+                  {valutJsonData?.fundManager.details}
                   </div>
                   <div className='mt-4'>
                     <span className='fnt_wgt_600'>Vault owner</span>
                     <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>
-                      <div className='fnt_14'>0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0</div>
+                      <div className='fnt_14'>{valutJsonData?.fundManager.vaultOwner}</div>
                       <div><img src={copyImg} alt='copy img' /></div>
                       <div><img src={eternalLinkImg} alt='external link img' /></div>
                     </div>
@@ -660,7 +706,7 @@ export default function VaultDetails() {
                   <div className='mt-4'>
                     <span className='fnt_wgt_600'>Fund Manager</span>
                     <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>
-                      <div className='fnt_14'>0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0</div>
+                      <div className='fnt_14'>{valutJsonData?.fundManager.fundManagerAddress}</div>
                       <div><img src={copyImg} alt='copy img' /></div>
                       <div><img src={eternalLinkImg} alt='external link img' /></div>
                     </div>
@@ -668,7 +714,7 @@ export default function VaultDetails() {
                   <div className='mt-4'>
                     <span className='fnt_wgt_600'>Compliance Manger</span>
                     <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>
-                      <div className='fnt_14'>0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0</div>
+                      <div className='fnt_14'>{valutJsonData?.fundManager.complianceManger}</div>
                       <div><img src={copyImg} alt='copy img' /></div>
                       <div><img src={eternalLinkImg} alt='external link img' /></div>
                     </div>
@@ -688,13 +734,18 @@ export default function VaultDetails() {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>Management Fee</td>
-                          <td>Rate <br /> 2.00%</td>
-                          <td>Vault Owner <br />
-                            0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0 <span className='mrgn_5'><img src={eternalLinkImg} alt='external link img' /></span> <span ><img src={copyImg} alt='copy img' /></span></td>
+                        {valutJsonData?.fees.map((data: any)=>{
+                          return <>
+                          <tr>
+                          <td>{data.feeType}</td>
+                          <td>{data.settings.name} <br /> {data.settings.value}</td>
+                          <td>{data.recipent.name}<br />
+                          {data.recipent.value} <span className='mrgn_5'><img src={eternalLinkImg} alt='external link img' /></span> <span ><img src={copyImg} alt='copy img' /></span></td>
                         </tr>
-                        <tr>
+                          </>;
+                        })}
+                        
+                        {/* <tr>
                           <td >Performance Fee</td>
                           <td>Rate <br /> 2.00%</td>
                           <td>Vault Owner <br />
@@ -709,7 +760,7 @@ export default function VaultDetails() {
                           <td >Protocol Fee</td>
                           <td>Rate <br /> 0.25% <img src={helpCircle2} alt='copy img' /></td>
                           <td> Protocol Fee contract <span><img src={helpCircle2} alt='copy img' /></span></td>
-                        </tr>
+                        </tr> */}
                       </tbody>
                     </table>
                   </div>
@@ -722,13 +773,18 @@ export default function VaultDetails() {
                   <div>
                     <table className="table">
                       <tbody>
-                        <tr>
-                          <td ><span className='fnt_14'>April-05-2023 11:19:33Am</span>  <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>Deposit</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> 0x6db5.........sff0 <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
+                        {valutJsonData?.transactions.map((data: any)=>{
+                          return <>
+                          <tr>
+                          <td ><span className='fnt_14'>{data.date}</span>  <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>{data.type}</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> {data.address} <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
                           <td>Value <br /> Txn. fee</td>
-                          <td>100 CAKE <br />
-                            0.02BNB</td>
+                          <td>{data.value} <br />
+                            {data.tnxFee}</td>
                         </tr>
-                        <tr>
+                          </>
+                        })}
+                        
+                        {/* <tr>
                           <td><span className='fnt_14'>April-05-2023 11:19:33Am</span> <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>Deposit</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> 0x6db5.........sff0 <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
                           <td>Value <br /> Txn. fee</td>
                           <td>100 CAKE <br />
@@ -745,7 +801,7 @@ export default function VaultDetails() {
                           <td>Value <br /> Txn. fee</td>
                           <td>100 CAKE <br />
                             0.02BNB</td>
-                        </tr>
+                        </tr> */}
                       </tbody>
                     </table>
                   </div>
@@ -765,7 +821,18 @@ export default function VaultDetails() {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
+                        {valutJsonData?.depositors.map((data:any)=>{
+                          return <>
+                          <tr>
+                          <td >{data.depositor}</td>
+                          <td>{data.assets}</td>
+                          <td>{data.numbersOfShares}</td>
+                          <td>{data.percentage}</td>
+                        </tr>
+                          </>
+                        })}
+                        
+                        {/* <tr>
                           <td >0X920........8383</td>
                           <td>BTC 0.02</td>
                           <td>11,563</td>
@@ -782,13 +849,7 @@ export default function VaultDetails() {
                           <td>BTC 0.02</td>
                           <td>11,563</td>
                           <td>100.00%</td>
-                        </tr>
-                        <tr>
-                          <td >0X920........8383</td>
-                          <td>BTC 0.02</td>
-                          <td>11,563</td>
-                          <td>100.00%</td>
-                        </tr>
+                        </tr> */}
                       </tbody>
                     </table>
                   </div>
@@ -799,33 +860,40 @@ export default function VaultDetails() {
                   <div className='hdr_txt mb-4'>FAQ</div>
                   <div>
                     <Accordion activeIndex={0}>
-                      <AccordionTab header="What asset are the vault yields paid in?">
+                      {/* {valutJsonData?.faq.map((data: any)=>{
+                       <AccordionTab header="What happens if I don't withdraw at the end of a cycle?">
+                       <p className="m-0">
+                         Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa
+                         quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas
+                         sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+                         Consectetur, adipisci velit, sed quia non numquam eius modi.
+                       </p>
+                     </AccordionTab>
+                      })} */}
+                      
+                      <AccordionTab header="Is there any lock-up period for funds?">
                         <p className="m-0">
-                          Yields on every strategy are paid in the same asset you deposit. So, for the MVLP vault, your yields will be paid out in MVLP itself.
+                        No, there is no lock-up period in this vault. You can withdraw your funds at any time without any restriction or penalty.
                         </p>
                       </AccordionTab>
-                      <AccordionTab header="What happens if I don't withdraw at the end of a cycle?">
+                      <AccordionTab header="What assets are the yields paid in?">
                         <p className="m-0">
-                          Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa
-                          quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas
-                          sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
-                          Consectetur, adipisci velit, sed quia non numquam eius modi.
+                        The yields are paid in the denomination asset of the strategy and are compounded automatically. Unharvested rewards can be temporarily held in the form of farmed assets.
                         </p>
                       </AccordionTab>
                       <AccordionTab header="What are the fees associated with using the vault?">
                         <p className="m-0">
-                          At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti
-                          quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt
-                          mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio.
-                          Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
+                        During the testing period, there are no fees for using Rivera vaults. A management & performance fee will be applied after the protocol's mainnet launch.
                         </p>
                       </AccordionTab>
                       <AccordionTab header="I'm having trouble using the app. What should I do?">
                         <p className="m-0">
-                          At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti
-                          quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt
-                          mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio.
-                          Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus.
+                        Join our Discord community and help us improve our app by reporting your issue. Win exclusive rewards, bounty & more for your contribution.
+                        </p>
+                      </AccordionTab>
+                      <AccordionTab header="I love Rivera! How can I get involved?">
+                        <p className="m-0">
+                        We are recruiting DeFi pros who can help us redefine the future of DeFi liquidity management. Join us in testing the Rivera protocol and contributing to its development. We are awarding exclusive OG NFTs to the top 100 testers. Get started by joining our Discord.
                         </p>
                       </AccordionTab>
                     </Accordion>
@@ -889,11 +957,11 @@ export default function VaultDetails() {
                       <div className='buy_cake mt-1 mb-2'>Buy {deatils?.assetName}</div>
                       <div className='dsp'>
                         <div>Min. Limit </div>
-                        <div>50 {deatils?.assetName}</div>
+                        <div>0.001 {deatils?.assetName}</div>
                       </div>
                       <div className='dsp'>
                         <div>Max. Limit</div>
-                        <div>10,000 {deatils?.assetName}</div>
+                        <div>{maxLimit} {deatils?.assetName}</div>
                       </div>
                       <hr />
                       <div className='dsp'>
@@ -942,11 +1010,11 @@ export default function VaultDetails() {
                       <div className='buy_cake mt-1 mb-2'>Buy {deatils?.assetName}</div>
                       <div className='dsp'>
                         <div>Min. Limit </div>
-                        <div>0.5 {deatils?.assetName}</div>
+                        <div>0.001 {deatils?.assetName}</div>
                       </div>
                       <div className='dsp'>
                         <div>Max. Limit</div>
-                        <div>20 {deatils?.assetName}</div>
+                        <div>{maxLimit} {deatils?.assetName}</div>
                       </div>
                       <hr />
                       <div className='dsp'>

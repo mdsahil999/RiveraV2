@@ -1,8 +1,7 @@
 import './App.css';
 import { useNavigate } from 'react-router-dom';
 
-import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl, valut1Address } from './constants/global.js'
-import { valut2Address } from './constants/global.js'
+import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl } from './constants/global.js'
 import { whitelistedFactoryAddress } from './constants/global.js'
 import btcImg from './assets/images/btc.png'
 import lockImg from './assets/images/lock.png'
@@ -58,39 +57,14 @@ function Home() {
 
   useEffect(() => {
     setLoading(true);
-
-
-    fetch('/vaultDetails.json')
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        //setPosts(data);
-        //console.log("valutData", data['abc']);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
-
     getDeployedValut();
   }, []);
 
-  const fetchData = async () => {
-    try {
-      const response = await fetch('/vaultDetails.json'); // Assuming the JSON file is named "data.json" and located in the public folder.
-      const data = await response.json();
-      console.log("data", data);
-      //setJsonData(data);
-    } catch (error) {
-      console.log('Error fetching JSON data:', error);
-    }
-  };
 
   const goTovaultDeatils = (path: string) => {
     navigate('valutDeatils/' + path);
   }
-  const goToSetRange = (path: string) => {
-    navigate('valutRangeSelector/' + path);
-  }
+
 
   const getContract = (address: string, abi: any, provider: any) => {
     return new ethers.Contract(address, abi, provider);
@@ -121,7 +95,7 @@ function Home() {
   }
 
   async function getDeployedValut() {
-
+debugger
     // const provider = new ethers.providers.Web3Provider(window.ethereum as ethers.providers.ExternalProvider, "any");
     // const signerVal = provider.getSigner();
 
@@ -359,73 +333,9 @@ function Home() {
     });
   }
 
-  // async function afterLogin() {
-  //   const localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
-  //   const contract = getContract(whitelistedFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, localProvider.getSigner());
-
-  //   let valutListVal = await contract.listAllVaults();
-
-  //   let totalTvlVal = 0;
-  //   let totalPortfolio = 0;
-  //   let totalOverallreturnVal = 0;
-  //   valutListVal = await Promise.all(valutListVal?.map(async (vaultAddress: any) => {
-
-  //     const vaultContract = getContract(vaultAddress, RiveraAutoCompoundingVaultV2WhitelistedJson.abi, signer);
-
-  //     const asset = await vaultContract.asset(); //it will return the name of the asset of the valut
-  //     const totalAssets = await vaultContract.totalAssets(); //it will return the total assets of the valut
-  //     const valutName = await vaultContract.name();
-  //     const convertedPrice = await getPriceInUsd(asset);
-  //     const tvl = Number((totalAssets / Math.pow(10, 18) * convertedPrice).toFixed(2));
-  //     const share = await vaultContract.balanceOf(address);
-  //     const totalSupply = await vaultContract.totalSupply();
-  //     const userShare = (tvl * (share / Math.pow(10, 18))) / (totalSupply / Math.pow(10, 18));
-  //     console.log("user agre", userShare);
-
-  //     //calculate total deposit amount
-  //     const depositFilter = vaultContract.filters.Deposit();
-  //     const depositLogs = await vaultContract.queryFilter(depositFilter, FACTORY_CONTRACT_DEPLOYMENT_BLOCK);
-  //     const depositEvents = depositLogs.map((log: any) => vaultContract.interface.parseLog(log));
-  //     let totalDeposit = 0;
-  //     depositEvents.forEach((depositEvent: any) => totalDeposit = totalDeposit + Number(depositEvent.args.assets));
-
-
-  //     //calculate total withdraw amount
-  //     const withdrawFilter = vaultContract.filters.Withdraw();
-  //     const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, FACTORY_CONTRACT_DEPLOYMENT_BLOCK);
-  //     const withdrawEvents = withdrawLogs.map((log: any) => vaultContract.interface.parseLog(log));
-  //     let totalwithdraw = 0;
-  //     withdrawEvents.forEach((withdrawEvent: any) => totalwithdraw = totalwithdraw + Number(withdrawEvent.args.assets));
-
-  //     const overallReturn = (Number(totalSupply) + (totalwithdraw)) - (totalDeposit);
-
-  //     totalTvlVal = totalTvlVal + tvl;
-  //     setTotalTvl(totalTvlVal);
-
-  //     totalPortfolio = totalPortfolio + Number(userShare.toFixed(2));
-  //     setPortfolio(totalPortfolio);
-
-  //     totalOverallreturnVal = totalOverallreturnVal + Number((overallReturn / Math.pow(10, 18) * convertedPrice).toFixed(2));
-  //     setOverallReturn(totalOverallreturnVal);
-
-
-  //     console.log("tvl tvl", tvl);
-  //     return {
-  //       "name": valutName,
-  //       "saftyRating": "9.1",
-  //       "tvl": tvl,
-  //       "averageApy": "23.84%",
-  //       "valutAddress": vaultAddress
-  //     };
-
-  //   }));
-
-  //   Promise.all(valutListVal).then((values) => {
-  //     setvalutList(values as any);
-  //   });
-  // }
-
-
+  const goToUrl = (url: any)=>{
+    window.open(url, '_blank');
+  }
 
   return (
     <>
@@ -617,7 +527,7 @@ function Home() {
               <div className=''>
                 <div className='last_header_inner'>Asset Manager?</div>
                 <div className='last_section_desc'>Provide peace of mind to your investors by offering them self-custody vaults. Build & customize powerful yield farming and structured products. </div>
-                <div><button className='btn btn-riv-secondary earlyacesBtn'>Get Early Access</button></div>
+                <div><button className='btn btn-riv-secondary earlyacesBtn' onClick={()=>{goToUrl('https://tally.so/r/m6Lope')}}>Get Early Access</button></div>
               </div>
               <div className=''>
                 <img src={assetsManagerImg} alt='tvl' />
