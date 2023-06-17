@@ -317,7 +317,8 @@ debugger
         "averageApy": "23.84%",
         "valutAddress": vaultAddress,
         "tvlcapInUsd": tvlcapInUsd.toFixed(2),
-        "valutApy": valutApyVal.toFixed(2)
+        "valutApy": valutApyVal.toFixed(2),
+        "percentage": ((tvlInUsd/tvlcapInUsd)*100).toFixed(4)
       };
 
     }));
@@ -469,7 +470,7 @@ debugger
 
                   <div className='dsp mb-3'>
                     <div className='wdth_50'><div className='mb-1'>TVL</div> <span className='secondary_color fnt_wgt_600'>${e.tvlInUsd}</span>
-                      <div className='d-flex'><ProgressBar value={50} className='wdth_100'></ProgressBar> <div className='prgrs_txt'>${e.tvlcapInUsd}</div></div>
+                      <div className='d-flex'><ProgressBar value={Number(e.percentage)} className='wdth_100'></ProgressBar> <div className='prgrs_txt'>${e.tvlcapInUsd}</div></div>
 
                     </div>
                     <div className='mr_45'>Protocols <br /> <span><img className='pancakeWdth' src={pancakeImg} alt='pancake' /></span></div>

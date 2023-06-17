@@ -933,7 +933,8 @@ export default function VaultDetails() {
                         <div>${userShareInUsd}</div>
                       </div>
                       <div>
-                        <ProgressBar value={50}></ProgressBar>
+                        {/* <span>{Number(((Number(userShareInUsd)/ Number(tvlCapInUsd))*100).toFixed(4))}</span> */}
+                        <ProgressBar value={Number(((Number(userShareInUsd)/ Number(tvlCapInUsd))*100).toFixed(4))}></ProgressBar>
                       </div>
                       <div className='dsp mb-3'>
                         <div>Capacity</div>
