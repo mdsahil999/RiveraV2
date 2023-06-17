@@ -1,11 +1,37 @@
-import { getDefaultWallets } from '@rainbow-me/rainbowkit'
+//import { getDefaultWallets } from '@rainbow-me/rainbowkit'
+import { Chain, getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { configureChains, createClient } from 'wagmi'
 import { arbitrum, bsc, mainnet, optimism, polygon } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 
+const mantleChain: Chain = {
+  id: 5001,
+  name: 'Mantle Testnet',
+  network: 'MNT',
+  iconUrl: 'https://example.com/icon.svg',
+  //iconBackground: '#fff',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Mantle Testnet',
+    symbol: 'MNT',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.testnet.mantle.xyz'],
+    },
+    public:{
+      http: ['https://rpc.testnet.mantle.xyz'],
+    }
+  },
+  blockExplorers: {
+    default: { name: 'SnowTrace', url: 'https://explorer.testnet.mantle.xyz' },
+  },
+  testnet: true,
+};
+
 const { chains, provider } = configureChains(
-    [mainnet, polygon, optimism, arbitrum, bsc],
+    [mantleChain, bsc],
     [
       alchemyProvider({ apiKey: process.env.ALCHEMY_ID as string}),
       publicProvider()
