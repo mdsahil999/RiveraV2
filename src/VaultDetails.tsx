@@ -41,9 +41,8 @@ import erc20Json from './abi/out/ERC20.sol/ERC20.json'
 import dollarImg from './assets/images/dollar.png';
 import saftyImg from './assets/images/safty.png';
 import graphIMg from './assets/images/graph.png';
-import pancakeWhitelistedVaultFactoryV2Json from './abi/out/PancakeWhitelistedVaultFactoryV2.sol/PancakeWhitelistedVaultFactoryV2.json'
 import riveraAutoCompoundingVaultV2WhitelistedJson from './abi/out/RiveraAutoCompoundingVaultV2Whitelisted.sol/RiveraAutoCompoundingVaultV2Whitelisted.json'
-import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl, whitelistedFactoryAddress } from './constants/global.js'
+import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl } from './constants/global.js'
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 interface Product {
@@ -950,12 +949,18 @@ export default function VaultDetails() {
                       <div className='dsp backGrd mb-3'>
                         <div className='fnt_wgt_600'><img src={deatils?.assetImg} className='wdth_50' alt='usdt' /> <br /> {deatils?.assetName}</div>
                         <div><input
-                          maxLength={5}
-                          type="text"
+                          min={0.001}
+                          type="number"
                           id="first_name"
                           name="first_name"
                           value={depositAmout}
-                          onChange={handledepositAmoutChange}
+                          onChange={(e) => {
+                            if(e.target.value.length <3){
+                              handledepositAmoutChange(e)
+                            }else {
+                                e.target.value=  e.target.value.slice(0,5)
+                            }
+                        }}
                         /></div>
                       </div>
                       <div className='dsp'>
@@ -1000,7 +1005,7 @@ export default function VaultDetails() {
                         <div>${userShareInUsd}</div>
                       </div>
                       <div>
-                        <ProgressBar value={50}></ProgressBar>
+                        <ProgressBar value={Number(((Number(userShareInUsd)/ Number(tvlCapInUsd))*100).toFixed(4))}></ProgressBar>
                       </div>
                       <div className='dsp mb-3'>
                         <div>Capacity</div>

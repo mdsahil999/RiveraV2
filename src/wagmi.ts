@@ -7,13 +7,13 @@ import { alchemyProvider } from 'wagmi/providers/alchemy';
 
 const mantleChain: Chain = {
   id: 5001,
-  name: 'Mantle Testnet',
+  name: 'Mantle',
   network: 'MNT',
-  iconUrl: 'https://example.com/icon.svg',
+  iconUrl: '../img/mantle.svg',
   //iconBackground: '#fff',
   nativeCurrency: {
     decimals: 18,
-    name: 'Mantle Testnet',
+    name: 'Mantle',
     symbol: 'MNT',
   },
   rpcUrls: {

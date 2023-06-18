@@ -16,33 +16,33 @@ function RoutingLayout() {
         navigate(string);
     }
 
-    const items = [
-        {
-            label: 'Home',
-            icon: 'pi pi-fw pi-file',
-            command: () => { navigateToPage('/') },
-        },
-        // {
-        //     label: 'Range',
-        //     icon: 'pi pi-fw pi-pencil',
-        //     command: () => { navigateToPage('/Dashboard') },
-        // }
-    ];
-    const start = <img alt="logo" src={logoImg} height="40" className="mr-2"></img>;
+    // const items = [
+    //     {
+    //         label: 'Home',
+    //         icon: 'pi pi-fw pi-file',
+    //         command: () => { navigateToPage('/') },
+    //     },
+    //     // {
+    //     //     label: 'Range',
+    //     //     icon: 'pi pi-fw pi-pencil',
+    //     //     command: () => { navigateToPage('/Dashboard') },
+    //     // }
+    // ];
+    const start = <img alt="logo" src={logoImg} height="40" className="mr-2 crsr_pntr" onClick={()=>{navigateToPage('/')}}></img>;
     const end = <ConnectButton />
 
     return (
         <>
-            <div className='header_warning'>
+            {/* <div className='header_warning'>
                 <div className='header_warning_font'>
                     <img src={alertTriangleImg} className='left_wrgn_alrt' alt='alert'/>
                     <span>MVP TESTING RISK NOTICE</span>
                     <img src={alertTriangleImg} className='left_wrgn_alrt' alt='alert'/>
                     </div>
                 <div>Rivera contracts are NOT audited yet. You may lose ALL funds deposited into Rivera-powered strategy vaults.</div>
-            </div>
+            </div> */}
             <div className="card">
-                <Menubar model={items} start={start} end={end} />
+                <Menubar start={start} end={end} />
             </div>
             {/* {signer ? <><div className="main">
                 <Outlet />

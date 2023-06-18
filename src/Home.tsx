@@ -2,7 +2,7 @@ import './App.css';
 import { useNavigate } from 'react-router-dom';
 
 import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl } from './constants/global.js'
-import { whitelistedFactoryAddress } from './constants/global.js'
+import { whitelistedBNBFactoryAddress, whitelistedMantleFactoryAddress } from './constants/global.js'
 import btcImg from './assets/images/btc.png'
 import lockImg from './assets/images/lock.png'
 import checkCircleImg from './assets/images/check-circle.png'
@@ -100,9 +100,13 @@ debugger
     // const signerVal = provider.getSigner();
 
     const localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
-    const contract = getContract(whitelistedFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, localProvider.getSigner());
+    const bnbContract = getContract(whitelistedBNBFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, localProvider.getSigner());
+    const mantleContract = getContract(whitelistedMantleFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, localProvider.getSigner());
 
-    let valutListVal = await contract.listAllVaults();
+    //let mantleValutList = await mantleContract.listAllVaults();
+
+    let valutListVal = await bnbContract.listAllVaults();
+    debugger
     setTotalVault(valutListVal.length);
     let totalTvlVal = 0;
     let totalPortfolio = 0;
