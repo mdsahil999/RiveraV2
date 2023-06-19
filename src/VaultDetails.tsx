@@ -556,7 +556,7 @@ export default function VaultDetails() {
                   <div>Safety Score <br /> <span className='holding_val'>9.1 <img src={saftyImg} alt='safty img' className='sftyImgWdth' /></span></div>
                   <div>Protocols <br /> <span><img className='pancakeWdth' src={pancakeImg} alt='pancake' /></span></div>
                 </div>
-                <div className='backGrd'>
+                {/* <div className='backGrd'>
                   <div className='mb-2'><img src={cashaaImg} alt='lock img' className='cashaa logo' /></div>
                   <div className='dsp'>
                     <div>Fund Manager <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager.name}</span></div>
@@ -567,7 +567,7 @@ export default function VaultDetails() {
                   <div className='mt-2'>
                     <span className='mrInf'>More Info</span>
                   </div>
-                </div>
+                </div> */}
 
               </div>
               <div className='second_section outer_section nav_design'>
@@ -691,16 +691,16 @@ export default function VaultDetails() {
               <section id='portfolioManager'>
                 <div className='fifth_section outer_section'>
                   <div className='hdr_txt mb-2'>Portfolio Manager</div>
-                  <div className='mb-3'><img src={cashaaImg} alt='cashaa logo' /></div>
-                  <div className='dsp mb-3'>
+                  {/* <div className='mb-3'><img src={cashaaImg} alt='cashaa logo' /></div> */}
+                  {/* <div className='dsp mb-3'>
                     <div>Fund Manager <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager?.name}</span></div>
                     <div>Year Founded <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager?.yearFounded}</span></div>
                     <div>Location <br /> <span className='fnt_wgt_600'>{valutJsonData?.fundManager?.location}</span></div>
                     <div><img src={licensedImg} alt='licensed' /></div>
-                  </div>
-                  <div>
+                  </div> */}
+                  {/* <div>
                   {valutJsonData?.fundManager.details}
-                  </div>
+                  </div> */}
                   <div className='mt-4'>
                     <span className='fnt_wgt_600'>Vault owner</span>
                     <div className='dsp wdth_50 prtfol_back mt-2 mb-3'>

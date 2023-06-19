@@ -1,7 +1,7 @@
 import './App.css';
 import { useNavigate } from 'react-router-dom';
 
-import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl } from './constants/global.js'
+import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl, manrleRPCUrl } from './constants/global.js'
 import { whitelistedBNBFactoryAddress, whitelistedMantleFactoryAddress } from './constants/global.js'
 import btcImg from './assets/images/btc.png'
 import lockImg from './assets/images/lock.png'
@@ -38,6 +38,9 @@ import RiveraAutoCompoundingVaultV2WhitelistedJson from './abi/out/RiveraAutoCom
 import { take } from 'rxjs/operators';
 import bnbImg from './assets/images/bnb.png';
 import ethImg from './assets/images/eth.png';
+import deltaNeutralImg from './assets/images/deltaNeutral.svg';
+import stablePairImg from './assets/images/stablePair.svg';
+import liquidityMinigImg from './assets/images/liquidityMinig.svg';
 
 function Home() {
   const [totalTvl, setTotalTvl] = useState("");
@@ -95,15 +98,16 @@ function Home() {
   }
 
   async function getDeployedValut() {
-debugger
+    debugger
     // const provider = new ethers.providers.Web3Provider(window.ethereum as ethers.providers.ExternalProvider, "any");
     // const signerVal = provider.getSigner();
 
     const localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
     const bnbContract = getContract(whitelistedBNBFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, localProvider.getSigner());
-    const mantleContract = getContract(whitelistedMantleFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, localProvider.getSigner());
+    const mantleLocalProvied = new ethers.providers.JsonRpcProvider(manrleRPCUrl);
+    const mantleContract = getContract(whitelistedMantleFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, mantleLocalProvied.getSigner());
 
-    //let mantleValutList = await mantleContract.listAllVaults();
+    let mantleValutList = await mantleContract.listAllVaults();
 
     let valutListVal = await bnbContract.listAllVaults();
     debugger
@@ -207,7 +211,7 @@ debugger
           totalUserDepositWithTime /= Math.pow(10, 18);
 
 
-        
+
           const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
           // eslint-disable-next-line no-loop-func
           await Promise.all(withdrawLogs.map(async (log: any) => {
@@ -322,7 +326,7 @@ debugger
         "valutAddress": vaultAddress,
         "tvlcapInUsd": tvlcapInUsd.toFixed(2),
         "valutApy": valutApyVal.toFixed(2),
-        "percentage": ((tvlInUsd/tvlcapInUsd)*100).toFixed(4)
+        "percentage": ((tvlInUsd / tvlcapInUsd) * 100).toFixed(4)
       };
 
     }));
@@ -338,7 +342,7 @@ debugger
     });
   }
 
-  const goToUrl = (url: any)=>{
+  const goToUrl = (url: any) => {
     window.open(url, '_blank');
   }
 
@@ -460,30 +464,50 @@ debugger
                   <div className='dsp'>
                     <div className='header_font_size'><span><img src={e.assetImg} alt='btc img' className='btc_img_width' /></span>{e.name}</div>
                     <div>
+
                       <span><span className='holding_val ml_8'>9.1</span><img src={saftyImg} alt='lock img' className='wthlist_back_img' /></span>
                     </div>
-                  </div>
-                  <div className='dsp mt-3 mb-3'>
-                    <div className='trdng_outer'>
-                      <span className='trdng_width'><img src={arrowImg} className='ml_8' alt='arrow img' />Trending</span>
+                    <div className='chain_pos'>
+
+                      <span><img src='../img/bnbChain.png' alt='chain' /></span>
                     </div>
-                    <div>
+                  </div>
+                  <div className='dsp dspWrap mt-3 mb-4'>
+                    <div className='trdng_outer'>
+                      <span className='trdng_width'><img src={stablePairImg} className='ml_8' alt='arrow img' />Stable Pair</span>
+                      {/* <span className='trdng_width'><img src={liquidityMinigImg} className='ml_8' alt='arrow img' />Liquidity Mining</span>
+                      <span className='trdng_width'><img src={deltaNeutralImg} className='ml_8' alt='arrow img' />Delta Neutral</span> */}
+                    </div>
+                    <div className='trdng_outer'>
+                      {/* <span className='trdng_width'><img src={stablePairImg} className='ml_8' alt='arrow img' />Stable Pair</span> */}
+                      <span className='trdng_width'><img src={liquidityMinigImg} className='ml_8' alt='arrow img' />Liquidity Mining</span>
+                      {/* <span className='trdng_width'><img src={deltaNeutralImg} className='ml_8' alt='arrow img' />Delta Neutral</span> */}
+                    </div>
+                    <div className='trdng_outer'>
+                      {/* <span className='trdng_width'><img src={stablePairImg} className='ml_8' alt='arrow img' />Stable Pair</span>
+                      <span className='trdng_width'><img src={liquidityMinigImg} className='ml_8' alt='arrow img' />Liquidity Mining</span> */}
+                      <span className='trdng_width'><img src={deltaNeutralImg} className='ml_8' alt='arrow img' />Delta Neutral</span>
+                    </div>
+                    <div className='trdng_outer'>
                       <span className='wthlist_back'><img src={lockImg} alt='lock img' className='wthlist_back_img' />Require KYC</span>
                     </div>
                   </div>
 
-                  <div className='dsp mb-3'>
-                    <div className='wdth_50'><div className='mb-1'>TVL</div> <span className='secondary_color fnt_wgt_600'>${e.tvlInUsd}</span>
-                      <div className='d-flex'><ProgressBar value={Number(e.percentage)} className='wdth_100'></ProgressBar> <div className='prgrs_txt'>${e.tvlcapInUsd}</div></div>
-
-                    </div>
-                    <div className='mr_45'>Protocols <br /> <span><img className='pancakeWdth' src={pancakeImg} alt='pancake' /></span></div>
-                  </div>
-
                   <div className='dsp mb-5'>
+                    <div className='wdth_45'>
+                      <div className='mb-1'>TVL</div>
+                      <span className='secondary_color fnt_wgt_600'>${e.tvlInUsd}</span>
+                      <div className='d-flex'><ProgressBar value={Number(e.percentage)} className='wdth_100'></ProgressBar> <div className='prgrs_txt'>${e.tvlcapInUsd}</div></div>
+                    </div>
                     <div>Average APY <br /> <span className='holding_val'>{e.valutApy}%</span></div>
                     <div>Provided By <br /> <span><img src={cashaaImg} alt='lock img' className='cashaa logo' /></span></div>
+                    {/* <div className='mr_45'>Protocols <br /> <span><img className='pancakeWdth' src={pancakeImg} alt='pancake' /></span></div> */}
                   </div>
+
+                  {/* <div className='dsp mb-5'>
+                    <div>Average APY <br /> <span className='holding_val'>{e.valutApy}%</span></div>
+                    <div>Provided By <br /> <span><img src={cashaaImg} alt='lock img' className='cashaa logo' /></span></div>
+                  </div> */}
                   <div className='dsp_around mb-2'>
                     <div className='wdth_60'><button className='btn btn-riv-secondary view_btn_wdth' onClick={() => { goTovaultDeatils(e.valutAddress) }}>View Details <img src={buttonArrowImg} alt='arrow' /></button></div>
                     {/* <div><button className='btn btn-riv-secondary' onClick={() => { goToSetRange(e) }}>Set Range</button></div> */}
@@ -532,7 +556,7 @@ debugger
               <div className=''>
                 <div className='last_header_inner'>Asset Manager?</div>
                 <div className='last_section_desc'>Provide peace of mind to your investors by offering them self-custody vaults. Build & customize powerful yield farming and structured products. </div>
-                <div><button className='btn btn-riv-secondary earlyacesBtn' onClick={()=>{goToUrl('https://tally.so/r/m6Lope')}}>Get Early Access</button></div>
+                <div><button className='btn btn-riv-secondary earlyacesBtn' onClick={() => { goToUrl('https://tally.so/r/m6Lope') }}>Get Early Access</button></div>
               </div>
               <div className=''>
                 <img src={assetsManagerImg} alt='tvl' />

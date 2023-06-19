@@ -119,6 +119,8 @@ linear-gradient(0deg, rgba(40, 91, 221, 0.04), rgba(40, 91, 221, 0.04)); */
 .trdng_width {
   padding: 6px 10px 7px 10px;
   border: 1px solid #959498;
+  border-radius: 8px;
+  background: white;
 }
 .trdnImgMargn {
   margin-right: 5px;
@@ -126,7 +128,7 @@ linear-gradient(0deg, rgba(40, 91, 221, 0.04), rgba(40, 91, 221, 0.04)); */
 .trdng_outer {
   margin-top: 15px;
   margin-bottom: 10px;
-  color: #45822d;
+  /* color: #45822d; */
 }
 .fnt_wgt_600 {
   font-weight: 600;
@@ -251,6 +253,9 @@ linear-gradient(0deg, rgba(40, 91, 221, 0.04), rgba(40, 91, 221, 0.04)); */
 }
 .wdth_50 {
   width: 50%;
+}
+.wdth_45 {
+  width: 45%;
 }
 .valut_header {
   margin-left: 10px;
@@ -531,9 +536,6 @@ thead {
   font-size: 14px;
 }
 
-.wdth_50 {
-  width: 50%;
-}
 
 .mrgn_5 {
   margin: 0px 5px;
@@ -716,6 +718,15 @@ thead {
   width: 100%;
   margin-right: auto;
   margin-left: auto;
+}
+
+.chain_pos{
+  margin-top: -18px;
+  margin-right: -15px;
+}
+
+.dspWrap{
+  flex-wrap: wrap;
 }
 
 @media (min-width: 1200px){
