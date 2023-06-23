@@ -1,30 +1,14 @@
 import './App.css';
 import { useNavigate } from 'react-router-dom';
-
 import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl, mantleRPCUrl } from './constants/global.js'
 import { whitelistedBNBFactoryAddress, whitelistedMantleFactoryAddress } from './constants/global.js'
-import btcImg from './assets/images/btc.png'
 import lockImg from './assets/images/lock.png'
-import checkCircleImg from './assets/images/check-circle.png'
-import arrowImg from './assets/images/arrow.png'
 import cashaaImg from './assets/images/cashaa.png';
-import licensedImg from './assets/images/licensed.png';
-import upImg from './assets/images/up.png';
-import downImg from './assets/images/down.png';
-import helpImg from './assets/images/help-circle.png';
-import pancakeImg from './assets/images/pancake.svg';
-import venusImg from './assets/images/venus.svg';
-import globeImg from './assets/images/globe.png';
-import arrowUpImg from './assets/images/arrow-up-right.png';
-import copyImg from './assets/images/copy.png';
-import eternalLinkImg from './assets/images/external-link.png';
 import tvlIMg from './assets/images/tvl.png';
 import assetsManagerImg from './assets/images/assetsManager.png';
 import rocketImg from './assets/images/rocket.png';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useProvider, useSigner } from 'wagmi';
-import section1IMg from './assets/images/section1.png';
-import section2IMg from './assets/images/section2.png';
 import { ProgressBar } from 'primereact/progressbar';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
@@ -32,17 +16,11 @@ import buttonArrowImg from './assets/images/button_arrow.png';
 import saftyImg from './assets/images/safty.png';
 import keyCircleImg from './assets/images/keyCircle.png';
 import seetingCircleImg from './assets/images/seetingCircle.png';
-import erc20Json from './abi/out/ERC20.sol/ERC20.json'
 import pancakeWhitelistedVaultFactoryV2Json from './abi/out/PancakeWhitelistedVaultFactoryV2.sol/PancakeWhitelistedVaultFactoryV2.json'
 import RiveraAutoCompoundingVaultV2WhitelistedJson from './abi/out/RiveraAutoCompoundingVaultV2Whitelisted.sol/RiveraAutoCompoundingVaultV2Whitelisted.json'
-import { take } from 'rxjs/operators';
 import bnbImg from './assets/images/bnb.png';
 import ethImg from './assets/images/eth.png';
-import deltaNeutralImg from './assets/images/deltaNeutral.svg';
-import stablePairImg from './assets/images/stablePair.svg';
-import liquidityMinigImg from './assets/images/liquidityMinig.svg';
 import bitLogoImg from './assets/images/bitLogo.png';
-
 import StablePairColorImg from './assets/images/StablePairColor.svg';
 import almImg from './assets/images/alm.svg';
 import LSDFarmingImg from './assets/images/LSDFarming.svg';
@@ -57,7 +35,6 @@ function Home() {
   const [bnbPriceInUsd, setBnbPriceInUsd] = useState(2);
   const [erc20Abi, seterc20Abi] = useState({});
   const [valutList, setvalutList] = useState<any>([]);
-  const valutList2 = ['1', '2'];
   const { address, isConnected } = useAccount();
   const provider = useProvider();
   const { data: signer, isError, isLoading } = useSigner();
@@ -93,10 +70,9 @@ function Home() {
         resolve(Number(0.5));
       });
     }
-    // const { ethers } = require("ethers") // for nodejs only
+    // need to remove this abi to folder
     const providerVal = new ethers.providers.JsonRpcProvider("https://bsc-dataseed1.binance.org")  //https://data-seed-prebsc-1-s1.binance.org:8545/ for local testnet
     const aggregatorV3InterfaceABI = [{ "inputs": [{ "internalType": "address", "name": "_aggregator", "type": "address" }, { "internalType": "address", "name": "_accessController", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "int256", "name": "current", "type": "int256" }, { "indexed": true, "internalType": "uint256", "name": "roundId", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "updatedAt", "type": "uint256" }], "name": "AnswerUpdated", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint256", "name": "roundId", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "startedBy", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "startedAt", "type": "uint256" }], "name": "NewRound", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }], "name": "OwnershipTransferRequested", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }], "name": "OwnershipTransferred", "type": "event" }, { "inputs": [], "name": "acceptOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "accessController", "outputs": [{ "internalType": "contract AccessControllerInterface", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "aggregator", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_aggregator", "type": "address" }], "name": "confirmAggregator", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "description", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_roundId", "type": "uint256" }], "name": "getAnswer", "outputs": [{ "internalType": "int256", "name": "", "type": "int256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint80", "name": "_roundId", "type": "uint80" }], "name": "getRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_roundId", "type": "uint256" }], "name": "getTimestamp", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestAnswer", "outputs": [{ "internalType": "int256", "name": "", "type": "int256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestRound", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestTimestamp", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint16", "name": "", "type": "uint16" }], "name": "phaseAggregators", "outputs": [{ "internalType": "contract AggregatorV2V3Interface", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "phaseId", "outputs": [{ "internalType": "uint16", "name": "", "type": "uint16" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_aggregator", "type": "address" }], "name": "proposeAggregator", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "proposedAggregator", "outputs": [{ "internalType": "contract AggregatorV2V3Interface", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint80", "name": "_roundId", "type": "uint80" }], "name": "proposedGetRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "proposedLatestRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_accessController", "type": "address" }], "name": "setController", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_to", "type": "address" }], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "version", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }]
-    //const addr = "0xe0073b60833249ffd1bb2af809112c2fbf221DF6"
     const priceFeed = new ethers.Contract(priceAddress, aggregatorV3InterfaceABI, providerVal)
     const roundData = await priceFeed.latestRoundData();
     let decimals = await priceFeed.decimals();
@@ -138,7 +114,6 @@ function Home() {
       const tvlcapInUsd = tvlCap * convertedPrice;
       let tvl = totalAssets;
       const tvlInUsd = (tvl * convertedPrice);
-      // totalTvlVal = totalTvlVal + tvlInUsd;
 
 
 
@@ -158,7 +133,6 @@ function Home() {
       let totalOverallreturnVal = 0;
       let totalAverageApy = 0;
       if (address) {
-        debugger
         const isWhiteListed = await vaultContract.whitelist(address);
         setWhiteListed(isWhiteListed);
 
@@ -171,7 +145,6 @@ function Home() {
 
 
         totalPortfolio = totalPortfolio + userShareInUsd;
-        // setPortfolio(totalPortfolio.toFixed(2));
 
 
         const depositFilter = vaultContract.filters.Deposit();
@@ -275,8 +248,6 @@ function Home() {
         for (let i = 0; i < blocksToProcess; i += batchSize) {
           const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
           const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
-          // console.log("firstBlock", firstBlock);
-          // console.log("lastBlock", lastBlock);
 
           const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
 
@@ -317,7 +288,7 @@ function Home() {
       console.log("tvl tvl", tvl);
 
 
-      const response = await fetch('/vaultDetails.json'); // Assuming the JSON file is named "data.json" and located in the public folder.
+      const response = await fetch('/vaultDetails.json');
       const data = await response.json();
       const valutDetailsInJson = data[vaultAddress as string]
 
@@ -360,7 +331,6 @@ function Home() {
     const mantleValutList = await getValutDetailsByChain(mantleValutListVal, mantleLocalProvied);
 
     const finalList = [...bnbValutList, ...mantleValutList];
-    debugger
     setvalutList(finalList);
     setTotalVault(finalList.length);
 
@@ -377,18 +347,8 @@ function Home() {
     setPortfolio(portfolioVal.toFixed(2));
 
     setLoading(false);
-    // Promise.all(valutListVal).then((values) => {
-    //   setTotalTvl(totalTvlVal.toFixed(2));
-    //   setOverallReturn(totalOverallreturnVal.toFixed(2));
-    //   settotalAverageApy(totalAverageApy.toFixed(2))
-    //   setvalutList(values as any);
-    //   setLoading(false);
-    // });
   }
 
-  // const getValutDetailsByChain = () =>{
-
-  // }
 
   const goToUrl = (url: any) => {
     window.open(url, '_blank');
@@ -400,10 +360,6 @@ function Home() {
         <div className="spinner"></div>
       </div></> : <>
         <div className="custom-container">
-
-          {/* <button onClick={getDeployedValut}>Check</button> */}
-          {/* <button onClick={() =>{getPriceInUsd('0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE')}}>convert</button> */}
-
           {isConnected ?
             <>
               {isWhiteListed ?
@@ -443,8 +399,6 @@ function Home() {
                             <div className='holding_header_inner'>142</div>
                           </div>
                         </div>
-
-
                       </div>
                       <div >
                         <img src={rocketImg} alt='rocket img' />
@@ -458,7 +412,6 @@ function Home() {
                     <div className='dsp_cont'>
                       <div className='wdth_40'>
                         <div className='holding_header_inner mb-2 redHatFont'>You are not whitelisted.</div>
-                        {/* <div className='mb-3'>Explore among curated vaults to find a strategy that suits your goal. Powered by crypto’s top asset managers. </div> */}
                       </div>
                       <div className='wdth_30'>
                         <div className='tvl_back pddng_20'>
@@ -542,15 +495,6 @@ function Home() {
                     </div>
                   </div>
                   <div className='dsp dspWrap mt-3 mb-4'>
-                    {/* <div className='trdng_outer'>
-                      <span className='trdng_width'><img src={stablePairImg} className='ml_8' alt='arrow img' />Stable Pair</span>
-                    </div>
-                    <div className='trdng_outer'>
-                      <span className='trdng_width'><img src={liquidityMinigImg} className='ml_8' alt='arrow img' />Liquidity Mining</span>
-                    </div>
-                    <div className='trdng_outer'>
-                      <span className='trdng_width'><img src={deltaNeutralImg} className='ml_8' alt='arrow img' />Delta Neutral</span>
-                    </div> */}
                     <div className='trdng_outer'>
                       <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span>
                     </div>
@@ -573,55 +517,13 @@ function Home() {
                     </div>
                     <div>Average APY <br /> <span className='holding_val'>{e.valutApy}%</span></div>
                     <div>Provided By <br /> <span><img src={cashaaImg} alt='lock img' className='cashaa logo' /></span></div>
-                    {/* <div className='mr_45'>Protocols <br /> <span><img className='pancakeWdth' src={pancakeImg} alt='pancake' /></span></div> */}
                   </div>
-
-                  {/* <div className='dsp mb-5'>
-                    <div>Average APY <br /> <span className='holding_val'>{e.valutApy}%</span></div>
-                    <div>Provided By <br /> <span><img src={cashaaImg} alt='lock img' className='cashaa logo' /></span></div>
-                  </div> */}
                   <div className='dsp_around mb-2'>
                     <div className='wdth_60'><button className='btn btn-riv-secondary view_btn_wdth' onClick={() => { goTovaultDeatils(e.valutAddress) }}>View Details <img src={buttonArrowImg} alt='arrow' /></button></div>
-                    {/* <div><button className='btn btn-riv-secondary' onClick={() => { goToSetRange(e) }}>Set Range</button></div> */}
                   </div>
                 </div>
               </div>
             })}
-
-
-            {/* <div className='wdth_50'>
-        <div className="small-home-div-4"></div>
-          <div className='first_section outer_section'>
-            <div className='dsp'>
-              <div className='header_font_size'><span><img src={require('./assets/images/btc.png')} alt='btc img' className='btc_img_width' /></span>ETH-Neutral THENA Farming</div>
-              <div>
-                <span><img src={lockImg} alt='lock img' className='wthlist_back_img' />9.1</span>
-              </div>
-            </div>
-            <div className='dsp mt-3 mb-3'>
-              <div className='trdng_outer'>
-                <span className='trdng_width'><img src={arrowImg} alt='arrow img' />Trending</span>
-              </div>
-              <div>
-                <span className='wthlist_back'><img src={lockImg} alt='lock img' className='wthlist_back_img' />Require KYC</span>
-              </div>
-            </div>
-
-            <div className='dsp mb-3'>
-              <div>TVL <br /> <span className='secondary_color fnt_wgt_600'>$1.2 M</span></div>
-              <div>Protocols <br /> <span><img className='venusWdth' src={venusImg} alt='venus' /><img className='pancakeWdth' src={pancakeImg} alt='pancake' /></span></div>
-            </div>
-
-            <div className='dsp mb-5'>
-              <div>Average APY <br /> <span className='holding_val'>23.84%</span></div>
-              <div>Provided By <br /> <span><img src={cashaaImg} alt='lock img' className='cashaa logo' /></span></div>
-            </div>
-            <div className='dsp_around mb-2'>
-              <div><button className='btn btn-riv-secondary' onClick={() => { goTovaultDeatils(valut2Address) }}>View Details</button></div>
-              <div><button className='btn btn-riv-secondary' onClick={() => { goToSetRange(valut2Address) }}>Set Range</button></div>
-            </div>
-          </div>
-        </div> */}
           </div>
           <div className='second_section outer_section_last last_section_back mb-5'>
             <div className='d-flex align-items-center ml_25'>
