@@ -1,7 +1,7 @@
 import './App.css';
 import { useNavigate } from 'react-router-dom';
 
-import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl, manrleRPCUrl } from './constants/global.js'
+import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl, mantleRPCUrl } from './constants/global.js'
 import { whitelistedBNBFactoryAddress, whitelistedMantleFactoryAddress } from './constants/global.js'
 import btcImg from './assets/images/btc.png'
 import lockImg from './assets/images/lock.png'
@@ -41,8 +41,14 @@ import ethImg from './assets/images/eth.png';
 import deltaNeutralImg from './assets/images/deltaNeutral.svg';
 import stablePairImg from './assets/images/stablePair.svg';
 import liquidityMinigImg from './assets/images/liquidityMinig.svg';
+import bitLogoImg from './assets/images/bitLogo.png';
+
+import StablePairColorImg from './assets/images/StablePairColor.svg';
+import almImg from './assets/images/alm.svg';
+import LSDFarmingImg from './assets/images/LSDFarming.svg';
 
 function Home() {
+  const [isWhiteListed, setWhiteListed] = useState(false);
   const [totalTvl, setTotalTvl] = useState("");
   const [totalVault, setTotalVault] = useState(0);
   const [portfolio, setPortfolio] = useState("");
@@ -50,7 +56,7 @@ function Home() {
   const [totalAverageApy, settotalAverageApy] = useState("");
   const [bnbPriceInUsd, setBnbPriceInUsd] = useState(2);
   const [erc20Abi, seterc20Abi] = useState({});
-  const [valutList, setvalutList] = useState([]);
+  const [valutList, setvalutList] = useState<any>([]);
   const valutList2 = ['1', '2'];
   const { address, isConnected } = useAccount();
   const provider = useProvider();
@@ -65,7 +71,7 @@ function Home() {
 
 
   const goTovaultDeatils = (path: string) => {
-    navigate('valutDeatils/' + path);
+    navigate('vault/' + path);
   }
 
 
@@ -81,6 +87,11 @@ function Home() {
       priceAddress = "0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE";
     } else if (address === "0x2170Ed0880ac9A755fd29B2688956BD959F933F8") {
       priceAddress = "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e";
+    } else if (address === "0x8734110e5e1dcF439c7F549db740E546fea82d66") {
+      //priceAddress = "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e";
+      return new Promise((resolve, reject) => {
+        resolve(Number(0.5));
+      });
     }
     // const { ethers } = require("ethers") // for nodejs only
     const providerVal = new ethers.providers.JsonRpcProvider("https://bsc-dataseed1.binance.org")  //https://data-seed-prebsc-1-s1.binance.org:8545/ for local testnet
@@ -97,39 +108,25 @@ function Home() {
 
   }
 
-  async function getDeployedValut() {
-    debugger
-    // const provider = new ethers.providers.Web3Provider(window.ethereum as ethers.providers.ExternalProvider, "any");
-    // const signerVal = provider.getSigner();
+  const getValutDetailsByChain = async (valultList: string[], provider: any) => {
+    const valutListVal = await Promise.all(valultList?.map(async (vaultAddress: any) => {
 
-    const localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
-    const bnbContract = getContract(whitelistedBNBFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, localProvider.getSigner());
-    const mantleLocalProvied = new ethers.providers.JsonRpcProvider(manrleRPCUrl);
-    const mantleContract = getContract(whitelistedMantleFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, mantleLocalProvied.getSigner());
-
-    let mantleValutList = await mantleContract.listAllVaults();
-
-    let valutListVal = await bnbContract.listAllVaults();
-    debugger
-    setTotalVault(valutListVal.length);
-    let totalTvlVal = 0;
-    let totalPortfolio = 0;
-    let totalOverallreturnVal = 0;
-    let totalAverageApy = 0
-
-    valutListVal = await Promise.all(valutListVal?.map(async (vaultAddress: any) => {
-
-      const vaultContract = getContract(vaultAddress, RiveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
+      const vaultContract = getContract(vaultAddress, RiveraAutoCompoundingVaultV2WhitelistedJson.abi, provider.getSigner());
 
       const asset = await vaultContract.asset(); //it will return the name of the asset of the valut
 
       let assetImg = "";
+      let chainImg = "";
 
       if (asset === "0x2170Ed0880ac9A755fd29B2688956BD959F933F8") {
         assetImg = ethImg;
-
+        chainImg = "../img/bnbChain.png"
       } else if (asset === "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c") {
         assetImg = bnbImg;
+        chainImg = "../img/bnbChain.png"
+      } else if (asset === "0x8734110e5e1dcF439c7F549db740E546fea82d66") {
+        assetImg = bitLogoImg;
+        chainImg = "../img/mantleLogo.png"
       }
 
       let totalAssets = await vaultContract.totalAssets(); //it will return the total assets of the valut
@@ -141,7 +138,7 @@ function Home() {
       const tvlcapInUsd = tvlCap * convertedPrice;
       let tvl = totalAssets;
       const tvlInUsd = (tvl * convertedPrice);
-      totalTvlVal = totalTvlVal + tvlInUsd;
+      // totalTvlVal = totalTvlVal + tvlInUsd;
 
 
 
@@ -157,25 +154,32 @@ function Home() {
       let totalUserwithdraw = 0;
       let totalUserwithdrawWithTime = 0;
 
+      let totalPortfolio = 0;
+      let totalOverallreturnVal = 0;
+      let totalAverageApy = 0;
       if (address) {
+        debugger
+        const isWhiteListed = await vaultContract.whitelist(address);
+        setWhiteListed(isWhiteListed);
+
         let share = await vaultContract.balanceOf(address);
         share = share / Math.pow(10, 18);
         let totalSupply = await vaultContract.totalSupply();
         totalSupply = totalSupply / Math.pow(10, 18);
         const userShareVal = (totalAssets * share) / totalSupply;
         const userShareInUsd = userShareVal * convertedPrice;
-        totalPortfolio = totalPortfolio + userShareInUsd;
-        setPortfolio(totalPortfolio.toFixed(2));
 
-        //deposit event call to get alldesopit amout
-        //mofied code start
+
+        totalPortfolio = totalPortfolio + userShareInUsd;
+        // setPortfolio(totalPortfolio.toFixed(2));
+
 
         const depositFilter = vaultContract.filters.Deposit();
         const withdrawFilter = vaultContract.filters.Withdraw();
 
 
         const distinctDepositerSet = new Set();
-        const latestBlockNumberval = await localProvider.getBlockNumber();
+        const latestBlockNumberval = await provider.getBlockNumber();
         console.log("latestBlockNumberval", latestBlockNumberval)
         const batchSize = 10000;
         const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
@@ -259,10 +263,8 @@ function Home() {
         totalAverageApy = totalAverageApy + userApyVal;
 
       } else {
-        // let totalValutDeposit = 0;
-        // let totalValutDepositWithTime = 0;
-        const latestBlockNumberval = await localProvider.getBlockNumber();
-        // console.log("latestBlockNumberval", latestBlockNumberval)
+
+        const latestBlockNumberval = await provider.getBlockNumber();
         const batchSize = 10000;
         const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
 
@@ -307,40 +309,86 @@ function Home() {
           totalValutwithdraw /= Math.pow(10, 18);
           totalValutwithdrawWithTime /= Math.pow(10, 18);
 
-          // console.log("totalValutwithdraw", totalValutwithdraw);
-          // console.log("totalValutwithdrawWithTime", totalValutwithdrawWithTime);
-
         }
       }
 
       const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
-
+      debugger
       console.log("tvl tvl", tvl);
+
+
+      const response = await fetch('/vaultDetails.json'); // Assuming the JSON file is named "data.json" and located in the public folder.
+      const data = await response.json();
+      const valutDetailsInJson = data[vaultAddress as string]
+
+      console.log("chain details", valutDetailsInJson);
+
       return {
         "name": valutName,
         "assetImg": assetImg,
-        "saftyRating": "9.1",
-        "tvlInUsd": tvlInUsd.toFixed(2),
+        "chainImg": chainImg,
+        "saftyRating": valutDetailsInJson?.risk?.safetyScore,
+        "tvlInUsd": tvlInUsd,
         "tvl": tvl,
         "averageApy": "23.84%",
         "valutAddress": vaultAddress,
         "tvlcapInUsd": tvlcapInUsd.toFixed(2),
         "valutApy": valutApyVal.toFixed(2),
-        "percentage": ((tvlInUsd / tvlcapInUsd) * 100).toFixed(4)
+        "percentage": ((tvlInUsd / tvlcapInUsd) * 100).toFixed(4),
+        "totalPortfolio": totalPortfolio,
+        "totalOverallreturnVal": totalOverallreturnVal,
+        "totalAverageApy": totalAverageApy,
       };
 
     }));
 
-    console.log();
-
-    Promise.all(valutListVal).then((values) => {
-      setTotalTvl(totalTvlVal.toFixed(2));
-      setOverallReturn(totalOverallreturnVal.toFixed(2));
-      settotalAverageApy(totalAverageApy.toFixed(2))
-      setvalutList(values as any);
-      setLoading(false);
-    });
+    return valutListVal;
   }
+
+  async function getDeployedValut() {
+
+    const bnbLocalProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
+    const bnbContract = getContract(whitelistedBNBFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, bnbLocalProvider.getSigner());
+    const mantleLocalProvied = new ethers.providers.JsonRpcProvider(mantleRPCUrl);
+    const mantleContract = getContract(whitelistedMantleFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, mantleLocalProvied.getSigner());
+
+    let mantleValutListVal = await mantleContract.listAllVaults();
+
+    let bnbValutListVal = await bnbContract.listAllVaults();
+
+    const bnbValutList = await getValutDetailsByChain(bnbValutListVal, bnbLocalProvider);
+    const mantleValutList = await getValutDetailsByChain(mantleValutListVal, mantleLocalProvied);
+
+    const finalList = [...bnbValutList, ...mantleValutList];
+    debugger
+    setvalutList(finalList);
+    setTotalVault(finalList.length);
+
+    const totalOverallreturnVal = finalList.reduce((accumulator, currentValue) => accumulator + currentValue.totalOverallreturnVal, 0);
+    setOverallReturn(totalOverallreturnVal.toFixed(2));
+
+    const totalAverageApy = finalList.reduce((accumulator, currentValue) => accumulator + currentValue.totalAverageApy, 0);
+    settotalAverageApy(totalAverageApy.toFixed(2));
+
+    const totalTvlVal = finalList.reduce((accumulator, currentValue) => accumulator + currentValue.tvlInUsd, 0);
+    setTotalTvl(totalTvlVal.toFixed(2));
+
+    const portfolioVal = finalList.reduce((accumulator, currentValue) => accumulator + currentValue.totalPortfolio, 0);
+    setPortfolio(portfolioVal.toFixed(2));
+
+    setLoading(false);
+    // Promise.all(valutListVal).then((values) => {
+    //   setTotalTvl(totalTvlVal.toFixed(2));
+    //   setOverallReturn(totalOverallreturnVal.toFixed(2));
+    //   settotalAverageApy(totalAverageApy.toFixed(2))
+    //   setvalutList(values as any);
+    //   setLoading(false);
+    // });
+  }
+
+  // const getValutDetailsByChain = () =>{
+
+  // }
 
   const goToUrl = (url: any) => {
     window.open(url, '_blank');
@@ -357,70 +405,88 @@ function Home() {
           {/* <button onClick={() =>{getPriceInUsd('0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE')}}>convert</button> */}
 
           {isConnected ?
-
-            <div className='second_section row mt-4'>
-              <div className='wdth_50'>
-                <div className="small-home-div-1"></div>
-                <div className='first_section outer_section pdng_btm_zero'>
-
-                  <div className='dsp'>
-                    <div className='wdth_80 prtfol_mrgn'>
-                      <div className='first_sec_heder1'>Portfolio</div>
-                      <div className='first_sec_heder2'>${portfolio}</div>
-                      <div className='first_sec_dsp_intr mt-2'>
-                        <div>
-                          <span>Overall Returns</span>
-                          <br />
-                          <span className='txt_clr_grn'>${overallReturn}</span>
-                        </div>
-                        <div>
-                          <span>Average APY</span>
-                          <br />
-                          <span className='txt_clr_grn'>{totalAverageApy}%</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className='mrgn_rght_neg'>
-                      <img src={section1IMg} className='wdth_150' alt="graph" />
-                    </div>
-                  </div>
-
-
-
-                </div>
-              </div>
-              <div className='wdth_50'>
-                <div className='first_section outer_section pdng_btm_18'>
-
-                  <div className='dsp'>
-                    <div className='wdth_80 tvl_mrgn'>
-                      <div className='first_sec_heder1'>TVL</div>
-                      <div className='first_sec_heder2'>${totalTvl}</div>
-
-                      <div className='first_sec_dsp_intr mt-2'>
-                        <div>
-                          <div>Vaults</div>
-
-                          <div className='fnt_wgt_600'>{totalVault}</div>
-                        </div>
-                        <div>
-                          <div>Automations</div>
-
-                          <div className='fnt_wgt_600'>142</div>
+            <>
+              {isWhiteListed ?
+                <>
+                  <div className='second_section outer_section_first'>
+                    <div className='dsp_cont'>
+                      <div className='wdth_40'>
+                        <div className='prtfol_mrgn'>
+                          <div className='first_sec_heder1'>Portfolio {isWhiteListed.toString()}</div>
+                          <div className='first_sec_heder2'>${portfolio}</div>
+                          <div className='first_sec_dsp_intr mt-2'>
+                            <div>
+                              <span>Overall Returns</span>
+                              <br />
+                              <span className='txt_clr_grn'>${overallReturn}</span>
+                            </div>
+                            <div>
+                              <span>Average APY</span>
+                              <br />
+                              <span className='txt_clr_grn'>{totalAverageApy}%</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div>
-                      <img src={section2IMg} className='sectn_2_img' alt="graph" />
+                      <div className='wdth_30'>
+                        <div className='tvl_back pddng_20'>
+                          <div className='dsp redHatFont fnt_wgt_600'>TVL <img src={tvlIMg} alt='tvl' /></div>
+                          <div className='holding_header_inner'>${totalTvl}</div>
+                        </div>
+                        <div className='dspl_between'>
+                          <div className='tvl_back pddng_20 width_48'>
+                            <div className='dsp redHatFont fnt_wgt_600'>Vaults <img src={keyCircleImg} alt='tvl' /></div>
+                            <div className='holding_header_inner'>{totalVault}</div>
+                          </div>
+                          <div className='tvl_back pddng_20 width_48'>
+                            <div className='dsp redHatFont fnt_wgt_600'>Automations <img src={seetingCircleImg} alt='tvl' /></div>
+                            <div className='holding_header_inner'>142</div>
+                          </div>
+                        </div>
+
+
+                      </div>
+                      <div >
+                        <img src={rocketImg} alt='rocket img' />
+                      </div>
                     </div>
                   </div>
+                </>
+                :
+                <>
+                  <div className='second_section outer_section_first'>
+                    <div className='dsp_cont'>
+                      <div className='wdth_40'>
+                        <div className='holding_header_inner mb-2 redHatFont'>You are not whitelisted.</div>
+                        {/* <div className='mb-3'>Explore among curated vaults to find a strategy that suits your goal. Powered by crypto’s top asset managers. </div> */}
+                      </div>
+                      <div className='wdth_30'>
+                        <div className='tvl_back pddng_20'>
+                          <div className='dsp redHatFont fnt_wgt_600'>TVL <img src={tvlIMg} alt='tvl' /></div>
+                          <div className='holding_header_inner'>${totalTvl}</div>
+                        </div>
+                        <div className='dspl_between'>
+                          <div className='tvl_back pddng_20 width_48'>
+                            <div className='dsp redHatFont fnt_wgt_600'>Vaults <img src={keyCircleImg} alt='tvl' /></div>
+                            <div className='holding_header_inner'>{totalVault}</div>
+                          </div>
+                          <div className='tvl_back pddng_20 width_48'>
+                            <div className='dsp redHatFont fnt_wgt_600'>Automations <img src={seetingCircleImg} alt='tvl' /></div>
+                            <div className='holding_header_inner'>142</div>
+                          </div>
+                        </div>
 
 
+                      </div>
+                      <div >
+                        <img src={rocketImg} alt='rocket img' />
+                      </div>
+                    </div>
+                  </div>
+                </>}
 
 
-                </div>
-              </div>
-            </div>
+            </>
             :
             <div className='second_section outer_section_first'>
               <div className='dsp_cont'>
@@ -437,7 +503,7 @@ function Home() {
                   <div className='dspl_between'>
                     <div className='tvl_back pddng_20 width_48'>
                       <div className='dsp redHatFont fnt_wgt_600'>Vaults <img src={keyCircleImg} alt='tvl' /></div>
-                      <div className='holding_header_inner'>2</div>
+                      <div className='holding_header_inner'>{totalVault}</div>
                     </div>
                     <div className='tvl_back pddng_20 width_48'>
                       <div className='dsp redHatFont fnt_wgt_600'>Automations <img src={seetingCircleImg} alt='tvl' /></div>
@@ -465,28 +531,34 @@ function Home() {
                     <div className='header_font_size'><span><img src={e.assetImg} alt='btc img' className='btc_img_width' /></span>{e.name}</div>
                     <div>
 
-                      <span><span className='holding_val ml_8'>9.1</span><img src={saftyImg} alt='lock img' className='wthlist_back_img' /></span>
+                      <span><span className='holding_val ml_8'>{e.saftyRating}</span>
+                      {e.saftyRating ?  <img src={saftyImg} alt='lock img' className='wthlist_back_img' /> : <></>}
+                     
+                      </span>
                     </div>
-                    <div className='chain_pos'>
+                    <div className='chain_pos_det'>
 
-                      <span><img src='../img/bnbChain.png' alt='chain' /></span>
+                      <span><img src={e.chainImg} alt='chain' /></span>
                     </div>
                   </div>
                   <div className='dsp dspWrap mt-3 mb-4'>
-                    <div className='trdng_outer'>
+                    {/* <div className='trdng_outer'>
                       <span className='trdng_width'><img src={stablePairImg} className='ml_8' alt='arrow img' />Stable Pair</span>
-                      {/* <span className='trdng_width'><img src={liquidityMinigImg} className='ml_8' alt='arrow img' />Liquidity Mining</span>
-                      <span className='trdng_width'><img src={deltaNeutralImg} className='ml_8' alt='arrow img' />Delta Neutral</span> */}
                     </div>
                     <div className='trdng_outer'>
-                      {/* <span className='trdng_width'><img src={stablePairImg} className='ml_8' alt='arrow img' />Stable Pair</span> */}
                       <span className='trdng_width'><img src={liquidityMinigImg} className='ml_8' alt='arrow img' />Liquidity Mining</span>
-                      {/* <span className='trdng_width'><img src={deltaNeutralImg} className='ml_8' alt='arrow img' />Delta Neutral</span> */}
                     </div>
                     <div className='trdng_outer'>
-                      {/* <span className='trdng_width'><img src={stablePairImg} className='ml_8' alt='arrow img' />Stable Pair</span>
-                      <span className='trdng_width'><img src={liquidityMinigImg} className='ml_8' alt='arrow img' />Liquidity Mining</span> */}
                       <span className='trdng_width'><img src={deltaNeutralImg} className='ml_8' alt='arrow img' />Delta Neutral</span>
+                    </div> */}
+                    <div className='trdng_outer'>
+                      <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span>
+                    </div>
+                    <div className='trdng_outer'>
+                      <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />ALM</span>
+                    </div>
+                    <div className='trdng_outer'>
+                      <span className='trdng_width'><img src={LSDFarmingImg} className='ml_8' alt='arrow img' />LSD Farming</span>
                     </div>
                     <div className='trdng_outer'>
                       <span className='wthlist_back'><img src={lockImg} alt='lock img' className='wthlist_back_img' />Require KYC</span>
@@ -496,7 +568,7 @@ function Home() {
                   <div className='dsp mb-5'>
                     <div className='wdth_45'>
                       <div className='mb-1'>TVL</div>
-                      <span className='secondary_color fnt_wgt_600'>${e.tvlInUsd}</span>
+                      <span className='secondary_color fnt_wgt_600'>${e.tvlInUsd.toFixed(2)}</span>
                       <div className='d-flex'><ProgressBar value={Number(e.percentage)} className='wdth_100'></ProgressBar> <div className='prgrs_txt'>${e.tvlcapInUsd}</div></div>
                     </div>
                     <div>Average APY <br /> <span className='holding_val'>{e.valutApy}%</span></div>

@@ -42,8 +42,16 @@ import dollarImg from './assets/images/dollar.png';
 import saftyImg from './assets/images/safty.png';
 import graphIMg from './assets/images/graph.png';
 import riveraAutoCompoundingVaultV2WhitelistedJson from './abi/out/RiveraAutoCompoundingVaultV2Whitelisted.sol/RiveraAutoCompoundingVaultV2Whitelisted.json'
-import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl } from './constants/global.js'
+import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl, mantleRPCUrl } from './constants/global.js'
 import { ProgressSpinner } from 'primereact/progressspinner';
+import deltaNeutralImg from './assets/images/deltaNeutral.svg';
+import stablePairImg from './assets/images/stablePair.svg';
+import liquidityMinigImg from './assets/images/liquidityMinig.svg';
+import pancakeFullImg from './assets/images/pancakeFull.svg';
+import StablePairColorImg from './assets/images/StablePairColor.svg';
+import almImg from './assets/images/alm.svg';
+import LSDFarmingImg from './assets/images/LSDFarming.svg';
+import bitLogoImg from './assets/images/bitLogo.png';
 
 interface Product {
   id: string;
@@ -67,9 +75,11 @@ export default function VaultDetails() {
     "tvl": "",
     "tvlInusd": "",
     "holding": "",
+    "networkImg": ""
     // "userShare": "",
     // "overallReturn": "",
   });
+  const [isWhiteListed, setWhiteListed] = useState(false);
   const [maxLimit, setMaxLimit] = useState(0);
   const [valutJsonData, setValutJsonData] = useState<any>();
   const [latestBlockNumber, setLatestBlockNumber] = useState(0);
@@ -92,7 +102,7 @@ export default function VaultDetails() {
   const [withdrawAmout, setwithdrawAmout] = useState(0);
   const provider = useProvider();
   const { data: signer, isError, isLoading } = useSigner();
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const [products, setProducts] = useState<Product[]>([]);
   let { vaultAddress } = useParams();
   const [loading, setLoading] = useState(false);
@@ -146,17 +156,34 @@ export default function VaultDetails() {
 
   const checkAllowance = async () => {
     //local 
-    //const localProvider = new ethers.providers.JsonRpcProvider('https://bsc-dataseed1.binance.org');
-    const localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
 
-    const valutContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
-    const valutAssetAdress = await valutContract.asset();
+    const response = await fetch('/vaultDetails.json'); // Assuming the JSON file is named "data.json" and located in the public folder.
+    const data = await response.json();
+    const valutChainId = data[vaultAddress as string]
+
+    let localProvider;
+    let vaultContract;
+    if (valutChainId.id === "56") {
+      localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
+      vaultContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
+    } else {
+      localProvider = new ethers.providers.JsonRpcProvider(mantleRPCUrl);
+      vaultContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
+    }
+
+
+
+    // const localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
+    // const valutContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
+
+
+    const valutAssetAdress = await vaultContract.asset();
 
     const erc20Contract = getContract(valutAssetAdress, erc20Json.abi, localProvider.getSigner())
     const allowance = await erc20Contract.allowance(address, vaultAddress); //address:- login user address  //assetAdress:-valut asset address
     let convertedallowance = allowance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 18 });
     convertedallowance = convertedallowance.replace(/,/g, '');
-    setMaxLimit(convertedallowance/Math.pow(10, 18));
+    setMaxLimit(convertedallowance / Math.pow(10, 18));
     console.log("allowance value ", convertedallowance)
     if (+convertedallowance > 0) {
       setisApproved(true);
@@ -276,21 +303,41 @@ export default function VaultDetails() {
   const getAllDetails = async () => {
 
     // const vaultContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, signer);
+    // console.log("network chian id", valutJsonData.id);
+    //(chain as any).id
 
-    const localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
-    const vaultContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
+    const response = await fetch('/vaultDetails.json'); // Assuming the JSON file is named "data.json" and located in the public folder.
+    const data = await response.json();
+    const valutChainId = data[vaultAddress as string]
+
+    let localProvider;
+    let vaultContract;
+    debugger
+    if (valutChainId.id === "56") {
+      localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
+      vaultContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
+    } else {
+      localProvider = new ethers.providers.JsonRpcProvider(mantleRPCUrl);
+      vaultContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
+    }
 
     const asset = await vaultContract.asset(); //it will return the name of the asset of the valut
 
     let assetName = "";
     let assetImg = "";
+    let networkImg = "";
     if (asset === "0x2170Ed0880ac9A755fd29B2688956BD959F933F8") {
       assetName = "ETH";
       assetImg = ethImg;
-
+      networkImg = "../img/bnbChain.png";
     } else if (asset === "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c") {
       assetName = "BNB";
       assetImg = bnbImg;
+      networkImg = "../img/bnbChain.png";
+    } else if (asset === "0x8734110e5e1dcF439c7F549db740E546fea82d66") {
+      assetName = "BIT";
+      assetImg = bitLogoImg;
+      networkImg = "../img/mantleLogo.png"
     }
 
     //get asset current price
@@ -314,6 +361,7 @@ export default function VaultDetails() {
       "tvl": tvl.toString(),
       "tvlInusd": tvlInUsd.toString(),
       "holding": "",
+      "networkImg": networkImg
     }
     setDeatils(detailsVal);
 
@@ -328,6 +376,8 @@ export default function VaultDetails() {
     let totalUserwithdrawWithTime = 0;
 
     if (address) {
+      const isWhiteListed = await vaultContract.whitelist(address);
+      setWhiteListed(isWhiteListed);
       let tvlCap = await vaultContract.totalTvlCap();
       tvlCap = tvlCap / Math.pow(10, 18);
       setTvlCal(tvlCap);
@@ -513,6 +563,11 @@ export default function VaultDetails() {
       priceAddress = "0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE";
     } else if (address === "0x2170Ed0880ac9A755fd29B2688956BD959F933F8") {
       priceAddress = "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e";
+    } else if (address === "0x8734110e5e1dcF439c7F549db740E546fea82d66") {
+      //priceAddress = "0x9ef1B8c0E4F7dc8bF5719Ea496883DC6401d5b2e";
+      return new Promise((resolve, reject) => {
+        resolve(Number(0.5));
+      });
     }
     const providerVal = new ethers.providers.JsonRpcProvider("https://bsc-dataseed1.binance.org")  //https://data-seed-prebsc-1-s1.binance.org:8545/ for local testnet
     const aggregatorV3InterfaceABI = [{ "inputs": [{ "internalType": "address", "name": "_aggregator", "type": "address" }, { "internalType": "address", "name": "_accessController", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "int256", "name": "current", "type": "int256" }, { "indexed": true, "internalType": "uint256", "name": "roundId", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "updatedAt", "type": "uint256" }], "name": "AnswerUpdated", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint256", "name": "roundId", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "startedBy", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "startedAt", "type": "uint256" }], "name": "NewRound", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }], "name": "OwnershipTransferRequested", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }], "name": "OwnershipTransferred", "type": "event" }, { "inputs": [], "name": "acceptOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "accessController", "outputs": [{ "internalType": "contract AccessControllerInterface", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "aggregator", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_aggregator", "type": "address" }], "name": "confirmAggregator", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "description", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_roundId", "type": "uint256" }], "name": "getAnswer", "outputs": [{ "internalType": "int256", "name": "", "type": "int256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint80", "name": "_roundId", "type": "uint80" }], "name": "getRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_roundId", "type": "uint256" }], "name": "getTimestamp", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestAnswer", "outputs": [{ "internalType": "int256", "name": "", "type": "int256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestRound", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestTimestamp", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint16", "name": "", "type": "uint16" }], "name": "phaseAggregators", "outputs": [{ "internalType": "contract AggregatorV2V3Interface", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "phaseId", "outputs": [{ "internalType": "uint16", "name": "", "type": "uint16" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_aggregator", "type": "address" }], "name": "proposeAggregator", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "proposedAggregator", "outputs": [{ "internalType": "contract AggregatorV2V3Interface", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint80", "name": "_roundId", "type": "uint80" }], "name": "proposedGetRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "proposedLatestRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_accessController", "type": "address" }], "name": "setController", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_to", "type": "address" }], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "version", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }]
@@ -524,7 +579,7 @@ export default function VaultDetails() {
     });
   }
 
-  const goToUrl = (url: any)=>{
+  const goToUrl = (url: any) => {
     window.open(url, '_blank');
   }
 
@@ -542,19 +597,35 @@ export default function VaultDetails() {
               <div className='first_section outer_section'>
                 <div className='dsp'>
                   <div className='header_font_size'><span><img src={deatils?.assetImg} alt='btc img' className='btc_img_width' /></span>{deatils?.vaultName}</div>
-                  <div>
+                  <div className='chain_pos_det'>
+                    <span><img src={deatils?.networkImg} alt='chain' /></span>
+                  </div>
+                  {/* <div>
                     <span className='wthlist_back'><img src={lockImg} alt='lock img' className='wthlist_back_img' />Whitelisted</span>
                     <span className='kyc_back'><img src={checkCircleImg} alt='lock img' className='wthlist_back_img' /> KYC Completed</span>
+                  </div> */}
+                </div>
+                <div className='dsp dspWrap mt-3 mb-4'>
+                  <div className='trdng_outer'>
+                    <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span>
+                  </div>
+                  <div className='trdng_outer'>
+                    <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />ALM</span>
+                  </div>
+                  <div className='trdng_outer'>
+                    <span className='trdng_width'><img src={LSDFarmingImg} className='ml_8' alt='arrow img' />LSD Farming</span>
+                  </div>
+                  <div className='trdng_outer'>
+                    <span className='wthlist_back'><img src={lockImg} alt='lock img' className='wthlist_back_img' />Whitelisted</span>
+                  </div>
+                  <div className='trdng_outer'>
+                    <div>Safety Score <br /> <span className='holding_val'>{valutJsonData?.risk?.safetyScore} <img src={saftyImg} alt='safty img' className='sftyImgWdth' /></span></div>
                   </div>
                 </div>
-                <div className='trdng_outer'>
-                  <span className='trdng_width'><img src={arrowImg} className='trdnImgMargn' alt='arrow img' />Trending</span>
-                </div>
-                <div className='dsp mb-3'>
+                <div className='dsp mb-3 wdth_80'>
                   <div>Average APY <br /> <span className='holding_val'>{vaultApy}%</span></div>
                   <div>TVL <br /> <span className='fnt_wgt_600'>${deatils.tvlInusd}</span></div>
-                  <div>Safety Score <br /> <span className='holding_val'>9.1 <img src={saftyImg} alt='safty img' className='sftyImgWdth' /></span></div>
-                  <div>Protocols <br /> <span><img className='pancakeWdth' src={pancakeImg} alt='pancake' /></span></div>
+                  <div>DEX <br /> <span><img src={pancakeFullImg} alt='pancake' /></span></div><div>LP Pool & Fee Tier <br /> <span className='fnt_wgt_600'>BTCB-USDT  (0.3%)</span></div>
                 </div>
                 {/* <div className='backGrd'>
                   <div className='mb-2'><img src={cashaaImg} alt='lock img' className='cashaa logo' /></div>
@@ -602,13 +673,10 @@ export default function VaultDetails() {
                   <div className='fnt_wgt_600 mb-2 redHatFont'>Summary</div>
                   <span>
                     <ul>
-                      {valutJsonData?.strategy.map((data: any, index: any)=>{
+                      {valutJsonData?.strategy.map((data: any, index: any) => {
                         return <><li key={index} className='mb-2'>{data}
-                      </li></>
+                        </li></>
                       })}
-                      
-                      {/* <li>Underlying Farming Pool: Thena Finance USDT-BNB</li>
-                      <li>A professional team of asset managers active manage liquidity range of the farming pool</li> */}
                     </ul>
                   </span>
 
@@ -619,10 +687,10 @@ export default function VaultDetails() {
                         <div className='dsp mb-2'>
                           <div className='fnt_wgt_600'><img src={`../img/${data.logo}`} alt='pancake' /> {data.name}</div>
                           <div className='d-flex'>
-                            <div className='crsr_pntr' onClick={()=>{goToUrl(data.website)}}>
+                            <div className='crsr_pntr' onClick={() => { goToUrl(data.website) }}>
                               <span className='westBtn'><img src={globeImg} alt='website' /> Website</span>
                             </div>
-                            <div className='crsr_pntr' onClick={()=>{goToUrl(data.contract)}}>
+                            <div className='crsr_pntr' onClick={() => { goToUrl(data.contract) }}>
                               <span className='westBtn'><img src={arrowUpImg} alt='website' /> Contract</span>
                             </div>
                           </div>
@@ -667,7 +735,7 @@ export default function VaultDetails() {
                   </div>
 
 
-                
+
 
                   {/* <div className='backGrd mt-3 mb-3'>
                     <div className='dsp mb-2'>
@@ -740,17 +808,17 @@ export default function VaultDetails() {
                         </tr>
                       </thead>
                       <tbody>
-                        {valutJsonData?.fees.map((data: any)=>{
+                        {valutJsonData?.fees.map((data: any) => {
                           return <>
-                          <tr>
-                          <td>{data.feeType}</td>
-                          <td>{data.settings.name} <br /> {data.settings.value}</td>
-                          <td>{data.recipent.name}<br />
-                          {data.recipent.value} <span className='mrgn_5'><img src={eternalLinkImg} alt='external link img' /></span> <span ><img src={copyImg} alt='copy img' /></span></td>
-                        </tr>
+                            <tr>
+                              <td>{data.feeType}</td>
+                              <td>{data.settings.name} <br /> {data.settings.value}</td>
+                              <td>{data.recipent.name}<br />
+                                {data.recipent.value} <span className='mrgn_5'><img src={eternalLinkImg} alt='external link img' /></span> <span ><img src={copyImg} alt='copy img' /></span></td>
+                            </tr>
                           </>;
                         })}
-                        
+
                         {/* <tr>
                           <td >Performance Fee</td>
                           <td>Rate <br /> 2.00%</td>
@@ -779,17 +847,17 @@ export default function VaultDetails() {
                   <div>
                     <table className="table">
                       <tbody>
-                        {valutJsonData?.transactions.map((data: any)=>{
+                        {valutJsonData?.transactions.map((data: any) => {
                           return <>
-                          <tr>
-                          <td ><span className='fnt_14'>{data.date}</span>  <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>{data.type}</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> {data.address} <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
-                          <td>Value <br /> Txn. fee</td>
-                          <td>{data.value} <br />
-                            {data.tnxFee}</td>
-                        </tr>
+                            <tr>
+                              <td ><span className='fnt_14'>{data.date}</span>  <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>{data.type}</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> {data.address} <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
+                              <td>Value <br /> Txn. fee</td>
+                              <td>{data.value} <br />
+                                {data.tnxFee}</td>
+                            </tr>
                           </>
                         })}
-                        
+
                         {/* <tr>
                           <td><span className='fnt_14'>April-05-2023 11:19:33Am</span> <img src={eternalLinkImg} className='trsnaCpyImg' alt='external link img' /><div className='fnt_wgt_600 mb-3'>Deposit</div><div className='pdng_10'> <img className='transactionVenusWdth' src={venusImg} alt='venus' /> 0x6db5.........sff0 <img src={copyImg} className='trnsCpyWdth' alt='copy img' /></div></td>
                           <td>Value <br /> Txn. fee</td>
@@ -827,17 +895,17 @@ export default function VaultDetails() {
                         </tr>
                       </thead>
                       <tbody>
-                        {valutJsonData?.depositors.map((data:any)=>{
+                        {valutJsonData?.depositors.map((data: any) => {
                           return <>
-                          <tr>
-                          <td >{data.depositor}</td>
-                          <td>{data.assets}</td>
-                          <td>{data.numbersOfShares}</td>
-                          <td>{data.percentage}</td>
-                        </tr>
+                            <tr>
+                              <td >{data.depositor}</td>
+                              <td>{data.assets}</td>
+                              <td>{data.numbersOfShares}</td>
+                              <td>{data.percentage}</td>
+                            </tr>
                           </>
                         })}
-                        
+
                         {/* <tr>
                           <td >0X920........8383</td>
                           <td>BTC 0.02</td>
@@ -876,30 +944,30 @@ export default function VaultDetails() {
                        </p>
                      </AccordionTab>
                       })} */}
-                      
+
                       <AccordionTab header="Is there any lock-up period for funds?">
                         <p className="m-0">
-                        No, there is no lock-up period in this vault. You can withdraw your funds at any time without any restriction or penalty.
+                          No, there is no lock-up period in this vault. You can withdraw your funds at any time without any restriction or penalty.
                         </p>
                       </AccordionTab>
                       <AccordionTab header="What assets are the yields paid in?">
                         <p className="m-0">
-                        The yields are paid in the denomination asset of the strategy and are compounded automatically. Unharvested rewards can be temporarily held in the form of farmed assets.
+                          The yields are paid in the denomination asset of the strategy and are compounded automatically. Unharvested rewards can be temporarily held in the form of farmed assets.
                         </p>
                       </AccordionTab>
                       <AccordionTab header="What are the fees associated with using the vault?">
                         <p className="m-0">
-                        During the testing period, there are no fees for using Rivera vaults. A management & performance fee will be applied after the protocol's mainnet launch.
+                          During the testing period, there are no fees for using Rivera vaults. A management & performance fee will be applied after the protocol's mainnet launch.
                         </p>
                       </AccordionTab>
                       <AccordionTab header="I'm having trouble using the app. What should I do?">
                         <p className="m-0">
-                        Join our Discord community and help us improve our app by reporting your issue. Win exclusive rewards, bounty & more for your contribution.
+                          Join our Discord community and help us improve our app by reporting your issue. Win exclusive rewards, bounty & more for your contribution.
                         </p>
                       </AccordionTab>
                       <AccordionTab header="I love Rivera! How can I get involved?">
                         <p className="m-0">
-                        We are recruiting DeFi pros who can help us redefine the future of DeFi liquidity management. Join us in testing the Rivera protocol and contributing to its development. We are awarding exclusive OG NFTs to the top 100 testers. Get started by joining our Discord.
+                          We are recruiting DeFi pros who can help us redefine the future of DeFi liquidity management. Join us in testing the Rivera protocol and contributing to its development. We are awarding exclusive OG NFTs to the top 100 testers. Get started by joining our Discord.
                         </p>
                       </AccordionTab>
                     </Accordion>
@@ -940,7 +1008,7 @@ export default function VaultDetails() {
                       </div>
                       <div>
                         {/* <span>{Number(((Number(userShareInUsd)/ Number(tvlCapInUsd))*100).toFixed(4))}</span> */}
-                        <ProgressBar value={Number(((Number(userShareInUsd)/ Number(tvlCapInUsd))*100).toFixed(4))}></ProgressBar>
+                        <ProgressBar value={Number(((Number(userShareInUsd) / Number(tvlCapInUsd)) * 100).toFixed(4))}></ProgressBar>
                       </div>
                       <div className='dsp mb-3'>
                         <div>Capacity</div>
@@ -949,18 +1017,12 @@ export default function VaultDetails() {
                       <div className='dsp backGrd mb-3'>
                         <div className='fnt_wgt_600'><img src={deatils?.assetImg} className='wdth_50' alt='usdt' /> <br /> {deatils?.assetName}</div>
                         <div><input
-                          min={0.001}
+                         
                           type="number"
                           id="first_name"
                           name="first_name"
                           value={depositAmout}
-                          onChange={(e) => {
-                            if(e.target.value.length <3){
-                              handledepositAmoutChange(e)
-                            }else {
-                                e.target.value=  e.target.value.slice(0,5)
-                            }
-                        }}
+                          onChange={handledepositAmoutChange}
                         /></div>
                       </div>
                       <div className='dsp'>
@@ -986,14 +1048,19 @@ export default function VaultDetails() {
                         <div>0%</div>
                       </div>
                       <div className='mt-3 text-center'>
-                        {(chain as any)?.id !== 56 ? <button className='btn btn-riv-primary wdth_100' onClick={() => {networkSwitchHandler(56)}} >Switch to BNB</button>
+                        {isConnected ? isWhiteListed ?
+                        (chain as any)?.id !== Number(valutJsonData?.id) ? 
+                        <button className='btn btn-riv-primary wdth_100' onClick={() => { networkSwitchHandler(Number(valutJsonData?.id)) }} >Switch to {valutJsonData?.chainname}</button>
                         : isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Continue</button>
-
-                        : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} >Approve</button>}
-                        {/* {isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Continue</button>
-
-                          : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} >Approve</button>
-                          } */}
+                        : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} >Approve</button> : <>
+                        <div>You are not whitelisted</div>
+                        </> :
+                        <></>}
+                        {/* {
+                        (chain as any)?.id !== Number(valutJsonData?.id) ? 
+                        <button className='btn btn-riv-primary wdth_100' onClick={() => { networkSwitchHandler(Number(valutJsonData?.id)) }} >Switch to {valutJsonData?.chainname}</button>
+                        : isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Continue</button>
+                        : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} >Approve</button>} */}
 
                       </div>
                     </div>
@@ -1005,7 +1072,7 @@ export default function VaultDetails() {
                         <div>${userShareInUsd}</div>
                       </div>
                       <div>
-                        <ProgressBar value={Number(((Number(userShareInUsd)/ Number(tvlCapInUsd))*100).toFixed(4))}></ProgressBar>
+                        <ProgressBar value={Number(((Number(userShareInUsd) / Number(tvlCapInUsd)) * 100).toFixed(4))}></ProgressBar>
                       </div>
                       <div className='dsp mb-3'>
                         <div>Capacity</div>
@@ -1014,8 +1081,7 @@ export default function VaultDetails() {
                       <div className='dsp backGrd mb-3'>
                         <div className='fnt_wgt_600'><img src={deatils?.assetImg} className='wdth_50' alt='usdt' /> <br /> {deatils?.assetName}</div>
                         <div><input
-                          maxLength={5}
-                          type="text"
+                          type="number"
                           id="first_name_2"
                           name="first_name_2"
                           value={withdrawAmout}
@@ -1045,7 +1111,17 @@ export default function VaultDetails() {
                         <div>0%</div>
                       </div>
                       <div className='mt-3 text-center'>
-                        <button className='btn btn-riv-primary wdth_100' onClick={withdraw}>Continue</button>
+
+                      {isConnected ? isWhiteListed ?
+                        (chain as any)?.id !== Number(valutJsonData?.id) ? 
+                        <button className='btn btn-riv-primary wdth_100' onClick={() => { networkSwitchHandler(Number(valutJsonData?.id)) }} >Switch to {valutJsonData?.chainname}</button>
+                        :  <button className='btn btn-riv-primary wdth_100' onClick={withdraw}>Continue</button>
+                        : <>
+                        <div>You are not whitelisted</div>
+                        </> :
+                        <></>}
+
+                       
                       </div>
                     </div>
                   </TabPanel>

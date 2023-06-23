@@ -9,7 +9,7 @@ import reportWebVitals from './reportWebVitals';
 import { WagmiConfig } from 'wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { chains, client } from './wagmi';
-import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from "react-router-dom";
+import { Route, RouterProvider, createHashRouter, createRoutesFromElements } from "react-router-dom";
 import RoutingLayout from "./RoutingLayout";
 import Home from "./Home";
 import VaultDetails from "./VaultDetails";
@@ -19,13 +19,13 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-const router = createBrowserRouter(
+const router = createHashRouter(
   createRoutesFromElements(
     <Route path="/" element={<RoutingLayout />}>
       <Route index element={<Home />} />
       <Route path="dashboard" element={<App />} />
       <Route path="valutRangeSelector/:vaultAddress" element={<VaultRange />} />
-      <Route path="valutDeatils/:vaultAddress" element={<VaultDetails />} />
+      <Route path="vault/:vaultAddress" element={<VaultDetails />} />
     </Route>
   )
 );

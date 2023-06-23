@@ -724,9 +724,16 @@ thead {
   margin-top: -18px;
   margin-right: -15px;
 }
+.chain_pos_det{
+  margin-top: -20px;
+  margin-right: -15px;
+}
 
 .dspWrap{
   flex-wrap: wrap;
+}
+.wdth_80{
+  width: 80%;
 }
 
 @media (min-width: 1200px){

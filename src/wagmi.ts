@@ -30,8 +30,33 @@ const mantleChain: Chain = {
   testnet: true,
 };
 
+const bnbLocalChain: Chain = {
+  id: 56,
+  name: 'Rivera Testnet (BNB)',
+  network: 'BNB',
+  iconUrl: '../img/bnbLogo.svg',
+  //iconBackground: '#fff',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Rivera Testnet (BNB)',
+    symbol: 'BNB',
+  },
+  rpcUrls: {
+    default: {
+      http: ['http://18.183.52.4:8545/'],
+    },
+    public:{
+      http: ['http://18.183.52.4:8545/'],
+    }
+  },
+  blockExplorers: {
+    default: { name: 'SnowTrace', url: 'https://bscscan.com/' },
+  },
+  testnet: true,
+};
+
 const { chains, provider } = configureChains(
-    [mantleChain, bsc],
+    [mantleChain, bnbLocalChain],
     [
       alchemyProvider({ apiKey: process.env.ALCHEMY_ID as string}),
       publicProvider()

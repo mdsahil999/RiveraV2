@@ -1,5 +1,7 @@
 {
   "0x4C4A11B5FbAe47a6303F9aC8585584a40ba476c4": {
+    "id": "56",
+    "chainname": "Rivera Testnet (BNB)",
     "fundManager": {
       "name": "Liquidity_055",
       "yearFounded": "2016",
@@ -180,6 +182,8 @@
   },
 
   "0x1b88557d928f27ea912DA095D5991A253293b1a7": {
+    "id": "56",
+    "chainname": "Rivera Testnet (BNB)",
     "fundManager": {
       "name": "Swap_God",
       "yearFounded": "2016",
@@ -355,7 +359,9 @@
     ]
   },
   
-  "0xFD4212575cb7dB5f03b9Ea2c2e331b9a7EEe47dc": {
+  "0xD7D4E7FBD3e7aa3a3bef0267b2B077f9f12b01EA": {
+    "id": "5001",
+    "chainname": "Mantle",
     "fundManager": {
       "name": "FSX_Farmer",
       "yearFounded": "2016",
