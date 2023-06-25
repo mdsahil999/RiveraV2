@@ -646,7 +646,11 @@ thead {
 }
 
 .p-menubar {
+  border: none;
   padding: 15px;
+}
+.bg_gray{
+  background: #f8f9fa;
 }
 
 .left_wrgn_alrt {

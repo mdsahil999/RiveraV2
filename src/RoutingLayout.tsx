@@ -41,8 +41,8 @@ function RoutingLayout() {
                     </div>
                 <div>Rivera contracts are NOT audited yet. You may lose ALL funds deposited into Rivera-powered strategy vaults.</div>
             </div> */}
-            <div className="card">
-                <Menubar start={start} end={end} />
+            <div className="card bg_gray">
+                <Menubar start={start} end={end} className='custom-container' />
             </div>
             {/* {signer ? <><div className="main">
                 <Outlet />

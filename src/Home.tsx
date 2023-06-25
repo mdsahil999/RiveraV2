@@ -2,7 +2,6 @@ import './App.css';
 import { useNavigate } from 'react-router-dom';
 import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl, mantleRPCUrl } from './constants/global.js'
 import { whitelistedBNBFactoryAddress, whitelistedMantleFactoryAddress } from './constants/global.js'
-import lockImg from './assets/images/lock.png'
 import cashaaImg from './assets/images/cashaa.png';
 import tvlIMg from './assets/images/tvl.png';
 import assetsManagerImg from './assets/images/assetsManager.png';
@@ -11,7 +10,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useProvider, useSigner } from 'wagmi';
 import { ProgressBar } from 'primereact/progressbar';
 import { ethers } from 'ethers';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import buttonArrowImg from './assets/images/button_arrow.png';
 import saftyImg from './assets/images/safty.png';
 import keyCircleImg from './assets/images/keyCircle.png';
@@ -40,6 +39,7 @@ function Home() {
   const { data: signer, isError, isLoading } = useSigner();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const toast = useRef(null);
 
   useEffect(() => {
     setLoading(true);
@@ -58,7 +58,6 @@ function Home() {
 
   async function getPriceInUsd(address: string): Promise<any> {
 
-    console.log('Checking');
     let priceAddress = "";
     if (address === "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c") {
       priceAddress = "0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE";
@@ -101,7 +100,7 @@ function Home() {
         assetImg = bnbImg;
         chainImg = "../img/bnbChain.png"
       } else if (asset === "0x8734110e5e1dcF439c7F549db740E546fea82d66") {
-        assetImg = bitLogoImg;
+        assetImg = "../img/mantle.svg";
         chainImg = "../img/mantleLogo.png"
       }
 
@@ -153,15 +152,12 @@ function Home() {
 
         const distinctDepositerSet = new Set();
         const latestBlockNumberval = await provider.getBlockNumber();
-        console.log("latestBlockNumberval", latestBlockNumberval)
         const batchSize = 10000;
         const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
 
         for (let i = 0; i < blocksToProcess; i += batchSize) {
           const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
           const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
-          console.log("firstBlock", firstBlock);
-          console.log("lastBlock", lastBlock);
 
           const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
 
@@ -216,13 +212,6 @@ function Home() {
         }
 
 
-
-
-        console.log("totalValutDeposit", totalValutDeposit);
-        console.log("totalValutDepositWithTime", totalValutDepositWithTime);
-        console.log("totalUserDeposit", totalUserDeposit);
-        console.log("totalUserDepositWithTime", totalUserDepositWithTime);
-
         //mofied code end
 
 
@@ -264,9 +253,6 @@ function Home() {
           totalValutDeposit /= Math.pow(10, 18);
           totalValutDepositWithTime /= Math.pow(10, 18);
 
-          console.log("totalValutDeposit", totalValutDeposit);
-          console.log("totalValutDepositWithTime", totalValutDepositWithTime);
-
           const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
           // eslint-disable-next-line no-loop-func
           await Promise.all(withdrawLogs.map(async (log: any) => {
@@ -284,15 +270,11 @@ function Home() {
       }
 
       const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
-      debugger
-      console.log("tvl tvl", tvl);
 
 
       const response = await fetch('/vaultDetails.json');
       const data = await response.json();
       const valutDetailsInJson = data[vaultAddress as string]
-
-      console.log("chain details", valutDetailsInJson);
 
       return {
         "name": valutName,
@@ -309,6 +291,11 @@ function Home() {
         "totalPortfolio": totalPortfolio,
         "totalOverallreturnVal": totalOverallreturnVal,
         "totalAverageApy": totalAverageApy,
+        "poweredBy": valutDetailsInJson?.poweredBy,
+        "isStablePair": valutDetailsInJson?.isStablePair,
+        "isLSDFarming": valutDetailsInJson?.isLSDFarming,
+        "isVolatilePair": valutDetailsInJson?.isVolatilePair,
+        "isLiquidityMining": valutDetailsInJson?.isLiquidityMining,
       };
 
     }));
@@ -354,6 +341,12 @@ function Home() {
     window.open(url, '_blank');
   }
 
+  const gotoDiscord = () => {
+    const url = 'https://discord.com/invite/sbMxwS6VEV';
+    window.open(url, '_blank');
+  }
+
+
   return (
     <>
       {loading ? <><div className="loader-container">
@@ -368,7 +361,7 @@ function Home() {
                     <div className='dsp_cont'>
                       <div className='wdth_40'>
                         <div className='prtfol_mrgn'>
-                          <div className='first_sec_heder1'>Portfolio {isWhiteListed.toString()}</div>
+                          <div className='first_sec_heder1'>Portfolio</div>
                           <div className='first_sec_heder2'>${portfolio}</div>
                           <div className='first_sec_dsp_intr mt-2'>
                             <div>
@@ -411,7 +404,10 @@ function Home() {
                   <div className='second_section outer_section_first'>
                     <div className='dsp_cont'>
                       <div className='wdth_40'>
-                        <div className='holding_header_inner mb-2 redHatFont'>You are not whitelisted.</div>
+                        <div className='holding_header_inner mb-2 redHatFont'>Join incentivized testnet</div>
+                        <div className='mb-3'>Help us build Rivera and win exclusive OG badges </div>
+                        <div><button className='btn btn-riv-primary' onClick={gotoDiscord}>Get Whitelisted</button></div>
+
                       </div>
                       <div className='wdth_30'>
                         <div className='tvl_back pddng_20'>
@@ -444,8 +440,8 @@ function Home() {
             <div className='second_section outer_section_first'>
               <div className='dsp_cont'>
                 <div className='wdth_40'>
-                  <div className='holding_header_inner mb-2 redHatFont'>Your crypto, your control.</div>
-                  <div className='mb-3'>Explore among curated vaults to find a strategy that suits your goal. Powered by crypto’s top asset managers. </div>
+                  <div className='holding_header_inner mb-2 redHatFont'>Risk-managed market-making.</div>
+                  <div className='mb-3'>Explore among strategy vaults that suit your risk profile. </div>
                   <div><ConnectButton /></div>
                 </div>
                 <div className='wdth_30'>
@@ -485,8 +481,8 @@ function Home() {
                     <div>
 
                       <span><span className='holding_val ml_8'>{e.saftyRating}</span>
-                      {e.saftyRating ?  <img src={saftyImg} alt='lock img' className='wthlist_back_img' /> : <></>}
-                     
+                        {e.saftyRating ? <img src={saftyImg} alt='lock img' className='wthlist_back_img' /> : <></>}
+
                       </span>
                     </div>
                     <div className='chain_pos_det'>
@@ -495,18 +491,21 @@ function Home() {
                     </div>
                   </div>
                   <div className='dsp dspWrap mt-3 mb-4'>
-                    <div className='trdng_outer'>
-                      <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span>
-                    </div>
-                    <div className='trdng_outer'>
-                      <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />ALM</span>
-                    </div>
-                    <div className='trdng_outer'>
-                      <span className='trdng_width'><img src={LSDFarmingImg} className='ml_8' alt='arrow img' />LSD Farming</span>
-                    </div>
-                    <div className='trdng_outer'>
-                      <span className='wthlist_back'><img src={lockImg} alt='lock img' className='wthlist_back_img' />Require KYC</span>
-                    </div>
+                  {e?.isStablePair ? 
+                    <><div className='trdng_outer'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span> </div></>:<></>}
+                   
+                 
+                  
+                    {e?.isLiquidityMining ? 
+                    <><div className='trdng_outer'> <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />Liquidity Mining</span> </div></> : <></>}    
+                 
+                  
+                    {e?.isLSDFarming ? 
+                    <><div className='trdng_outer'> <span className='trdng_width'><img src={LSDFarmingImg} className='ml_8' alt='arrow img' />LSD Farming</span> </div></> : <></>}
+                 
+                 
+                    {e?.isVolatilePair ? 
+                    <>  <div className='trdng_outer'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Volatile Pair</span> </div></> : <></>}
                   </div>
 
                   <div className='dsp mb-5'>
@@ -516,7 +515,7 @@ function Home() {
                       <div className='d-flex'><ProgressBar value={Number(e.percentage)} className='wdth_100'></ProgressBar> <div className='prgrs_txt'>${e.tvlcapInUsd}</div></div>
                     </div>
                     <div>Average APY <br /> <span className='holding_val'>{e.valutApy}%</span></div>
-                    <div>Provided By <br /> <span><img src={cashaaImg} alt='lock img' className='cashaa logo' /></span></div>
+                    <div>Powered By <br /> <span><img src={e.poweredBy} alt='lock img' className='cashaa logo' /></span></div>
                   </div>
                   <div className='dsp_around mb-2'>
                     <div className='wdth_60'><button className='btn btn-riv-secondary view_btn_wdth' onClick={() => { goTovaultDeatils(e.valutAddress) }}>View Details <img src={buttonArrowImg} alt='arrow' /></button></div>

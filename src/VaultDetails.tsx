@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from 'ethers';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAccount, useBalance, useNetwork, useProvider, useSigner, useSwitchNetwork } from 'wagmi';
 import { TabView, TabPanel } from 'primereact/tabview';
@@ -27,6 +27,8 @@ import StablePairColorImg from './assets/images/StablePairColor.svg';
 import almImg from './assets/images/alm.svg';
 import LSDFarmingImg from './assets/images/LSDFarming.svg';
 import bitLogoImg from './assets/images/bitLogo.png';
+import { Toast } from 'primereact/toast';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 interface Product {
   id: string;
@@ -43,6 +45,7 @@ interface Product {
 
 export default function VaultDetails() {
 
+  const toast = useRef<Toast>(null);
   const [deatils, setDeatils] = useState({
     "vaultName": "",
     "assetName": "",
@@ -90,21 +93,22 @@ export default function VaultDetails() {
     ProductService.getProductsMini().then(data => setProducts(data));
     fetchJsonData();
     if (address) {
-      console.log("balance", balance);
-      console.log("chain", (chain as any).id);
       checkAllowance();
     }
     getAllDetails();
 
   }, []);
 
+  const showWarn = (message: string) => {
+    
+    toast.current?.show({severity:'warn', summary: 'Warning', detail:message, life: 3000});
+}
+
   const fetchJsonData = async () => {
     try {
       const response = await fetch('/vaultDetails.json'); 
       const data = await response.json();
       setValutJsonData(data[vaultAddress as string]);
-
-      console.log("data address 2", data[vaultAddress as string]);
     } catch (error) {
       console.log('Error fetching JSON data:', error);
     }
@@ -137,7 +141,6 @@ export default function VaultDetails() {
     let convertedallowance = allowance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 18 });
     convertedallowance = convertedallowance.replace(/,/g, '');
     setMaxLimit(convertedallowance / Math.pow(10, 18));
-    console.log("allowance value ", convertedallowance)
     if (+convertedallowance > 0) {
       setisApproved(true);
     }
@@ -146,14 +149,17 @@ export default function VaultDetails() {
 
 
   const deposit = async () => {
+
+    if(depositAmout < 0.0001 || depositAmout > maxLimit){
+      const message = "Please enter a valid amount.";
+      showWarn(message);
+      return;
+    }
+   
     const contract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, signer);
-    const assetAdress = await contract.asset();
     const amount = depositAmout * Math.pow(10, 18);
     let convertedAmount = amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 18 });
     convertedAmount = convertedAmount.replace(/,/g, '');
-
-    console.log("amount", convertedAmount);
-    console.log("receiver address", address);
 
 
     //calling the deposit method
@@ -164,12 +170,17 @@ export default function VaultDetails() {
     await aprvTxt.wait().then((e: any) => {
       checkAllowance();
       getAllDetails();
-      console.log("Deposit working fine", e);
     });
   }
 
   const withdraw = async () => {
-    console.log("withdraw");
+
+    if(withdrawAmout < 0.0001 || withdrawAmout > Number(userShare)){
+      const message = "Please enter a valid amount.";
+      showWarn(message);
+      return;
+    }
+
     const contract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, signer);
     //convverting the deposit ampount to 10^18 format
     const amount = withdrawAmout * Math.pow(10, 18);
@@ -182,7 +193,6 @@ export default function VaultDetails() {
     await aprvTxt.wait().then((e: any) => {
       checkAllowance();
       getAllDetails();
-      console.log("Deposit working fine", e);
     });
   }
 
@@ -230,7 +240,6 @@ export default function VaultDetails() {
 
     // Now we loop through sections to get height, top and ID values for each
     sections.forEach((current: any) => {
-      // console.log("Current", current);
       const sectionHeight = current['offsetHeight'];
       const sectionTop = (current.getBoundingClientRect().top + window.pageYOffset) - 100;
       const sectionId = current.getAttribute("id");
@@ -239,11 +248,9 @@ export default function VaultDetails() {
         scrollY > sectionTop &&
         scrollY <= sectionTop + sectionHeight
       ) {
-        // console.log("add");
         document.querySelector(".navigation a[href*=" + sectionId + "]")?.classList.add("active");
       } else {
         document.querySelector(".navigation a[href*=" + sectionId + "]")?.classList.remove("active");
-        // console.log("remove");
       }
     });
   }
@@ -256,7 +263,7 @@ export default function VaultDetails() {
 
     let localProvider;
     let vaultContract;
-    debugger
+    
     if (valutChainId.id === "56") {
       localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
       vaultContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
@@ -279,8 +286,8 @@ export default function VaultDetails() {
       assetImg = bnbImg;
       networkImg = "../img/bnbChain.png";
     } else if (asset === "0x8734110e5e1dcF439c7F549db740E546fea82d66") {
-      assetName = "BIT";
-      assetImg = bitLogoImg;
+      assetName = "MNT";
+      assetImg = "../img/mantle.svg";
       networkImg = "../img/mantleLogo.png"
     }
 
@@ -348,15 +355,12 @@ export default function VaultDetails() {
 
       const distinctDepositerSet = new Set();
       const latestBlockNumberval = await localProvider.getBlockNumber();
-      console.log("latestBlockNumberval", latestBlockNumberval)
       const batchSize = 10000;
       const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
 
       for (let i = 0; i < blocksToProcess; i += batchSize) {
         const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
         const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
-        console.log("firstBlock", firstBlock);
-        console.log("lastBlock", lastBlock);
 
         const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
 
@@ -412,14 +416,6 @@ export default function VaultDetails() {
       }
 
 
-
-
-      console.log("totalValutDeposit", totalValutDeposit);
-      console.log("totalValutDepositWithTime", totalValutDepositWithTime);
-      console.log("totalUserDeposit", totalUserDeposit);
-      console.log("totalUserDepositWithTime", totalUserDepositWithTime);
-
-
       let overallReturn = ((userShareVal + totalUserwithdraw) - totalUserDeposit);
       setUserOverallReturn(overallReturn.toFixed(2));
 
@@ -441,15 +437,12 @@ export default function VaultDetails() {
 
       const distinctDepositerSet = new Set();
       const latestBlockNumberval = await localProvider.getBlockNumber();
-      console.log("latestBlockNumberval", latestBlockNumberval)
       const batchSize = 10000;
       const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
 
       for (let i = 0; i < blocksToProcess; i += batchSize) {
         const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
         const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
-        console.log("firstBlock", firstBlock);
-        console.log("lastBlock", lastBlock);
 
         const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
 
@@ -522,6 +515,11 @@ export default function VaultDetails() {
     window.open(url, '_blank');
   }
 
+  const gotoDiscord = () =>{
+    const url = 'https://discord.com/invite/sbMxwS6VEV';
+    window.open(url, '_blank');
+  }
+
 
 
   return (
@@ -530,6 +528,7 @@ export default function VaultDetails() {
         <div className="spinner"></div>
       </div></> : <>
         <div className='custom-container mt-4'>
+        <Toast ref={toast} />
           <div className='row'>
             <div className='col-md-8'>
               <div className="small-div-1"></div>
@@ -541,15 +540,24 @@ export default function VaultDetails() {
                   </div>
                 </div>
                 <div className='dsp dspWrap mt-3 mb-4'>
-                  <div className='trdng_outer'>
-                    <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span>
-                  </div>
-                  <div className='trdng_outer'>
-                    <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />ALM</span>
-                  </div>
-                  <div className='trdng_outer'>
-                    <span className='trdng_width'><img src={LSDFarmingImg} className='ml_8' alt='arrow img' />LSD Farming</span>
-                  </div>
+                  
+                    {valutJsonData?.isStablePair ? 
+                    <><div className='trdng_outer'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span> </div></>:<></>}
+                   
+                 
+                  
+                    {valutJsonData?.isLiquidityMining ? 
+                    <><div className='trdng_outer'> <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />Liquidity Mining</span> </div></> : <></>}    
+                 
+                  
+                    {valutJsonData?.isLSDFarming ? 
+                    <><div className='trdng_outer'> <span className='trdng_width'><img src={LSDFarmingImg} className='ml_8' alt='arrow img' />LSD Farming</span> </div></> : <></>}
+                 
+                 
+                    {valutJsonData?.isVolatilePair ? 
+                    <>  <div className='trdng_outer'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Volatile Pair</span> </div></> : <></>}
+                  
+
                   <div className='trdng_outer'>
                     <span className='wthlist_back'><img src={lockImg} alt='lock img' className='wthlist_back_img' />Whitelisted</span>
                   </div>
@@ -560,7 +568,7 @@ export default function VaultDetails() {
                 <div className='dsp mb-3 wdth_80'>
                   <div>Average APY <br /> <span className='holding_val'>{vaultApy}%</span></div>
                   <div>TVL <br /> <span className='fnt_wgt_600'>${deatils.tvlInusd}</span></div>
-                  <div>DEX <br /> <span><img src={pancakeFullImg} alt='pancake' /></span></div><div>LP Pool & Fee Tier <br /> <span className='fnt_wgt_600'>BTCB-USDT  (0.3%)</span></div>
+                  <div>DEX <br /> <span><img src={valutJsonData?.poweredBy} alt='pancake' /></span></div><div>LP Pool & Fee Tier <br /> <span className='fnt_wgt_600'>{valutJsonData?.strategy?.pool}</span></div>
                 </div>
 
               </div>
@@ -596,7 +604,7 @@ export default function VaultDetails() {
                   <div className='fnt_wgt_600 mb-2 redHatFont'>Summary</div>
                   <span>
                     <ul>
-                      {valutJsonData?.strategy.map((data: any, index: any) => {
+                      {valutJsonData?.strategy?.val.map((data: any, index: any) => {
                         return <><li key={index} className='mb-2'>{data}
                         </li></>
                       })}
@@ -844,14 +852,14 @@ export default function VaultDetails() {
                           onChange={handledepositAmoutChange}
                         /></div>
                       </div>
-                      <div className='dsp'>
+                      {/* <div className='dsp'>
                         <div>Wallet balance</div>
                         <div>500 {deatils?.assetName}</div>
-                      </div>
+                      </div> */}
                       <div className='buy_cake mt-1 mb-2'>Buy {deatils?.assetName}</div>
                       <div className='dsp'>
                         <div>Min. Limit </div>
-                        <div>0.001 {deatils?.assetName}</div>
+                        <div>0.0001 {deatils?.assetName}</div>
                       </div>
                       <div className='dsp'>
                         <div>Max. Limit</div>
@@ -870,11 +878,16 @@ export default function VaultDetails() {
                         {isConnected ? isWhiteListed ?
                         (chain as any)?.id !== Number(valutJsonData?.id) ? 
                         <button className='btn btn-riv-primary wdth_100' onClick={() => { networkSwitchHandler(Number(valutJsonData?.id)) }} >Switch to {valutJsonData?.chainname}</button>
-                        : isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Continue</button>
+                        : isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Deposit</button>
                         : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} >Approve</button> : <>
-                        <div>You are not whitelisted</div>
+                        <div>
+                          <div className='mb-1'>Whitelist your address to proceed.</div>
+                          <button className='btn btn-riv-primary wdth_100' onClick={gotoDiscord}>Get Whitelisted</button>
+                          </div>
                         </> :
-                        <></>}
+                        <>
+                         <div className='d-flex justify-content-center'><ConnectButton /></div>
+                        </>}
                       </div>
                     </div>
                   </TabPanel>
@@ -901,18 +914,18 @@ export default function VaultDetails() {
                           onChange={handlewithdrawAmoutChange}
                         /></div>
                       </div>
-                      <div className='dsp'>
+                      {/* <div className='dsp'>
                         <div>Wallet balance</div>
                         <div>20.5 {deatils?.assetName}</div>
-                      </div>
+                      </div> */}
                       <div className='buy_cake mt-1 mb-2'>Buy {deatils?.assetName}</div>
                       <div className='dsp'>
                         <div>Min. Limit </div>
-                        <div>0.001 {deatils?.assetName}</div>
+                        <div>0.0001 {deatils?.assetName}</div>
                       </div>
                       <div className='dsp'>
                         <div>Max. Limit</div>
-                        <div>{maxLimit} {deatils?.assetName}</div>
+                        <div>{userShare} {deatils?.assetName}</div>
                       </div>
                       <hr />
                       <div className='dsp'>
@@ -928,11 +941,17 @@ export default function VaultDetails() {
                       {isConnected ? isWhiteListed ?
                         (chain as any)?.id !== Number(valutJsonData?.id) ? 
                         <button className='btn btn-riv-primary wdth_100' onClick={() => { networkSwitchHandler(Number(valutJsonData?.id)) }} >Switch to {valutJsonData?.chainname}</button>
-                        :  <button className='btn btn-riv-primary wdth_100' onClick={withdraw}>Continue</button>
+                        :  <button className='btn btn-riv-primary wdth_100' onClick={withdraw}>Withdraw</button>
                         : <>
-                        <div>You are not whitelisted</div>
+                        <div>
+                        <div className='mb-1'>Whitelist your address to proceed.</div>
+                          <button className='btn btn-riv-primary wdth_100' onClick={gotoDiscord}>Get Whitelisted</button>
+                          </div>
                         </> :
-                        <></>}
+                        <>
+
+                        <div className='d-flex justify-content-center'><ConnectButton /></div>
+                        </>}
 
                        
                       </div>

@@ -43,10 +43,10 @@ const bnbLocalChain: Chain = {
   },
   rpcUrls: {
     default: {
-      http: ['http://18.183.52.4:8545/'],
+      http: ['https://testnet.rivera.money:8546/'],
     },
     public:{
-      http: ['http://18.183.52.4:8545/'],
+      http: ['https://testnet.rivera.money:8546/'],
     }
   },
   blockExplorers: {

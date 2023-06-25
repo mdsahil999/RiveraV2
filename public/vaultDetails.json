@@ -1,6 +1,11 @@
 {
   "0x4C4A11B5FbAe47a6303F9aC8585584a40ba476c4": {
     "id": "56",
+    "isStablePair": true,
+    "isLSDFarming": true,
+    "isVolatilePair": false,
+    "isLiquidityMining": false,
+    "poweredBy": "/img/pancakeFull.svg",
     "chainname": "Rivera Testnet (BNB)",
     "fundManager": {
       "name": "Liquidity_055",
@@ -50,11 +55,13 @@
         "website": "https://www.staderlabs.com/"
       }
     ],
-    "strategy": [
-      "Our actively managed LSD farming vaults allow users to earn a yield on single assets by farming stable-asset pairs. The strategy allows users to earn liquid staking rewards on a significant portion of their portfolio in addition to the LP fee and protocol farming reward on their entire portfolio allocation.",
-       "The vault accepts users' deposits and swaps the required amount of tokens in its required LSD form earning LSD rewards. The full capital is deployed in the active liquidity range of an AMM earning LP fees & protocol rewards. The vault automatically rebalances your position and manages the farming of LP NFT. Rivera's algorithmic harvester (running on Gelato Network) auto-compounds earnings of the vault and provides users the experience of a fully passive DeFi strategy.",
-      "Pool: v3 BNB-BNBx (0.05%)"
-    ],
+    "strategy": {
+      "val": [
+        "Our actively managed LSD farming vaults allow users to earn a yield on single assets by farming stable-asset pairs. The strategy allows users to earn liquid staking rewards on a significant portion of their portfolio in addition to the LP fee and protocol farming reward on their entire portfolio allocation.",
+        "The vault accepts users' deposits and swaps the required amount of tokens in its required LSD form earning LSD rewards. The full capital is deployed in the active liquidity range of an AMM earning LP fees & protocol rewards. The vault automatically rebalances your position and manages the farming of LP NFT. Rivera's algorithmic harvester (running on Gelato Network) auto-compounds earnings of the vault and provides users the experience of a fully passive DeFi strategy."
+      ],
+      "pool": "v3 BNBx-BNB (0.05%)"
+    },
     "fees": [
       {
         "feeType": "Management Fee",
@@ -183,6 +190,11 @@
 
   "0x1b88557d928f27ea912DA095D5991A253293b1a7": {
     "id": "56",
+    "isStablePair": true,
+    "isLSDFarming": true,
+    "isVolatilePair": false,
+    "isLiquidityMining": false,
+    "poweredBy": "/img/pancakeFull.svg",
     "chainname": "Rivera Testnet (BNB)",
     "fundManager": {
       "name": "Swap_God",
@@ -197,7 +209,11 @@
     "risk": {
       "safetyScore": "9.0",
       "safetyScorePoint": [
-        { "details": "Low-complexity strategy", "type": "Rivera", "side": "up" },
+        {
+          "details": "Low-complexity strategy",
+          "type": "Rivera",
+          "side": "up"
+        },
         { "details": "Blue-chip assets", "type": "Asset", "side": "up" },
         { "details": "Low expected IL", "type": "Asset", "side": "up" }
       ],
@@ -228,11 +244,13 @@
         "website": "https://www.ankr.com/"
       }
     ],
-    "strategy": [
-      "Our actively managed LSD farming vaults allow users to earn a yield on single assets by farming stable-asset pairs. The strategy allows users to earn liquid staking rewards on a significant portion of their portfolio in addition to the LP fee and protocol farming reward on their entire portfolio allocation.",
-      "The vault accepts users' deposits and swaps the required amount of tokens in its required LSD form earning LSD rewards. The full capital is deployed in the active liquidity range of an AMM earning LP fees & protocol rewards. The vault automatically rebalances your position and manages the farming of LP NFT. Rivera's algorithmic harvester (running on Gelato Network) auto-compounds earnings of the vault and provides users the experience of a fully passive DeFi strategy.",
-      "Pool: v3 ankrETH-ETH (0.05%)"
-    ],
+    "strategy": {
+      "val": [
+        "Our actively managed LSD farming vaults allow users to earn a yield on single assets by farming stable-asset pairs. The strategy allows users to earn liquid staking rewards on a significant portion of their portfolio in addition to the LP fee and protocol farming reward on their entire portfolio allocation.",
+        "The vault accepts users' deposits and swaps the required amount of tokens in its required LSD form earning LSD rewards. The full capital is deployed in the active liquidity range of an AMM earning LP fees & protocol rewards. The vault automatically rebalances your position and manages the farming of LP NFT. Rivera's algorithmic harvester (running on Gelato Network) auto-compounds earnings of the vault and provides users the experience of a fully passive DeFi strategy."
+      ],
+      "pool": "v3 ankrETH-ETH (0.05%)"
+    },
     "fees": [
       {
         "feeType": "Management Fee",
@@ -358,10 +376,15 @@
       }
     ]
   },
-  
-  "0xD7D4E7FBD3e7aa3a3bef0267b2B077f9f12b01EA": {
+
+  "0xbcA0d7dd435b52B5e69A265Ba54f2C2A5E9c6bB8": {
     "id": "5001",
+    "isStablePair": false,
+    "isLSDFarming": false,
+    "isVolatilePair": true,
+    "isLiquidityMining": true,
     "chainname": "Mantle",
+    "poweredBy": "/img/fusionX.svg",
     "fundManager": {
       "name": "FSX_Farmer",
       "yearFounded": "2016",
@@ -373,9 +396,13 @@
       "complianceManger": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0"
     },
     "risk": {
-      "safetyScore": "7.5",
+      "safetyScore": "",
       "safetyScorePoint": [
-        { "details": "Low-complexity strategy", "type": "Rivera", "side": "up" },
+        {
+          "details": "Low-complexity strategy",
+          "type": "Rivera",
+          "side": "up"
+        },
         { "details": "Testnet assets", "type": "Asset", "side": "down" },
         { "details": "High expected IL", "type": "Asset", "side": "down" }
       ],
@@ -399,11 +426,12 @@
         "website": "https://fusionx.finance/"
       }
     ],
-    "strategy": [
-      "Our actively managed liquidity mining strategy vault aims to maximize profitability and minimize impermanent loss. Liquidity ranges are managed for you and the fees are automatically compounded, allowing for a passive liquidity-providing experience.",
-      "The vault accepts users' deposits and deploys capital in the active liquidity range of an AMM pool earning LP fees. It automatically rebalances the position to stay in the active liquidity zone. Vault also manages the farming of LP NFT to earn additional protocol rewards. Rivera's algorithmic harvester (running on Gelato) auto-compounds earnings.",
-      "Pool: v3 FSX-MNT (0.25%)"
-    ],
+    "strategy": {
+      "val": [
+        "Our actively managed liquidity mining strategy vault aims to maximize profitability and minimize impermanent loss. Liquidity ranges are managed for you and the fees are automatically compounded, allowing for a passive liquidity-providing experience."
+      ],
+      "pool": "v3 FSX-MNT (0.25%)"
+    },
     "fees": [
       {
         "feeType": "Management Fee",
