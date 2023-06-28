@@ -68,6 +68,10 @@ function Home() {
       return new Promise((resolve, reject) => {
         resolve(Number(0.5));
       });
+    } else{
+      return new Promise((resolve, reject) => {
+        resolve(Number(0.5));
+      });
     }
     // need to remove this abi to folder
     const providerVal = new ethers.providers.JsonRpcProvider("https://bsc-dataseed1.binance.org")  //https://data-seed-prebsc-1-s1.binance.org:8545/ for local testnet
@@ -219,8 +223,13 @@ function Home() {
         let overallReturn = ((userShareVal + totalUserwithdraw) - totalUserDeposit);
         const overallReturnInUsd = overallReturn * convertedPrice;
         totalOverallreturnVal = totalOverallreturnVal + overallReturnInUsd;
-
-        const userApyVal = (userShareVal - (totalUserDeposit - totalUserwithdraw)) / (totalUserDepositWithTime - totalUserwithdrawWithTime);
+        debugger
+        let userApyVal;
+        if (totalUserDeposit === 0) {
+          userApyVal = 0;
+        } else {
+          userApyVal = (userShareVal - (totalUserDeposit - totalUserwithdraw)) / (totalUserDepositWithTime - totalUserwithdrawWithTime);
+        }
 
         totalAverageApy = totalAverageApy + userApyVal;
 
@@ -278,8 +287,8 @@ function Home() {
 
       return {
         "name": valutName,
-        "assetImg": assetImg,
-        "chainImg": chainImg,
+        "assetImg": valutDetailsInJson?.assetImg,
+        "chainImg": valutDetailsInJson?.chainImg,
         "saftyRating": valutDetailsInJson?.risk?.safetyScore,
         "tvlInUsd": tvlInUsd,
         "tvl": tvl,
@@ -306,18 +315,18 @@ function Home() {
   async function getDeployedValut() {
 
     const bnbLocalProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
-    const bnbContract = getContract(whitelistedBNBFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, bnbLocalProvider.getSigner());
+    //const bnbContract = getContract(whitelistedBNBFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, bnbLocalProvider.getSigner());
     const mantleLocalProvied = new ethers.providers.JsonRpcProvider(mantleRPCUrl);
     const mantleContract = getContract(whitelistedMantleFactoryAddress, pancakeWhitelistedVaultFactoryV2Json.abi, mantleLocalProvied.getSigner());
 
     let mantleValutListVal = await mantleContract.listAllVaults();
 
-    let bnbValutListVal = await bnbContract.listAllVaults();
+    //let bnbValutListVal = await bnbContract.listAllVaults();
 
-    const bnbValutList = await getValutDetailsByChain(bnbValutListVal, bnbLocalProvider);
+    //const bnbValutList = await getValutDetailsByChain(bnbValutListVal, bnbLocalProvider);
     const mantleValutList = await getValutDetailsByChain(mantleValutListVal, mantleLocalProvied);
 
-    const finalList = [...bnbValutList, ...mantleValutList];
+    const finalList = [...mantleValutList];
     setvalutList(finalList);
     setTotalVault(finalList.length);
 
@@ -490,35 +499,35 @@ function Home() {
                       <span><img src={e.chainImg} alt='chain' /></span>
                     </div>
                   </div>
-                  <div className='dsp dspWrap mt-3 mb-4'>
-                  {e?.isStablePair ? 
-                    <><div className='trdng_outer'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span> </div></>:<></>}
-                   
-                 
-                  
-                    {e?.isLiquidityMining ? 
-                    <><div className='trdng_outer'> <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />Liquidity Mining</span> </div></> : <></>}    
-                 
-                  
-                    {e?.isLSDFarming ? 
-                    <><div className='trdng_outer'> <span className='trdng_width'><img src={LSDFarmingImg} className='ml_8' alt='arrow img' />LSD Farming</span> </div></> : <></>}
-                 
-                 
-                    {e?.isVolatilePair ? 
-                    <>  <div className='trdng_outer'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Volatile Pair</span> </div></> : <></>}
+                  <div className='d-flex dspWrap mt-3 mb-4'>
+                    {e?.isStablePair ?
+                      <><div className='trdng_outer mr_20'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span> </div></> : <></>}
+
+
+
+                    {e?.isLiquidityMining ?
+                      <><div className='trdng_outer mr_20'> <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />Liquidity Mining</span> </div></> : <></>}
+
+
+                    {e?.isLSDFarming ?
+                      <><div className='trdng_outer mr_20'> <span className='trdng_width'><img src={LSDFarmingImg} className='ml_8' alt='arrow img' />LSD Farming</span> </div></> : <></>}
+
+
+                    {e?.isVolatilePair ?
+                      <>  <div className='trdng_outer mr_20'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Volatile Pair</span> </div></> : <></>}
                   </div>
 
                   <div className='dsp mb-5'>
                     <div className='wdth_45'>
                       <div className='mb-1'>TVL</div>
                       <span className='secondary_color fnt_wgt_600'>${e.tvlInUsd.toFixed(2)}</span>
-                      <div className='d-flex'><ProgressBar value={Number(e.percentage)} className='wdth_100'></ProgressBar> <div className='prgrs_txt'>${e.tvlcapInUsd}</div></div>
+                      <div className='d-flex'><ProgressBar value={Number(e.percentage)} className='wdth_100' showValue={false}></ProgressBar> <div className='prgrs_txt'>${e.tvlcapInUsd}</div></div>
                     </div>
                     <div>Average APY <br /> <span className='holding_val'>{e.valutApy}%</span></div>
                     <div>Powered By <br /> <span><img src={e.poweredBy} alt='lock img' className='cashaa logo' /></span></div>
                   </div>
                   <div className='dsp_around mb-2'>
-                    <div className='wdth_60'><button className='btn btn-riv-secondary view_btn_wdth' onClick={() => { goTovaultDeatils(e.valutAddress) }}>View Details <img src={buttonArrowImg} alt='arrow' /></button></div>
+                    <div className='wdth_80'><button className='btn btn-riv-secondary view_btn_wdth' onClick={() => { goTovaultDeatils(e.valutAddress) }}>View Details <img src={buttonArrowImg} alt='arrow' /></button></div>
                   </div>
                 </div>
               </div>

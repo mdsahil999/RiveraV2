@@ -53,7 +53,8 @@ export default function VaultDetails() {
     "tvl": "",
     "tvlInusd": "",
     "holding": "",
-    "networkImg": ""
+    "networkImg": "",
+    "buyToken":""
   });
   const [isWhiteListed, setWhiteListed] = useState(false);
   const [maxLimit, setMaxLimit] = useState(0);
@@ -259,12 +260,12 @@ export default function VaultDetails() {
 
     const response = await fetch('/vaultDetails.json'); // Assuming the JSON file is named "data.json" and located in the public folder.
     const data = await response.json();
-    const valutChainId = data[vaultAddress as string]
+    const valutJsonData = data[vaultAddress as string]
 
     let localProvider;
     let vaultContract;
     
-    if (valutChainId.id === "56") {
+    if (valutJsonData.id === "56") {
       localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
       vaultContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
     } else {
@@ -295,7 +296,7 @@ export default function VaultDetails() {
     const convertedPrice = await getPriceInUsd(asset);
 
     //fetch valut name
-    const valutName = await vaultContract.name();
+    //const valutName = await vaultContract.name();
 
     let totalAssets = await vaultContract.totalAssets(); //it will return the total assets of the valut
     totalAssets = (totalAssets / Math.pow(10, 18));
@@ -306,13 +307,14 @@ export default function VaultDetails() {
 
 
     const detailsVal = {
-      "vaultName": valutName.toString(),
-      "assetName": assetName,
-      "assetImg": assetImg,
+      "vaultName": valutJsonData?.displayName,
+      "assetName": valutJsonData?.denominationAsset,
+      "assetImg": valutJsonData?.assetImg,
       "tvl": tvl.toString(),
       "tvlInusd": tvlInUsd.toString(),
       "holding": "",
-      "networkImg": networkImg
+      "networkImg": valutJsonData?.chainImg,
+      "buyToken": valutJsonData?.buyToken
     }
     setDeatils(detailsVal);
 
@@ -419,8 +421,13 @@ export default function VaultDetails() {
       let overallReturn = ((userShareVal + totalUserwithdraw) - totalUserDeposit);
       setUserOverallReturn(overallReturn.toFixed(2));
 
-      const userApyVal = (userShareVal - (totalUserDeposit - totalUserwithdraw)) / (totalUserDepositWithTime - totalUserwithdrawWithTime);
-      setUserApy(userApyVal.toFixed(2));
+      if(totalUserDeposit === 0){
+        setUserApy("0.00");
+      } else{
+        const userApyVal = (userShareVal - (totalUserDeposit - totalUserwithdraw)) / (totalUserDepositWithTime - totalUserwithdrawWithTime);
+        setUserApy(userApyVal.toFixed(2));
+      }
+     
 
       const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
       setVaultApy(valutApyVal.toFixed(2));
@@ -500,6 +507,10 @@ export default function VaultDetails() {
       return new Promise((resolve, reject) => {
         resolve(Number(0.5));
       });
+    } else{
+      return new Promise((resolve, reject) => {
+        resolve(Number(0.5));
+      });
     }
     const providerVal = new ethers.providers.JsonRpcProvider("https://bsc-dataseed1.binance.org")  //https://data-seed-prebsc-1-s1.binance.org:8545/ for local testnet
     const aggregatorV3InterfaceABI = [{ "inputs": [{ "internalType": "address", "name": "_aggregator", "type": "address" }, { "internalType": "address", "name": "_accessController", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "int256", "name": "current", "type": "int256" }, { "indexed": true, "internalType": "uint256", "name": "roundId", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "updatedAt", "type": "uint256" }], "name": "AnswerUpdated", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "uint256", "name": "roundId", "type": "uint256" }, { "indexed": true, "internalType": "address", "name": "startedBy", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "startedAt", "type": "uint256" }], "name": "NewRound", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }], "name": "OwnershipTransferRequested", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }], "name": "OwnershipTransferred", "type": "event" }, { "inputs": [], "name": "acceptOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "accessController", "outputs": [{ "internalType": "contract AccessControllerInterface", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "aggregator", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_aggregator", "type": "address" }], "name": "confirmAggregator", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "description", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_roundId", "type": "uint256" }], "name": "getAnswer", "outputs": [{ "internalType": "int256", "name": "", "type": "int256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint80", "name": "_roundId", "type": "uint80" }], "name": "getRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_roundId", "type": "uint256" }], "name": "getTimestamp", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestAnswer", "outputs": [{ "internalType": "int256", "name": "", "type": "int256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestRound", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "latestTimestamp", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint16", "name": "", "type": "uint16" }], "name": "phaseAggregators", "outputs": [{ "internalType": "contract AggregatorV2V3Interface", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "phaseId", "outputs": [{ "internalType": "uint16", "name": "", "type": "uint16" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_aggregator", "type": "address" }], "name": "proposeAggregator", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "proposedAggregator", "outputs": [{ "internalType": "contract AggregatorV2V3Interface", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint80", "name": "_roundId", "type": "uint80" }], "name": "proposedGetRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "proposedLatestRoundData", "outputs": [{ "internalType": "uint80", "name": "roundId", "type": "uint80" }, { "internalType": "int256", "name": "answer", "type": "int256" }, { "internalType": "uint256", "name": "startedAt", "type": "uint256" }, { "internalType": "uint256", "name": "updatedAt", "type": "uint256" }, { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_accessController", "type": "address" }], "name": "setController", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_to", "type": "address" }], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "version", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }]
@@ -539,13 +550,11 @@ export default function VaultDetails() {
                     <span><img src={deatils?.networkImg} alt='chain' /></span>
                   </div>
                 </div>
-                <div className='dsp dspWrap mt-3 mb-4'>
+                <div className='dsp dspWrap mt-3 mb-4 wdth_80'>
                   
                     {valutJsonData?.isStablePair ? 
                     <><div className='trdng_outer'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span> </div></>:<></>}
                    
-                 
-                  
                     {valutJsonData?.isLiquidityMining ? 
                     <><div className='trdng_outer'> <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />Liquidity Mining</span> </div></> : <></>}    
                  
@@ -832,10 +841,10 @@ export default function VaultDetails() {
                     <div className='mt-3'>
                       <div className='dsp'>
                         <div>Deposits</div>
-                        <div>${userShareInUsd}</div>
+                        <div>${deatils.tvlInusd}</div>
                       </div>
                       <div>
-                        <ProgressBar value={Number(((Number(userShareInUsd) / Number(tvlCapInUsd)) * 100).toFixed(4))}></ProgressBar>
+                        <ProgressBar showValue={false} value={Number(((Number(deatils.tvlInusd) / Number(tvlCapInUsd)) * 100).toFixed(4))}></ProgressBar>
                       </div>
                       <div className='dsp mb-3'>
                         <div>Capacity</div>
@@ -856,7 +865,7 @@ export default function VaultDetails() {
                         <div>Wallet balance</div>
                         <div>500 {deatils?.assetName}</div>
                       </div> */}
-                      <div className='buy_cake mt-1 mb-2'>Buy {deatils?.assetName}</div>
+                      <div className='buy_cake mt-1 mb-2'> <a target='_blank' href={deatils?.buyToken} className='clr_prpl'>Buy {deatils?.assetName}</a></div>
                       <div className='dsp'>
                         <div>Min. Limit </div>
                         <div>0.0001 {deatils?.assetName}</div>
@@ -898,7 +907,7 @@ export default function VaultDetails() {
                         <div>${userShareInUsd}</div>
                       </div>
                       <div>
-                        <ProgressBar value={Number(((Number(userShareInUsd) / Number(tvlCapInUsd)) * 100).toFixed(4))}></ProgressBar>
+                        <ProgressBar showValue={false} value={Number(((Number(userShareInUsd) / Number(tvlCapInUsd)) * 100).toFixed(4))}></ProgressBar>
                       </div>
                       <div className='dsp mb-3'>
                         <div>Capacity</div>
@@ -918,7 +927,7 @@ export default function VaultDetails() {
                         <div>Wallet balance</div>
                         <div>20.5 {deatils?.assetName}</div>
                       </div> */}
-                      <div className='buy_cake mt-1 mb-2'>Buy {deatils?.assetName}</div>
+                      <div className='buy_cake mt-1 mb-2'><a target='_blank' href={deatils?.buyToken} className='clr_prpl'>Buy {deatils?.assetName}</a></div>
                       <div className='dsp'>
                         <div>Min. Limit </div>
                         <div>0.0001 {deatils?.assetName}</div>

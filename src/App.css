@@ -621,6 +621,11 @@ thead {
   width: 60%;
 }
 
+.wdth_80 {
+  width: 80%;
+}
+
+
 .view_btn_wdth {
   width: 100%;
   padding: 10px;
@@ -754,4 +759,17 @@ thead {
 
   .crsr_pntr{
     cursor: pointer;
+  }
+
+  .wdth_50{
+    width: 50%;
+  }
+  .wdth_55{
+    width: 50%;
+  }
+  .mr_20{
+    margin-right: 20px;
+  }
+  .clr_prpl{
+    color: rgba(145, 77, 229, 1);
   }
