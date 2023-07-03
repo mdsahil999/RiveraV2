@@ -1,390 +1,4 @@
 {
-  "0x4C4A11B5FbAe47a6303F9aC8585584a40ba476c4": {
-    "denominationAsset": "WBNB",
-    "denominationAssetLogo": "png",
-    "displayName": "BNB Stable Vault",
-    "buyToken": "https://pancakeswap.finance/swap",  
-    "id": "56",
-    "isStablePair": true,
-    "isLSDFarming": true,
-    "isVolatilePair": false,
-    "isLiquidityMining": false,
-    "poweredBy": "/img/pancakeFull.svg",
-    "chainname": "Rivera Testnet (BNB)",
-    "fundManager": {
-      "name": "Liquidity_055",
-      "yearFounded": "2016",
-      "logo": "cdn",
-      "location": "Decentralised",
-      "details": "Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra. Sit eu nisl semper justo. Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra. Sit eu nisl semper justo.",
-      "vaultOwner": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0",
-      "fundManagerAddress": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0",
-      "complianceManger": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0"
-    },
-    "risk": {
-      "safetyScore": "9.2",
-      "safetyScorePoint": [
-        {
-          "details": "Low-complexity strategy",
-          "type": "Rivera",
-          "side": "up"
-        },
-        { "details": "Blue-chip assets", "type": "Asset", "side": "up" },
-        { "details": "Low expected IL", "type": "Asset", "side": "up" }
-      ],
-      "riskType": [
-        {
-          "details": "Principal Risk",
-          "type": "Impermanent loss associated with AMM liquidity farming can lead to a loss of principal amount."
-        },
-        {
-          "details": "Smart Contract Risk",
-          "type": "There is a risk of smart contract failure in the underlying vault or the protocols we work with."
-        }
-      ]
-    },
-    "protocols": [
-      {
-        "name": "PancakeSwap Finance",
-        "logo": "pancake.svg",
-        "details": "PancakeSwap v3 is the latest version of BNB's largest DEX, PancakeSwap Finance. PancakeSwap has the most users of any decentralized platform. And those users are now entrusting the platform with over $1.5 billion in funds.",
-        "contract": "https://bscscan.com/address/0x77B27c351B13Dc6a8A16Cc1d2E9D5e7F9873702E",
-        "website": "https://pancakeswap.finance/"
-      },
-      {
-        "name": "Stader Labs",
-        "logo": "stader-icon.svg",
-        "details": "Stader Labs is a non-custodial liquid staking protocol that allows users to earn staking rewards on their crypto assets without locking them up. Stader Labs is available on the Terra, Polygon, Fantom, BNB, NEAR, and Hedera networks.",
-        "contract": "https://bscscan.com/address/0x1bdd3cf7f79cfb8edbb955f20ad99211551ba275",
-        "website": "https://www.staderlabs.com/"
-      }
-    ],
-    "strategy": {
-      "val": [
-        "Our actively managed LSD farming vaults allow users to earn a yield on single assets by farming stable-asset pairs. The strategy allows users to earn liquid staking rewards on a significant portion of their portfolio in addition to the LP fee and protocol farming reward on their entire portfolio allocation.",
-        "The vault accepts users' deposits and swaps the required amount of tokens in its required LSD form earning LSD rewards. The full capital is deployed in the active liquidity range of an AMM earning LP fees & protocol rewards. The vault automatically rebalances your position and manages the farming of LP NFT. Rivera's algorithmic harvester (running on Gelato Network) auto-compounds earnings of the vault and provides users the experience of a fully passive DeFi strategy."
-      ],
-      "pool": "v3 BNBx-BNB (0.05%)"
-    },
-    "fees": [
-      {
-        "feeType": "Management Fee",
-        "settings": {
-          "name": "Rate",
-          "value": "0.00%"
-        },
-        "recipent": {
-          "name": "Vault Owner",
-          "value": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0"
-        }
-      },
-      {
-        "feeType": "Performance Fee",
-        "settings": {
-          "name": "Rate",
-          "value": "0.00%"
-        },
-        "recipent": {
-          "name": "Vault Owner",
-          "value": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0"
-        }
-      },
-      {
-        "feeType": "Exit Fee",
-        "settings": {
-          "name": "Rate",
-          "value": "0.00%"
-        },
-        "recipent": {
-          "name": "Vault Owner",
-          "value": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0"
-        }
-      },
-      {
-        "feeType": "Protocol Fee",
-        "settings": {
-          "name": "Rate",
-          "value": "0.00%"
-        },
-        "recipent": {
-          "name": "Rivera",
-          "value": "Rivera_Fee_Collector.eth"
-        }
-      }
-    ],
-    "transactions": [
-      {
-        "type": "Deposit",
-        "date": "June-05-2023 11:19:33Am",
-        "value": "100 WBNB",
-        "tnxFee": "0.02BNB",
-        "address": "0x6db5.........sff0"
-      },
-      {
-        "type": "Deposit",
-        "date": "June-05-2023 11:19:33Am",
-        "value": "100 WBNB",
-        "tnxFee": "0.02BNB",
-        "address": "0x6db5.........sff0"
-      },
-      {
-        "type": "Deposit",
-        "date": "June-05-2023 11:19:33Am",
-        "value": "100 WBNB",
-        "tnxFee": "0.02BNB",
-        "address": "0x6db5.........sff0"
-      },
-      {
-        "type": "Deposit",
-        "date": "June-05-2023 11:19:33Am",
-        "value": "100 WBNB",
-        "tnxFee": "0.02BNB",
-        "address": "0x6db5.........sff0"
-      }
-    ],
-    "depositors": [
-      {
-        "depositor": "0X920........8383",
-        "assets": "Riv-BNB-BNBx-Vault",
-        "numbersOfShares": "100",
-        "percentage": "25.00%"
-      },
-      {
-        "depositor": "0X920........8383",
-        "assets": "Riv-BNB-BNBx-Vault",
-        "numbersOfShares": "100",
-        "percentage": "25.00%"
-      },
-      {
-        "depositor": "0X920........8383",
-        "assets": "Riv-BNB-BNBx-Vault",
-        "numbersOfShares": "100",
-        "percentage": "25.00%"
-      },
-      {
-        "depositor": "0X920........8383",
-        "assets": "Riv-BNB-BNBx-Vault",
-        "numbersOfShares": "100",
-        "percentage": "25.00%"
-      }
-    ],
-    "faq": [
-      {
-        "name": "Is there any lock-up period for funds?",
-        "description": "No, there is no lock-up period in this vault. You can withdraw your funds at any time without any restriction or penalty."
-      },
-      {
-        "name": "What assets are the yields paid in?",
-        "description": "The yields are paid in the denomination asset of the strategy and are compounded automatically. Unharvested rewards can be temporarily held in the form of farmed assets."
-      },
-      {
-        "name": "What are the fees associated with using the vault?",
-        "description": "During the testing period, there are no fees for using Rivera vaults. A management & performance fee will be applied after the protocol's mainnet launch."
-      },
-      {
-        "name": "I'm having trouble using the app. What should I do?",
-        "description": "Join our Discord community and help us improve our app by reporting your issue. Win exclusive rewards, bounty & more for your contribution."
-      },
-      {
-        "name": "I love Rivera! How can I get involved?",
-        "description": "We are recruiting DeFi pros who can help us redefine the future of DeFi liquidity management. Join us in testing the Rivera protocol and contributing to its development. We are awarding exclusive OG NFTs to the top 100 testers. Get started by joining our Discord."
-      }
-    ]
-  },
-
-  "0x1b88557d928f27ea912DA095D5991A253293b1a7": {
-    "denominationAsset": "ETH",
-    "denominationAssetLogo": "png",
-    "displayName": "ETH Stable Vault",
-    "buyToken": "https://pancakeswap.finance/swap",  
-    "id": "56",
-    "isStablePair": true,
-    "isLSDFarming": true,
-    "isVolatilePair": false,
-    "isLiquidityMining": false,
-    "poweredBy": "/img/pancakeFull.svg",
-    "chainname": "Rivera Testnet (BNB)",
-    "fundManager": {
-      "name": "Swap_God",
-      "yearFounded": "2016",
-      "logo": "cdn",
-      "location": "Decentralised",
-      "details": "Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra. Sit eu nisl semper justo. Lorem ipsum dolor sit amet consectetur. Quam consectetur a odio eget mi libero arcu pharetra. Sit eu nisl semper justo.",
-      "vaultOwner": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0",
-      "fundManagerAddress": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0",
-      "complianceManger": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0"
-    },
-    "risk": {
-      "safetyScore": "9.0",
-      "safetyScorePoint": [
-        {
-          "details": "Low-complexity strategy",
-          "type": "Rivera",
-          "side": "up"
-        },
-        { "details": "Blue-chip assets", "type": "Asset", "side": "up" },
-        { "details": "Low expected IL", "type": "Asset", "side": "up" }
-      ],
-      "riskType": [
-        {
-          "details": "Principal Risk",
-          "type": "Impermanent loss associated with AMM liquidity farming can lead to a loss of principal amount."
-        },
-        {
-          "details": "Smart Contract Risk",
-          "type": "There is a risk of smart contract failure in the underlying vault or the protocols we work with."
-        }
-      ]
-    },
-    "protocols": [
-      {
-        "name": "PancakeSwap Finance",
-        "logo": "pancake.svg",
-        "details": "PancakeSwap v3 is the latest version of BNB's largest DEX, PancakeSwap Finance. PancakeSwap has the most users of any decentralized platform. And those users are now entrusting the platform with over $1.5 billion in funds.",
-        "contract": "https://bscscan.com/address/0x61837a8a78F42dC6cfEd457c4eC1114F5e2d90f4",
-        "website": "https://pancakeswap.finance/"
-      },
-      {
-        "name": "Ankr Protocol",
-        "logo": "ankr.png",
-        "details": "ANKR is a decentralized blockchain infrastructure provider that operates an array of nodes globally distributed across over 50 Proof-of-Stake networks. It simplifies the process of staking, building dApps, and accessing blockchains. ANKR's native token, ANKR, is used to pay for services on the Ankr platform and to participate in governance.",
-        "contract": "https://bscscan.com/token/0xe05a08226c49b636acf99c40da8dc6af83ce5bb3",
-        "website": "https://www.ankr.com/"
-      }
-    ],
-    "strategy": {
-      "val": [
-        "Our actively managed LSD farming vaults allow users to earn a yield on single assets by farming stable-asset pairs. The strategy allows users to earn liquid staking rewards on a significant portion of their portfolio in addition to the LP fee and protocol farming reward on their entire portfolio allocation.",
-        "The vault accepts users' deposits and swaps the required amount of tokens in its required LSD form earning LSD rewards. The full capital is deployed in the active liquidity range of an AMM earning LP fees & protocol rewards. The vault automatically rebalances your position and manages the farming of LP NFT. Rivera's algorithmic harvester (running on Gelato Network) auto-compounds earnings of the vault and provides users the experience of a fully passive DeFi strategy."
-      ],
-      "pool": "v3 ankrETH-ETH (0.05%)"
-    },
-    "fees": [
-      {
-        "feeType": "Management Fee",
-        "settings": {
-          "name": "Rate",
-          "value": "0.00%"
-        },
-        "recipent": {
-          "name": "Vault Owner",
-          "value": "0x1b88557d928f27ea912DA095D5991A253293b1a7r"
-        }
-      },
-      {
-        "feeType": "Performance Fee",
-        "settings": {
-          "name": "Rate",
-          "value": "0.00%"
-        },
-        "recipent": {
-          "name": "Vault Owner",
-          "value": "0x1b88557d928f27ea912DA095D5991A253293b1a7r"
-        }
-      },
-      {
-        "feeType": "Exit Fee",
-        "settings": {
-          "name": "Rate",
-          "value": "0.00%"
-        },
-        "recipent": {
-          "name": "Vault Owner",
-          "value": "0x1b88557d928f27ea912DA095D5991A253293b1a7r"
-        }
-      },
-      {
-        "feeType": "Protocol Fee",
-        "settings": {
-          "name": "Rate",
-          "value": "0.00%"
-        },
-        "recipent": {
-          "name": "Rivera",
-          "value": "Rivera_Fee_Collector.eth"
-        }
-      }
-    ],
-    "transactions": [
-      {
-        "type": "Deposit",
-        "date": "June-05-2023 11:19:33Am",
-        "value": "100 ETH",
-        "tnxFee": "0.02BNB",
-        "address": "0x6db5.........sff0"
-      },
-      {
-        "type": "Deposit",
-        "date": "June-05-2023 11:19:33Am",
-        "value": "100 ETH",
-        "tnxFee": "0.02BNB",
-        "address": "0x6db5.........sff0"
-      },
-      {
-        "type": "Deposit",
-        "date": "June-05-2023 11:19:33Am",
-        "value": "100 ETH",
-        "tnxFee": "0.02BNB",
-        "address": "0x6db5.........sff0"
-      },
-      {
-        "type": "Deposit",
-        "date": "June-05-2023 11:19:33Am",
-        "value": "100 ETH",
-        "tnxFee": "0.02BNB",
-        "address": "0x6db5.........sff0"
-      }
-    ],
-    "depositors": [
-      {
-        "depositor": "0X920........8383",
-        "assets": "Riv-ankrETH-ETH-Vault",
-        "numbersOfShares": "100",
-        "percentage": "25.00%"
-      },
-      {
-        "depositor": "0X920........8383",
-        "assets": "Riv-ankrETH-ETH-Vault",
-        "numbersOfShares": "100",
-        "percentage": "25.00%"
-      },
-      {
-        "depositor": "0X920........8383",
-        "assets": "Riv-ankrETH-ETH-Vault",
-        "numbersOfShares": "100",
-        "percentage": "25.00%"
-      },
-      {
-        "depositor": "0X920........8383",
-        "assets": "Riv-ankrETH-ETH-Vault",
-        "numbersOfShares": "100",
-        "percentage": "25.00%"
-      }
-    ],
-    "faq": [
-      {
-        "name": "Is there any lock-up period for funds?",
-        "description": "No, there is no lock-up period in this vault. You can withdraw your funds at any time without any restriction or penalty."
-      },
-      {
-        "name": "What assets are the yields paid in?",
-        "description": "The yields are paid in the denomination asset of the strategy and are compounded automatically. Unharvested rewards can be temporarily held in the form of farmed assets."
-      },
-      {
-        "name": "What are the fees associated with using the vault?",
-        "description": "During the testing period, there are no fees for using Rivera vaults. A management & performance fee will be applied after the protocol's mainnet launch."
-      },
-      {
-        "name": "I'm having trouble using the app. What should I do?",
-        "description": "Join our Discord community and help us improve our app by reporting your issue. Win exclusive rewards, bounty & more for your contribution."
-      },
-      {
-        "name": "I love Rivera! How can I get involved?",
-        "description": "We are recruiting DeFi pros who can help us redefine the future of DeFi liquidity management. Join us in testing the Rivera protocol and contributing to its development. We are awarding exclusive OG NFTs to the top 100 testers. Get started by joining our Discord."
-      }
-    ]
-  },
-
   "0xbcA0d7dd435b52B5e69A265Ba54f2C2A5E9c6bB8": {
     "assetImg":"../img/mantle.svg",
     "chainImg":"../img/mantleLogo.png",
@@ -434,7 +48,7 @@
     "protocols": [
       {
         "name": "FusionX",
-        "logo": "pancake.svg",
+        "logo": "/img/fusionX.svg",
         "details": "FusionX Finance is a leading DEX on the Mantle Network. It is building a community-driven & capital-efficient AMM.",
         "contract": "https://explorer.testnet.mantle.xyz/address/0x30F63e60Ab33B05f3baFf97E5A35010De6F4Ea9D",
         "website": "https://fusionx.finance/"
@@ -572,16 +186,16 @@
     ]
   },
   "0x9dc06e7729FD4f8dcf33b3b75f64CDeDeBdc4759": {
-    "assetImg":"../img/mantle.svg",
+    "assetImg":"../img/dai.png",
     "chainImg":"../img/mantleLogo.png",
-    "denominationAsset": "WMNT",
+    "denominationAsset": "DAI",
     "denominationAssetLogo": "png",
-    "displayName": "FSX-MNT Farming Vault",
+    "displayName": "DAI-USDC Farming Vault",
     "buyToken": "https://fusionx.finance/swap/",  
     "id": "5001",
-    "isStablePair": false,
+    "isStablePair": true,
     "isLSDFarming": false,
-    "isVolatilePair": true,
+    "isVolatilePair": false,
     "isLiquidityMining": true,
     "chainname": "Mantle",
     "poweredBy": "/img/fusionX.svg",
@@ -596,7 +210,7 @@
       "complianceManger": "0x6db5ed9557fds5645fds266f4ffsd220dfsdsff0"
     },
     "risk": {
-      "safetyScore": "7.5",
+      "safetyScore": "8.3",
       "safetyScorePoint": [
         {
           "details": "Low-complexity strategy",
@@ -604,7 +218,7 @@
           "side": "up"
         },
         { "details": "Testnet assets", "type": "Asset", "side": "down" },
-        { "details": "High expected IL", "type": "Asset", "side": "down" }
+        { "details": "Low expected IL", "type": "Asset", "side": "up" }
       ],
       "riskType": [
         {
@@ -620,9 +234,9 @@
     "protocols": [
       {
         "name": "FusionX",
-        "logo": "pancake.svg",
+        "logo": "/img/fusionX.svg",
         "details": "FusionX Finance is a leading DEX on the Mantle Network. It is building a community-driven & capital-efficient AMM.",
-        "contract": "https://explorer.testnet.mantle.xyz/address/0x30F63e60Ab33B05f3baFf97E5A35010De6F4Ea9D",
+        "contract": "https://explorer.testnet.mantle.xyz/address/0xD5E4DBEca6055535B6FBf4c4Bc51bDc104dE9EA6",
         "website": "https://fusionx.finance/"
       }
     ],
@@ -630,7 +244,7 @@
       "val": [
         "Our actively managed liquidity mining strategy vault aims to maximize profitability and minimize impermanent loss. Liquidity ranges are managed for you and the fees are automatically compounded, allowing for a passive liquidity-providing experience."
       ],
-      "pool": "v3 FSX-MNT (0.25%)"
+      "pool": "v3 DAI-USDC (0.01%)"
     },
     "fees": [
       {
@@ -682,28 +296,28 @@
       {
         "type": "Deposit",
         "date": "June-05-2023 11:19:33Am",
-        "value": "100 WMNT",
+        "value": "100 DAI",
         "tnxFee": "2 MNT",
         "address": "0x6db5.........sff0"
       },
       {
         "type": "Deposit",
         "date": "June-05-2023 11:19:33Am",
-        "value": "100 WMNT",
+        "value": "100 DAI",
         "tnxFee": "2 MNT",
         "address": "0x6db5.........sff0"
       },
       {
         "type": "Deposit",
         "date": "June-05-2023 11:19:33Am",
-        "value": "100 WMNT",
+        "value": "100 DAI",
         "tnxFee": "2 MNT",
         "address": "0x6db5.........sff0"
       },
       {
         "type": "Deposit",
         "date": "June-05-2023 11:19:33Am",
-        "value": "100 WMNT",
+        "value": "100 DAI",
         "tnxFee": "2 MNT",
         "address": "0x6db5.........sff0"
       }
@@ -711,25 +325,25 @@
     "depositors": [
       {
         "depositor": "0X920........8383",
-        "assets": "Riv-FSX-WBIT-Vault",
+        "assets": "Riv-DAI-MUSDC-Vault",
         "numbersOfShares": "100",
         "percentage": "25.00%"
       },
       {
         "depositor": "0X920........8383",
-        "assets": "Riv-FSX-WBIT-Vault",
+        "assets": "Riv-DAI-MUSDC-Vault",
         "numbersOfShares": "100",
         "percentage": "25.00%"
       },
       {
         "depositor": "0X920........8383",
-        "assets": "Riv-FSX-WBIT-Vault",
+        "assets": "Riv-DAI-MUSDC-Vault",
         "numbersOfShares": "100",
         "percentage": "25.00%"
       },
       {
         "depositor": "0X920........8383",
-        "assets": "Riv-FSX-WBIT-Vault",
+        "assets": "Riv-DAI-MUSDC-Vault",
         "numbersOfShares": "100",
         "percentage": "25.00%"
       }

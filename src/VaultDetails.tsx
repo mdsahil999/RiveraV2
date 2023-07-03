@@ -101,8 +101,11 @@ export default function VaultDetails() {
   }, []);
 
   const showWarn = (message: string) => {
-    
-    toast.current?.show({severity:'warn', summary: 'Warning', detail:message, life: 3000});
+      toast.current?.show({severity:'warn', summary: 'Warning', detail:message, life: 3000});
+}
+
+const showError = (message: string) => {
+  toast.current?.show({severity:'error', summary: 'Error', detail:message, life: 3000});
 }
 
   const fetchJsonData = async () => {
@@ -150,7 +153,6 @@ export default function VaultDetails() {
 
 
   const deposit = async () => {
-
     if(depositAmout < 0.0001 || depositAmout > maxLimit){
       const message = "Please enter a valid amount.";
       showWarn(message);
@@ -171,6 +173,9 @@ export default function VaultDetails() {
     await aprvTxt.wait().then((e: any) => {
       checkAllowance();
       getAllDetails();
+    }).catch((error: any) => {
+      setLoading(false);
+      showError("Something went wrong");
     });
   }
 
@@ -212,6 +217,7 @@ export default function VaultDetails() {
       convertedAmount = convertedAmount.replace(/,/g, '')
       const aprvTxt = await contract.approve(vaultAddress, BigNumber.from(convertedAmount));
       await aprvTxt.wait().then((e: any) => {
+        checkAllowance();
         setisApproved(true);
       });
 
@@ -358,7 +364,7 @@ export default function VaultDetails() {
       const distinctDepositerSet = new Set();
       const latestBlockNumberval = await localProvider.getBlockNumber();
       const batchSize = 10000;
-      const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
+      const blocksToProcess = latestBlockNumberval - (latestBlockNumberval-10000);
 
       for (let i = 0; i < blocksToProcess; i += batchSize) {
         const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
@@ -509,7 +515,7 @@ export default function VaultDetails() {
       });
     } else{
       return new Promise((resolve, reject) => {
-        resolve(Number(0.5));
+        resolve(Number(1));
       });
     }
     const providerVal = new ethers.providers.JsonRpcProvider("https://bsc-dataseed1.binance.org")  //https://data-seed-prebsc-1-s1.binance.org:8545/ for local testnet
@@ -535,11 +541,11 @@ export default function VaultDetails() {
 
   return (
     <>
+     <Toast ref={toast} />
       {loading ? <><div className="loader-container">
         <div className="spinner"></div>
       </div></> : <>
         <div className='custom-container mt-4'>
-        <Toast ref={toast} />
           <div className='row'>
             <div className='col-md-8'>
               <div className="small-div-1"></div>
@@ -625,7 +631,7 @@ export default function VaultDetails() {
                     return <>
                       <div className='backGrd mb-3'>
                         <div className='dsp mb-2'>
-                          <div className='fnt_wgt_600'><img src={`../img/${data.logo}`} alt='pancake' /> {data.name}</div>
+                          <div className='fnt_wgt_600'><img src={data?.logo} alt='pancake' /> {data.name}</div>
                           <div className='d-flex'>
                             <div className='crsr_pntr' onClick={() => { goToUrl(data.website) }}>
                               <span className='westBtn'><img src={globeImg} alt='website' /> Website</span>
@@ -871,7 +877,7 @@ export default function VaultDetails() {
                         <div>0.0001 {deatils?.assetName}</div>
                       </div>
                       <div className='dsp'>
-                        <div>Max. Limit</div>
+                        <div>Approved limit</div>
                         <div>{maxLimit} {deatils?.assetName}</div>
                       </div>
                       <hr />
@@ -888,7 +894,7 @@ export default function VaultDetails() {
                         (chain as any)?.id !== Number(valutJsonData?.id) ? 
                         <button className='btn btn-riv-primary wdth_100' onClick={() => { networkSwitchHandler(Number(valutJsonData?.id)) }} >Switch to {valutJsonData?.chainname}</button>
                         : isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Deposit</button>
-                        : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} >Approve</button> : <>
+                        : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} ><i className="fa fa-spinner fa-spin"></i>Loading</button> : <>
                         <div>
                           <div className='mb-1'>Whitelist your address to proceed.</div>
                           <button className='btn btn-riv-primary wdth_100' onClick={gotoDiscord}>Get Whitelisted</button>
@@ -904,10 +910,10 @@ export default function VaultDetails() {
                     <div className='mt-3'>
                       <div className='dsp'>
                         <div>Deposits</div>
-                        <div>${userShareInUsd}</div>
+                        <div>${deatils.tvlInusd}</div>
                       </div>
                       <div>
-                        <ProgressBar showValue={false} value={Number(((Number(userShareInUsd) / Number(tvlCapInUsd)) * 100).toFixed(4))}></ProgressBar>
+                      <ProgressBar showValue={false} value={Number(((Number(deatils.tvlInusd) / Number(tvlCapInUsd)) * 100).toFixed(4))}></ProgressBar>
                       </div>
                       <div className='dsp mb-3'>
                         <div>Capacity</div>

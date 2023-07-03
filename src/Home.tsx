@@ -70,7 +70,7 @@ function Home() {
       });
     } else{
       return new Promise((resolve, reject) => {
-        resolve(Number(0.5));
+        resolve(Number(1));
       });
     }
     // need to remove this abi to folder
@@ -286,7 +286,7 @@ function Home() {
       const valutDetailsInJson = data[vaultAddress as string]
 
       return {
-        "name": valutName,
+        "name": valutDetailsInJson?.displayName,
         "assetImg": valutDetailsInJson?.assetImg,
         "chainImg": valutDetailsInJson?.chainImg,
         "saftyRating": valutDetailsInJson?.risk?.safetyScore,
