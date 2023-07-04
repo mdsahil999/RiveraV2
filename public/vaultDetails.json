@@ -11,6 +11,7 @@
     "isLSDFarming": false,
     "isVolatilePair": true,
     "isLiquidityMining": true,
+    "isDynamicStrategy": false,
     "chainname": "Mantle",
     "poweredBy": "/img/fusionX.svg",
     "fundManager": {
@@ -197,6 +198,7 @@
     "isLSDFarming": false,
     "isVolatilePair": false,
     "isLiquidityMining": true,
+    "isDynamicStrategy": false,
     "chainname": "Mantle",
     "poweredBy": "/img/fusionX.svg",
     "fundManager": {

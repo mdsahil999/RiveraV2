@@ -8,6 +8,7 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import { ProgressBar } from 'primereact/progressbar';
 import lockImg from './assets/images/lock.png'
 import upImg from './assets/images/up.png';
+import downImg from './assets/images/down.png';
 import helpImg from './assets/images/help-circle.png';
 import venusImg from './assets/images/venus.svg';
 import globeImg from './assets/images/globe.png';
@@ -24,6 +25,8 @@ import riveraAutoCompoundingVaultV2WhitelistedJson from './abi/out/RiveraAutoCom
 import { FACTORY_CONTRACT_DEPLOYMENT_BLOCK, RPCUrl, mantleRPCUrl } from './constants/global.js'
 import pancakeFullImg from './assets/images/pancakeFull.svg';
 import StablePairColorImg from './assets/images/StablePairColor.svg';
+import VolatilePairColorImg from './assets/images/volatilePair.png';
+import dynamicStrategyImg from './assets/images/dynamicStrategy.png';
 import almImg from './assets/images/alm.svg';
 import LSDFarmingImg from './assets/images/LSDFarming.svg';
 import bitLogoImg from './assets/images/bitLogo.png';
@@ -146,7 +149,7 @@ export default function VaultDetails() {
     let convertedallowance = allowance.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 18 });
     convertedallowance = convertedallowance.replace(/,/g, '');
     setMaxLimit(convertedallowance / Math.pow(10, 18));
-    if (+convertedallowance > 0) {
+    if (+convertedallowance > 0.0001) {
       setisApproved(true);
     }
   }
@@ -158,6 +161,10 @@ export default function VaultDetails() {
       const message = "Please enter a valid amount.";
       showWarn(message);
       return;
+    }
+
+    if((deatils.tvl + depositAmout) < tvlCap){
+      showWarn("Vault Capacity Reached");
     }
 
     const contract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, signer);
@@ -228,6 +235,12 @@ export default function VaultDetails() {
   }
 
   const handledepositAmoutChange = (event: any) => {
+    console.log("event", event);
+    if(event.target.value > maxLimit){
+      setisApproved(false);
+    } else{
+      setisApproved(true);
+    }
     setdepositAmout(event.target.value);
   };
 
@@ -566,13 +579,16 @@ export default function VaultDetails() {
                   {valutJsonData?.isLiquidityMining ?
                     <><div className='trdng_outer'> <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />Liquidity Mining</span> </div></> : <></>}
 
+                  {valutJsonData?.isDynamicStrategy ?
+                    <><div className='trdng_outer'> <span className='trdng_width'><img src={dynamicStrategyImg} className='ml_8' alt='arrow img' />Dynamic Strategy</span> </div></> : <></>}
+
 
                   {valutJsonData?.isLSDFarming ?
                     <><div className='trdng_outer'> <span className='trdng_width'><img src={LSDFarmingImg} className='ml_8' alt='arrow img' />LSD Farming</span> </div></> : <></>}
 
 
                   {valutJsonData?.isVolatilePair ?
-                    <>  <div className='trdng_outer'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Volatile Pair</span> </div></> : <></>}
+                    <>  <div className='trdng_outer'> <span className='trdng_width'><img src={VolatilePairColorImg} className='ml_8' alt='arrow img' />Volatile Pair</span> </div></> : <></>}
 
 
                   <div className='trdng_outer'>
@@ -584,7 +600,7 @@ export default function VaultDetails() {
                 </div>
                 <div className='dsp mb-3 wdth_80'>
                   <div>Average APY <br /> <span className='holding_val'>{vaultApy}%</span></div>
-                  <div>TVL <br /> <span className='fnt_wgt_600'>${deatils.tvlInusd}</span></div>
+                  <div>TVL <br /> <span className='fnt_wgt_600'>{deatils.tvl} {deatils?.assetName}</span></div>
                   <div>DEX <br /> <span><img src={valutJsonData?.poweredBy} alt='pancake' /></span></div><div>LP Pool & Fee Tier <br /> <span className='fnt_wgt_600'>{valutJsonData?.strategy?.pool}</span></div>
                 </div>
 
@@ -633,7 +649,7 @@ export default function VaultDetails() {
                     return <>
                       <div className='backGrd mb-3'>
                         <div className='dsp mb-2'>
-                          <div className='fnt_wgt_600'><img src={data?.logo} alt='pancake' /> {data.name}</div>
+                          <div className='fnt_wgt_600'><img src={data?.logo} alt='pancake' /></div>
                           <div className='d-flex'>
                             <div className='crsr_pntr' onClick={() => { goToUrl(data.website) }}>
                               <span className='westBtn'><img src={globeImg} alt='website' /> Website</span>
@@ -661,7 +677,12 @@ export default function VaultDetails() {
                     <div className='mb-2'><div className='opt_67'>Safety Score </div> <span className='holding_val'>{valutJsonData?.risk?.safetyScore} <img src={saftyImg} alt='safty img' className='sftyImgWdth' /></span></div>
                     {valutJsonData?.risk?.safetyScorePoint.map((data: any) => {
                       return <>
-                        <div className='mb-2'><img src={upImg} alt='up' /> <span className='opt_67 mrgn_18'>{data.details} </span><img src={helpImg} alt='help icon' /> <br /> <span className='rvr_sty'>{data.type}</span></div>
+                        <div className='mb-2'>
+                          {data.side === 'up' ?  <img src={upImg} alt='up' /> : <img src={downImg} alt='down' /> }
+                          <span className='opt_67 mrgn_18'>{data.details} </span>
+                          <img src={helpImg} alt='help icon' /> <br /> 
+                          <span className='rvr_sty'>{data.type}</span>
+                          </div>
                       </>
                     })}
                   </div>
@@ -849,14 +870,14 @@ export default function VaultDetails() {
                     <div className='mt-3'>
                       <div className='dsp'>
                         <div>Deposits</div>
-                        <div>${deatils.tvlInusd}</div>
+                        <div>{deatils.tvl} {deatils?.assetName}</div>
                       </div>
                       <div>
                         <ProgressBar showValue={false} value={Number(((Number(deatils.tvlInusd) / Number(tvlCapInUsd)) * 100).toFixed(4))}></ProgressBar>
                       </div>
                       <div className='dsp mb-3'>
                         <div>Capacity</div>
-                        <div>${tvlCapInUsd}</div>
+                        <div>{tvlCap} {deatils?.assetName}</div>
                       </div>
                       <div className='dsp backGrd mb-3'>
                         <div className='fnt_wgt_600'><img src={deatils?.assetImg} className='wdth_50' alt='usdt' /> <br /> {deatils?.assetName}</div>
@@ -879,7 +900,7 @@ export default function VaultDetails() {
                         <div>0.0001 {deatils?.assetName}</div>
                       </div>
                       <div className='dsp'>
-                        <div>Approved limit</div>
+                        <div>Approved Limit</div>
                         <div>{maxLimit} {deatils?.assetName}</div>
                       </div>
                       <hr />
@@ -896,7 +917,7 @@ export default function VaultDetails() {
                           (chain as any)?.id !== Number(valutJsonData?.id) ?
                             <button className='btn btn-riv-primary wdth_100' onClick={() => { networkSwitchHandler(Number(valutJsonData?.id)) }} >Switch to {valutJsonData?.chainname}</button>
                             : isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Deposit</button>
-                              : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} ><i className="fa fa-spinner fa-spin"></i>Loading</button> : <>
+                              : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} >Approve</button> : <>
                             <div>
                               <div className='mb-1'>Whitelist your address to proceed.</div>
                               <button className='btn btn-riv-primary wdth_100' onClick={gotoDiscord}>Get Whitelisted</button>
@@ -912,14 +933,14 @@ export default function VaultDetails() {
                     <div className='mt-3'>
                       <div className='dsp'>
                         <div>Deposits</div>
-                        <div>${deatils.tvlInusd}</div>
+                        <div>{deatils.tvl} {deatils?.assetName}</div>
                       </div>
                       <div>
                         <ProgressBar showValue={false} value={Number(((Number(deatils.tvlInusd) / Number(tvlCapInUsd)) * 100).toFixed(4))}></ProgressBar>
                       </div>
                       <div className='dsp mb-3'>
                         <div>Capacity</div>
-                        <div>${tvlCapInUsd}</div>
+                        <div>{tvlCap} {deatils?.assetName}</div>
                       </div>
                       <div className='dsp backGrd mb-3'>
                         <div className='fnt_wgt_600'><img src={deatils?.assetImg} className='wdth_50' alt='usdt' /> <br /> {deatils?.assetName}</div>
