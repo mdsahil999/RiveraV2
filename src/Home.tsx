@@ -21,8 +21,10 @@ import bnbImg from './assets/images/bnb.png';
 import ethImg from './assets/images/eth.png';
 import bitLogoImg from './assets/images/bitLogo.png';
 import StablePairColorImg from './assets/images/StablePairColor.svg';
+import VolatilePairColorImg from './assets/images/volatilePair.png';
 import almImg from './assets/images/alm.svg';
 import LSDFarmingImg from './assets/images/LSDFarming.svg';
+import dynamicStrategyImg from './assets/images/dynamicStrategy.png';
 
 function Home() {
   const [isWhiteListed, setWhiteListed] = useState(false);
@@ -288,6 +290,7 @@ function Home() {
       return {
         "name": valutDetailsInJson?.displayName,
         "assetImg": valutDetailsInJson?.assetImg,
+        "assetName": valutDetailsInJson?.denominationAsset,
         "chainImg": valutDetailsInJson?.chainImg,
         "saftyRating": valutDetailsInJson?.risk?.safetyScore,
         "tvlInUsd": tvlInUsd,
@@ -295,6 +298,7 @@ function Home() {
         "averageApy": "23.84%",
         "valutAddress": vaultAddress,
         "tvlcapInUsd": tvlcapInUsd.toFixed(2),
+        "tvlcap": tvlCap,
         "valutApy": valutApyVal.toFixed(2),
         "percentage": ((tvlInUsd / tvlcapInUsd) * 100).toFixed(4),
         "totalPortfolio": totalPortfolio,
@@ -305,6 +309,7 @@ function Home() {
         "isLSDFarming": valutDetailsInJson?.isLSDFarming,
         "isVolatilePair": valutDetailsInJson?.isVolatilePair,
         "isLiquidityMining": valutDetailsInJson?.isLiquidityMining,
+        "isDynamicStrategy": valutDetailsInJson?.isDynamicStrategy,
       };
 
     }));
@@ -508,20 +513,24 @@ function Home() {
                     {e?.isLiquidityMining ?
                       <><div className='trdng_outer mr_20'> <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />Liquidity Mining</span> </div></> : <></>}
 
+                    {e?.isDynamicStrategy ?
+                    <><div className='trdng_outer mr_20'> <span className='trdng_width'><img src={dynamicStrategyImg} className='ml_8' alt='arrow img' />Dynamic Strategy</span> </div></> : <></>}
 
                     {e?.isLSDFarming ?
                       <><div className='trdng_outer mr_20'> <span className='trdng_width'><img src={LSDFarmingImg} className='ml_8' alt='arrow img' />LSD Farming</span> </div></> : <></>}
 
 
                     {e?.isVolatilePair ?
-                      <>  <div className='trdng_outer mr_20'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Volatile Pair</span> </div></> : <></>}
+                      <>  <div className='trdng_outer mr_20'> <span className='trdng_width'><img src={VolatilePairColorImg} className='ml_8' alt='arrow img' />Volatile Pair</span> </div></> : <></>}
                   </div>
 
                   <div className='dsp mb-5'>
                     <div className='wdth_45'>
                       <div className='mb-1'>TVL</div>
-                      <span className='secondary_color fnt_wgt_600'>${e.tvlInUsd.toFixed(2)}</span>
-                      <div className='d-flex'><ProgressBar value={Number(e.percentage)} className='wdth_100' showValue={false}></ProgressBar> <div className='prgrs_txt'>${e.tvlcapInUsd}</div></div>
+                      <span className='secondary_color fnt_wgt_600'>{e.tvl.toFixed(2)} {e.assetName}</span>
+                      <div className='d-flex'>
+                        <ProgressBar value={Number(e.percentage)} className='wdth_100' showValue={false}></ProgressBar> 
+                      <div className='prgrs_txt'>{e.tvlcap.toFixed(2)} {e.assetName}</div></div>
                     </div>
                     <div>Average APY <br /> <span className='holding_val'>-</span></div>
                     <div>Powered By <br /> <span><img src={e.poweredBy} alt='lock img' className='cashaa logo' /></span></div>
