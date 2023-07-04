@@ -367,62 +367,62 @@ export default function VaultDetails() {
       const batchSize = 10000;
       const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
 
-      for (let i = 0; i < blocksToProcess; i += batchSize) {
-        const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
-        const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
+      // for (let i = 0; i < blocksToProcess; i += batchSize) {
+      //   const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
+      //   const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
 
-        const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
+      //   const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
 
-        // eslint-disable-next-line no-loop-func
-        await Promise.all(depositLogs.map(async (log: any) => {
-          const timestamp = (await log.getBlock()).timestamp;
-          const depositer = log.args[0];
-          const assets = Number(log.args.assets);
-          const dateTime = timestamp;
+      //   // eslint-disable-next-line no-loop-func
+      //   await Promise.all(depositLogs.map(async (log: any) => {
+      //     const timestamp = (await log.getBlock()).timestamp;
+      //     const depositer = log.args[0];
+      //     const assets = Number(log.args.assets);
+      //     const dateTime = timestamp;
 
-          totalValutDeposit += assets;
-          totalValutDepositWithTime += assets * dateTime;
-          distinctDepositerSet.add(depositer);
+      //     totalValutDeposit += assets;
+      //     totalValutDepositWithTime += assets * dateTime;
+      //     distinctDepositerSet.add(depositer);
 
-          if (depositer === address) {
-            totalUserDeposit += assets;
-            totalUserDepositWithTime += assets * dateTime;
-          }
-        }));
+      //     if (depositer === address) {
+      //       totalUserDeposit += assets;
+      //       totalUserDepositWithTime += assets * dateTime;
+      //     }
+      //   }));
 
-        const distinctDepositerCount = distinctDepositerSet.size;
-        setDepositerNumber(distinctDepositerCount.toString());
+      //   const distinctDepositerCount = distinctDepositerSet.size;
+      //   setDepositerNumber(distinctDepositerCount.toString());
 
-        totalValutDeposit /= Math.pow(10, 18);
-        totalValutDepositWithTime /= Math.pow(10, 18);
-        totalUserDeposit /= Math.pow(10, 18);
-        totalUserDepositWithTime /= Math.pow(10, 18);
+      //   totalValutDeposit /= Math.pow(10, 18);
+      //   totalValutDepositWithTime /= Math.pow(10, 18);
+      //   totalUserDeposit /= Math.pow(10, 18);
+      //   totalUserDepositWithTime /= Math.pow(10, 18);
 
 
-        const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
-        // eslint-disable-next-line no-loop-func
-        await Promise.all(withdrawLogs.map(async (log: any) => {
-          const timestamp = (await log.getBlock()).timestamp;
-          const assets = Number(log.args.assets);
-          const dateTime = timestamp;
-          const isUserWithdrawal = log.args[0] === address
+      //   const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
+      //   // eslint-disable-next-line no-loop-func
+      //   await Promise.all(withdrawLogs.map(async (log: any) => {
+      //     const timestamp = (await log.getBlock()).timestamp;
+      //     const assets = Number(log.args.assets);
+      //     const dateTime = timestamp;
+      //     const isUserWithdrawal = log.args[0] === address
 
-          totalValutwithdraw += assets;
-          totalValutwithdrawWithTime += assets * dateTime;
+      //     totalValutwithdraw += assets;
+      //     totalValutwithdrawWithTime += assets * dateTime;
 
-          if (isUserWithdrawal) {
-            totalUserwithdraw += assets;
-            totalUserwithdrawWithTime += assets * dateTime;
-          }
+      //     if (isUserWithdrawal) {
+      //       totalUserwithdraw += assets;
+      //       totalUserwithdrawWithTime += assets * dateTime;
+      //     }
 
-        }));
+      //   }));
 
-        totalValutwithdraw /= Math.pow(10, 18);
-        totalValutwithdrawWithTime /= Math.pow(10, 18);
-        totalUserwithdraw /= Math.pow(10, 18);
-        totalUserwithdrawWithTime /= Math.pow(10, 18);
+      //   totalValutwithdraw /= Math.pow(10, 18);
+      //   totalValutwithdrawWithTime /= Math.pow(10, 18);
+      //   totalUserwithdraw /= Math.pow(10, 18);
+      //   totalUserwithdrawWithTime /= Math.pow(10, 18);
 
-      }
+      // }
 
 
       let overallReturn = ((userShareVal + totalUserwithdraw) - totalUserDeposit);
@@ -455,45 +455,45 @@ export default function VaultDetails() {
       const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
       debugger
 
-      for (let i = 0; i < blocksToProcess; i += batchSize) {
-        const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
-        const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
+      // for (let i = 0; i < blocksToProcess; i += batchSize) {
+      //   const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
+      //   const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
 
-        const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
+      //   const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
 
-        // eslint-disable-next-line no-loop-func
-        await Promise.all(depositLogs.map(async (log: any) => {
-          const timestamp = (await log.getBlock()).timestamp;
-          const depositer = log.args[0];
-          const assets = Number(log.args.assets);
-          const dateTime = timestamp;
+      //   // eslint-disable-next-line no-loop-func
+      //   await Promise.all(depositLogs.map(async (log: any) => {
+      //     const timestamp = (await log.getBlock()).timestamp;
+      //     const depositer = log.args[0];
+      //     const assets = Number(log.args.assets);
+      //     const dateTime = timestamp;
 
-          totalValutDeposit += assets;
-          totalValutDepositWithTime += assets * dateTime;
-          distinctDepositerSet.add(depositer);
-        }));
+      //     totalValutDeposit += assets;
+      //     totalValutDepositWithTime += assets * dateTime;
+      //     distinctDepositerSet.add(depositer);
+      //   }));
 
-        const distinctDepositerCount = distinctDepositerSet.size;
-        setDepositerNumber(distinctDepositerCount.toString());
+      //   const distinctDepositerCount = distinctDepositerSet.size;
+      //   setDepositerNumber(distinctDepositerCount.toString());
 
-        totalValutDeposit /= Math.pow(10, 18);
-        totalValutDepositWithTime /= Math.pow(10, 18);
+      //   totalValutDeposit /= Math.pow(10, 18);
+      //   totalValutDepositWithTime /= Math.pow(10, 18);
 
-        const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
-        // eslint-disable-next-line no-loop-func
-        await Promise.all(withdrawLogs.map(async (log: any) => {
-          const timestamp = (await log.getBlock()).timestamp;
-          const assets = Number(log.args.assets);
-          const dateTime = timestamp;
+      //   const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
+      //   // eslint-disable-next-line no-loop-func
+      //   await Promise.all(withdrawLogs.map(async (log: any) => {
+      //     const timestamp = (await log.getBlock()).timestamp;
+      //     const assets = Number(log.args.assets);
+      //     const dateTime = timestamp;
 
-          totalValutwithdraw += assets;
-          totalValutwithdrawWithTime += assets * dateTime;
+      //     totalValutwithdraw += assets;
+      //     totalValutwithdrawWithTime += assets * dateTime;
 
-        }));
+      //   }));
 
-        totalValutwithdraw /= Math.pow(10, 18);
-        totalValutwithdrawWithTime /= Math.pow(10, 18);
-      }
+      //   totalValutwithdraw /= Math.pow(10, 18);
+      //   totalValutwithdrawWithTime /= Math.pow(10, 18);
+      // }
 
       const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
       setVaultApy(valutApyVal.toFixed(2));
@@ -583,7 +583,7 @@ export default function VaultDetails() {
                   </div>
                 </div>
                 <div className='dsp mb-3 wdth_80'>
-                  <div>Average APY <br /> <span className='holding_val'>{vaultApy}%</span></div>
+                  <div>Average APY <br /> <span className='holding_val'>-</span></div>
                   <div>TVL <br /> <span className='fnt_wgt_600'>${deatils.tvlInusd}</span></div>
                   <div>DEX <br /> <span><img src={valutJsonData?.poweredBy} alt='pancake' /></span></div><div>LP Pool & Fee Tier <br /> <span className='fnt_wgt_600'>{valutJsonData?.strategy?.pool}</span></div>
                 </div>
@@ -608,8 +608,8 @@ export default function VaultDetails() {
                   <div className='hdr_txt mb-3'>Overview</div>
                   <div className='dsp_cont'>
                     <div className='brdr_blck pdng_box'>TVL <div className='mt-2 fnt_wgt_600'>${deatils.tvlInusd}</div></div>
-                    <div className='brdr_blck pdng_box'>Depositors  <div className='mt-2 fnt_wgt_600'>{depositerNumber}</div></div>
-                    <div className='brdr_blck pdng_box'>Avg. Monthly Returns <div className='mt-2 txt_clr_grn'>{vaultApy}%</div></div>
+                    <div className='brdr_blck pdng_box'>Depositors  <div className='mt-2 fnt_wgt_600'>-</div></div>
+                    <div className='brdr_blck pdng_box'>Avg. Monthly Returns <div className='mt-2 txt_clr_grn'>-</div></div>
                     <div className='brdr_blck pdng_box'>Denomination Asset <div className='mt-2 fnt_wgt_600'> <img src={deatils.assetImg} alt='btc img' className='wdth_28' /> {deatils.assetName}</div></div>
                   </div>
                   <div className='mt-3'><img src={graphIMg} className='wdth_100' alt='licensed' /></div>
@@ -837,7 +837,7 @@ export default function VaultDetails() {
 
                     <div className='dsp'>
                       <div>Overall Returns <br /> <span className='holding_val'>{useroverallReturn} {deatils?.assetName}</span></div>
-                      <div>Average APY <br /> <span className='holding_val'>{userApy}%</span></div>
+                      <div>Average APY <br /> <span className='holding_val'>-</span></div>
                     </div>
                   </div>
                 </> : <></>}

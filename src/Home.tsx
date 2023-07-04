@@ -150,70 +150,70 @@ function Home() {
         totalPortfolio = totalPortfolio + userShareInUsd;
 
 
-        const depositFilter = vaultContract.filters.Deposit();
-        const withdrawFilter = vaultContract.filters.Withdraw();
+        // const depositFilter = vaultContract.filters.Deposit();
+        // const withdrawFilter = vaultContract.filters.Withdraw();
 
 
-        const distinctDepositerSet = new Set();
-        const latestBlockNumberval = await provider.getBlockNumber();
-        const batchSize = 10000;
-        const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
+        // const distinctDepositerSet = new Set();
+        // const latestBlockNumberval = await provider.getBlockNumber();
+        // const batchSize = 10000;
+        // const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
 
-        for (let i = 0; i < blocksToProcess; i += batchSize) {
-          const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
-          const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
+        // for (let i = 0; i < blocksToProcess; i += batchSize) {
+        //   const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
+        //   const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
 
-          const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
+        //   const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
 
-          // eslint-disable-next-line no-loop-func
-          await Promise.all(depositLogs.map(async (log: any) => {
-            const timestamp = (await log.getBlock()).timestamp;
-            const depositer = log.args[0];
-            const assets = Number(log.args.assets);
-            const dateTime = timestamp;
+        //   // eslint-disable-next-line no-loop-func
+        //   await Promise.all(depositLogs.map(async (log: any) => {
+        //     const timestamp = (await log.getBlock()).timestamp;
+        //     const depositer = log.args[0];
+        //     const assets = Number(log.args.assets);
+        //     const dateTime = timestamp;
 
-            totalValutDeposit += assets;
-            totalValutDepositWithTime += assets * dateTime;
-            distinctDepositerSet.add(depositer);
+        //     totalValutDeposit += assets;
+        //     totalValutDepositWithTime += assets * dateTime;
+        //     distinctDepositerSet.add(depositer);
 
-            if (depositer === address) {
-              totalUserDeposit += assets;
-              totalUserDepositWithTime += assets * dateTime;
-            }
-          }));
+        //     if (depositer === address) {
+        //       totalUserDeposit += assets;
+        //       totalUserDepositWithTime += assets * dateTime;
+        //     }
+        //   }));
 
-          totalValutDeposit /= Math.pow(10, 18);
-          totalValutDepositWithTime /= Math.pow(10, 18);
-          totalUserDeposit /= Math.pow(10, 18);
-          totalUserDepositWithTime /= Math.pow(10, 18);
-
-
-
-          const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
-          // eslint-disable-next-line no-loop-func
-          await Promise.all(withdrawLogs.map(async (log: any) => {
-            const timestamp = (await log.getBlock()).timestamp;
-            const assets = Number(log.args.assets);
-            const dateTime = timestamp;
-            const isUserWithdrawal = log.args[0] === address
-
-            totalValutwithdraw += assets;
-            totalValutwithdrawWithTime += assets * dateTime;
-
-            if (isUserWithdrawal) {
-              totalUserwithdraw += assets;
-              totalUserwithdrawWithTime += assets * dateTime;
-            }
-
-          }));
+        //   totalValutDeposit /= Math.pow(10, 18);
+        //   totalValutDepositWithTime /= Math.pow(10, 18);
+        //   totalUserDeposit /= Math.pow(10, 18);
+        //   totalUserDepositWithTime /= Math.pow(10, 18);
 
 
-          totalValutwithdraw /= Math.pow(10, 18);
-          totalValutwithdrawWithTime /= Math.pow(10, 18);
-          totalUserwithdraw /= Math.pow(10, 18);
-          totalUserwithdrawWithTime /= Math.pow(10, 18);
 
-        }
+        //   const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
+        //   // eslint-disable-next-line no-loop-func
+        //   await Promise.all(withdrawLogs.map(async (log: any) => {
+        //     const timestamp = (await log.getBlock()).timestamp;
+        //     const assets = Number(log.args.assets);
+        //     const dateTime = timestamp;
+        //     const isUserWithdrawal = log.args[0] === address
+
+        //     totalValutwithdraw += assets;
+        //     totalValutwithdrawWithTime += assets * dateTime;
+
+        //     if (isUserWithdrawal) {
+        //       totalUserwithdraw += assets;
+        //       totalUserwithdrawWithTime += assets * dateTime;
+        //     }
+
+        //   }));
+
+
+        //   totalValutwithdraw /= Math.pow(10, 18);
+        //   totalValutwithdrawWithTime /= Math.pow(10, 18);
+        //   totalUserwithdraw /= Math.pow(10, 18);
+        //   totalUserwithdrawWithTime /= Math.pow(10, 18);
+
+        // }
 
 
         //mofied code end
@@ -235,47 +235,47 @@ function Home() {
 
       } else {
 
-        const latestBlockNumberval = await provider.getBlockNumber();
-        const batchSize = 10000;
-        const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
+        // const latestBlockNumberval = await provider.getBlockNumber();
+        // const batchSize = 10000;
+        // const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
 
 
-        const withdrawFilter = vaultContract.filters.Withdraw();
+        // const withdrawFilter = vaultContract.filters.Withdraw();
 
 
-        for (let i = 0; i < blocksToProcess; i += batchSize) {
-          const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
-          const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
+        // for (let i = 0; i < blocksToProcess; i += batchSize) {
+        //   const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
+        //   const lastBlock = Math.min(firstBlock + batchSize - 1, latestBlockNumberval);
 
-          const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
+        //   const depositLogs = await vaultContract.queryFilter(depositFilter, firstBlock, lastBlock);
 
-          // eslint-disable-next-line no-loop-func
-          await Promise.all(depositLogs.map(async (log: any) => {
-            const timestamp = (await log.getBlock()).timestamp;
-            const assets = Number(log.args.assets);
-            const dateTime = timestamp;
+        //   // eslint-disable-next-line no-loop-func
+        //   await Promise.all(depositLogs.map(async (log: any) => {
+        //     const timestamp = (await log.getBlock()).timestamp;
+        //     const assets = Number(log.args.assets);
+        //     const dateTime = timestamp;
 
-            totalValutDeposit += assets;
-            totalValutDepositWithTime += assets * dateTime;
-          }));
+        //     totalValutDeposit += assets;
+        //     totalValutDepositWithTime += assets * dateTime;
+        //   }));
 
-          totalValutDeposit /= Math.pow(10, 18);
-          totalValutDepositWithTime /= Math.pow(10, 18);
+        //   totalValutDeposit /= Math.pow(10, 18);
+        //   totalValutDepositWithTime /= Math.pow(10, 18);
 
-          const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
-          // eslint-disable-next-line no-loop-func
-          await Promise.all(withdrawLogs.map(async (log: any) => {
-            const timestamp = (await log.getBlock()).timestamp;
-            const assets = Number(log.args.assets);
-            const dateTime = timestamp;
-            totalValutwithdraw += assets;
-            totalValutwithdrawWithTime += assets * dateTime;
-          }));
+        //   const withdrawLogs = await vaultContract.queryFilter(withdrawFilter, firstBlock, lastBlock);
+        //   // eslint-disable-next-line no-loop-func
+        //   await Promise.all(withdrawLogs.map(async (log: any) => {
+        //     const timestamp = (await log.getBlock()).timestamp;
+        //     const assets = Number(log.args.assets);
+        //     const dateTime = timestamp;
+        //     totalValutwithdraw += assets;
+        //     totalValutwithdrawWithTime += assets * dateTime;
+        //   }));
 
-          totalValutwithdraw /= Math.pow(10, 18);
-          totalValutwithdrawWithTime /= Math.pow(10, 18);
+        //   totalValutwithdraw /= Math.pow(10, 18);
+        //   totalValutwithdrawWithTime /= Math.pow(10, 18);
 
-        }
+        // }
       }
 
       const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
@@ -376,12 +376,12 @@ function Home() {
                             <div>
                               <span>Overall Returns</span>
                               <br />
-                              <span className='txt_clr_grn'>${overallReturn}</span>
+                              <span className='txt_clr_grn'>-</span>
                             </div>
                             <div>
                               <span>Average APY</span>
                               <br />
-                              <span className='txt_clr_grn'>{totalAverageApy}%</span>
+                              <span className='txt_clr_grn'>-</span>
                             </div>
                           </div>
                         </div>
@@ -523,7 +523,7 @@ function Home() {
                       <span className='secondary_color fnt_wgt_600'>${e.tvlInUsd.toFixed(2)}</span>
                       <div className='d-flex'><ProgressBar value={Number(e.percentage)} className='wdth_100' showValue={false}></ProgressBar> <div className='prgrs_txt'>${e.tvlcapInUsd}</div></div>
                     </div>
-                    <div>Average APY <br /> <span className='holding_val'>{e.valutApy}%</span></div>
+                    <div>Average APY <br /> <span className='holding_val'>-</span></div>
                     <div>Powered By <br /> <span><img src={e.poweredBy} alt='lock img' className='cashaa logo' /></span></div>
                   </div>
                   <div className='dsp_around mb-2'>
