@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, EventFilter, ethers } from 'ethers';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAccount, useBalance, useNetwork, useProvider, useSigner, useSwitchNetwork } from 'wagmi';
@@ -29,6 +29,7 @@ import LSDFarmingImg from './assets/images/LSDFarming.svg';
 import bitLogoImg from './assets/images/bitLogo.png';
 import { Toast } from 'primereact/toast';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { ContractCallContext, ContractCallResults, Multicall } from 'ethereum-multicall';
 
 interface Product {
   id: string;
@@ -54,7 +55,7 @@ export default function VaultDetails() {
     "tvlInusd": "",
     "holding": "",
     "networkImg": "",
-    "buyToken":""
+    "buyToken": ""
   });
   const [isWhiteListed, setWhiteListed] = useState(false);
   const [maxLimit, setMaxLimit] = useState(0);
@@ -101,16 +102,16 @@ export default function VaultDetails() {
   }, []);
 
   const showWarn = (message: string) => {
-      toast.current?.show({severity:'warn', summary: 'Warning', detail:message, life: 3000});
-}
+    toast.current?.show({ severity: 'warn', summary: 'Warning', detail: message, life: 3000 });
+  }
 
-const showError = (message: string) => {
-  toast.current?.show({severity:'error', summary: 'Error', detail:message, life: 3000});
-}
+  const showError = (message: string) => {
+    toast.current?.show({ severity: 'error', summary: 'Error', detail: message, life: 3000 });
+  }
 
   const fetchJsonData = async () => {
     try {
-      const response = await fetch('/vaultDetails.json'); 
+      const response = await fetch('/vaultDetails.json');
       const data = await response.json();
       setValutJsonData(data[vaultAddress as string]);
     } catch (error) {
@@ -153,12 +154,12 @@ const showError = (message: string) => {
 
 
   const deposit = async () => {
-    if(depositAmout < 0.0001 || depositAmout > maxLimit){
+    if (depositAmout < 0.0001 || depositAmout > maxLimit) {
       const message = "Please enter a valid amount.";
       showWarn(message);
       return;
     }
-   
+
     const contract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, signer);
     const amount = depositAmout * Math.pow(10, 18);
     let convertedAmount = amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 18 });
@@ -181,7 +182,7 @@ const showError = (message: string) => {
 
   const withdraw = async () => {
 
-    if(withdrawAmout < 0.0001 || withdrawAmout > Number(userShare)){
+    if (withdrawAmout < 0.0001 || withdrawAmout > Number(userShare)) {
       const message = "Please enter a valid amount.";
       showWarn(message);
       return;
@@ -270,7 +271,7 @@ const showError = (message: string) => {
 
     let localProvider;
     let vaultContract;
-    
+
     if (valutJsonData.id === "56") {
       localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
       vaultContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
@@ -364,7 +365,7 @@ const showError = (message: string) => {
       const distinctDepositerSet = new Set();
       const latestBlockNumberval = await localProvider.getBlockNumber();
       const batchSize = 10000;
-      const blocksToProcess = latestBlockNumberval - (latestBlockNumberval-10000);
+      const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
 
       for (let i = 0; i < blocksToProcess; i += batchSize) {
         const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
@@ -427,13 +428,13 @@ const showError = (message: string) => {
       let overallReturn = ((userShareVal + totalUserwithdraw) - totalUserDeposit);
       setUserOverallReturn(overallReturn.toFixed(2));
 
-      if(totalUserDeposit === 0){
+      if (totalUserDeposit === 0) {
         setUserApy("0.00");
-      } else{
+      } else {
         const userApyVal = (userShareVal - (totalUserDeposit - totalUserwithdraw)) / (totalUserDepositWithTime - totalUserwithdrawWithTime);
         setUserApy(userApyVal.toFixed(2));
       }
-     
+
 
       const valutApyVal = (tvl - (totalValutDeposit - totalValutwithdraw)) / (totalValutDepositWithTime - totalValutwithdrawWithTime);
       setVaultApy(valutApyVal.toFixed(2));
@@ -452,6 +453,7 @@ const showError = (message: string) => {
       const latestBlockNumberval = await localProvider.getBlockNumber();
       const batchSize = 10000;
       const blocksToProcess = latestBlockNumberval - FACTORY_CONTRACT_DEPLOYMENT_BLOCK;
+      debugger
 
       for (let i = 0; i < blocksToProcess; i += batchSize) {
         const firstBlock = FACTORY_CONTRACT_DEPLOYMENT_BLOCK + i;
@@ -513,7 +515,7 @@ const showError = (message: string) => {
       return new Promise((resolve, reject) => {
         resolve(Number(0.5));
       });
-    } else{
+    } else {
       return new Promise((resolve, reject) => {
         resolve(Number(1));
       });
@@ -532,7 +534,7 @@ const showError = (message: string) => {
     window.open(url, '_blank');
   }
 
-  const gotoDiscord = () =>{
+  const gotoDiscord = () => {
     const url = 'https://discord.com/invite/sbMxwS6VEV';
     window.open(url, '_blank');
   }
@@ -541,7 +543,7 @@ const showError = (message: string) => {
 
   return (
     <>
-     <Toast ref={toast} />
+      <Toast ref={toast} />
       {loading ? <><div className="loader-container">
         <div className="spinner"></div>
       </div></> : <>
@@ -557,21 +559,21 @@ const showError = (message: string) => {
                   </div>
                 </div>
                 <div className='dsp dspWrap mt-3 mb-4 wdth_80'>
-                  
-                    {valutJsonData?.isStablePair ? 
-                    <><div className='trdng_outer'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span> </div></>:<></>}
-                   
-                    {valutJsonData?.isLiquidityMining ? 
-                    <><div className='trdng_outer'> <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />Liquidity Mining</span> </div></> : <></>}    
-                 
-                  
-                    {valutJsonData?.isLSDFarming ? 
+
+                  {valutJsonData?.isStablePair ?
+                    <><div className='trdng_outer'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span> </div></> : <></>}
+
+                  {valutJsonData?.isLiquidityMining ?
+                    <><div className='trdng_outer'> <span className='trdng_width'><img src={almImg} className='ml_8' alt='arrow img' />Liquidity Mining</span> </div></> : <></>}
+
+
+                  {valutJsonData?.isLSDFarming ?
                     <><div className='trdng_outer'> <span className='trdng_width'><img src={LSDFarmingImg} className='ml_8' alt='arrow img' />LSD Farming</span> </div></> : <></>}
-                 
-                 
-                    {valutJsonData?.isVolatilePair ? 
+
+
+                  {valutJsonData?.isVolatilePair ?
                     <>  <div className='trdng_outer'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Volatile Pair</span> </div></> : <></>}
-                  
+
 
                   <div className='trdng_outer'>
                     <span className='wthlist_back'><img src={lockImg} alt='lock img' className='wthlist_back_img' />Whitelisted</span>
@@ -859,7 +861,7 @@ const showError = (message: string) => {
                       <div className='dsp backGrd mb-3'>
                         <div className='fnt_wgt_600'><img src={deatils?.assetImg} className='wdth_50' alt='usdt' /> <br /> {deatils?.assetName}</div>
                         <div><input
-                         
+
                           type="number"
                           id="first_name"
                           name="first_name"
@@ -891,18 +893,18 @@ const showError = (message: string) => {
                       </div>
                       <div className='mt-3 text-center'>
                         {isConnected ? isWhiteListed ?
-                        (chain as any)?.id !== Number(valutJsonData?.id) ? 
-                        <button className='btn btn-riv-primary wdth_100' onClick={() => { networkSwitchHandler(Number(valutJsonData?.id)) }} >Switch to {valutJsonData?.chainname}</button>
-                        : isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Deposit</button>
-                        : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} ><i className="fa fa-spinner fa-spin"></i>Loading</button> : <>
-                        <div>
-                          <div className='mb-1'>Whitelist your address to proceed.</div>
-                          <button className='btn btn-riv-primary wdth_100' onClick={gotoDiscord}>Get Whitelisted</button>
-                          </div>
-                        </> :
-                        <>
-                         <div className='d-flex justify-content-center'><ConnectButton /></div>
-                        </>}
+                          (chain as any)?.id !== Number(valutJsonData?.id) ?
+                            <button className='btn btn-riv-primary wdth_100' onClick={() => { networkSwitchHandler(Number(valutJsonData?.id)) }} >Switch to {valutJsonData?.chainname}</button>
+                            : isApproved ? <button className='btn btn-riv-primary wdth_100' onClick={deposit} >Deposit</button>
+                              : <button className='btn btn-riv-primary wdth_100' onClick={approveIntilize} ><i className="fa fa-spinner fa-spin"></i>Loading</button> : <>
+                            <div>
+                              <div className='mb-1'>Whitelist your address to proceed.</div>
+                              <button className='btn btn-riv-primary wdth_100' onClick={gotoDiscord}>Get Whitelisted</button>
+                            </div>
+                          </> :
+                          <>
+                            <div className='d-flex justify-content-center'><ConnectButton /></div>
+                          </>}
                       </div>
                     </div>
                   </TabPanel>
@@ -913,7 +915,7 @@ const showError = (message: string) => {
                         <div>${deatils.tvlInusd}</div>
                       </div>
                       <div>
-                      <ProgressBar showValue={false} value={Number(((Number(deatils.tvlInusd) / Number(tvlCapInUsd)) * 100).toFixed(4))}></ProgressBar>
+                        <ProgressBar showValue={false} value={Number(((Number(deatils.tvlInusd) / Number(tvlCapInUsd)) * 100).toFixed(4))}></ProgressBar>
                       </div>
                       <div className='dsp mb-3'>
                         <div>Capacity</div>
@@ -953,22 +955,22 @@ const showError = (message: string) => {
                       </div>
                       <div className='mt-3 text-center'>
 
-                      {isConnected ? isWhiteListed ?
-                        (chain as any)?.id !== Number(valutJsonData?.id) ? 
-                        <button className='btn btn-riv-primary wdth_100' onClick={() => { networkSwitchHandler(Number(valutJsonData?.id)) }} >Switch to {valutJsonData?.chainname}</button>
-                        :  <button className='btn btn-riv-primary wdth_100' onClick={withdraw}>Withdraw</button>
-                        : <>
-                        <div>
-                        <div className='mb-1'>Whitelist your address to proceed.</div>
-                          <button className='btn btn-riv-primary wdth_100' onClick={gotoDiscord}>Get Whitelisted</button>
-                          </div>
-                        </> :
-                        <>
+                        {isConnected ? isWhiteListed ?
+                          (chain as any)?.id !== Number(valutJsonData?.id) ?
+                            <button className='btn btn-riv-primary wdth_100' onClick={() => { networkSwitchHandler(Number(valutJsonData?.id)) }} >Switch to {valutJsonData?.chainname}</button>
+                            : <button className='btn btn-riv-primary wdth_100' onClick={withdraw}>Withdraw</button>
+                          : <>
+                            <div>
+                              <div className='mb-1'>Whitelist your address to proceed.</div>
+                              <button className='btn btn-riv-primary wdth_100' onClick={gotoDiscord}>Get Whitelisted</button>
+                            </div>
+                          </> :
+                          <>
 
-                        <div className='d-flex justify-content-center'><ConnectButton /></div>
-                        </>}
+                            <div className='d-flex justify-content-center'><ConnectButton /></div>
+                          </>}
 
-                       
+
                       </div>
                     </div>
                   </TabPanel>
