@@ -1,5 +1,6 @@
 {
   "0xbcA0d7dd435b52B5e69A265Ba54f2C2A5E9c6bB8": {
+    "assetAbi": "./abi/wmntAbi.json",
     "assetImg":"../img/mantle.svg",
     "chainImg":"../img/mantleLogo.png",
     "denominationAsset": "WMNT",
@@ -11,7 +12,7 @@
     "isLSDFarming": false,
     "isVolatilePair": true,
     "isLiquidityMining": true,
-    "isDynamicStrategy": false,
+    "isDynamicStrategy": true,
     "chainname": "Mantle",
     "poweredBy": "/img/fusionX.svg",
     "fundManager": {
@@ -187,6 +188,7 @@
     ]
   },
   "0x9dc06e7729FD4f8dcf33b3b75f64CDeDeBdc4759": {
+    "assetAbi": "./abi/wmntAbi.json",
     "assetImg":"../img/dai.png",
     "chainImg":"../img/mantleLogo.png",
     "denominationAsset": "DAI",
@@ -198,7 +200,7 @@
     "isLSDFarming": false,
     "isVolatilePair": false,
     "isLiquidityMining": true,
-    "isDynamicStrategy": false,
+    "isDynamicStrategy": true,
     "chainname": "Mantle",
     "poweredBy": "/img/fusionX.svg",
     "fundManager": {

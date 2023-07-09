@@ -257,6 +257,9 @@ linear-gradient(0deg, rgba(40, 91, 221, 0.04), rgba(40, 91, 221, 0.04)); */
 .wdth_45 {
   width: 45%;
 }
+.wdth_55 {
+  width: 55%;
+}
 .valut_header {
   margin-left: 10px;
   margin-top: 20px;
@@ -772,4 +775,13 @@ thead {
   }
   .clr_prpl{
     color: rgba(145, 77, 229, 1);
+  }
+
+  .mxBtn{
+    height: 30px;
+    font-size: 12px;
+    margin-top: -3px;
+    background: rgba(145, 77, 229, 1);
+    border: rgba(145, 77, 229, 1);
+    color: white;
   }

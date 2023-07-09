@@ -32,7 +32,7 @@ import LSDFarmingImg from './assets/images/LSDFarming.svg';
 import bitLogoImg from './assets/images/bitLogo.png';
 import { Toast } from 'primereact/toast';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { ContractCallContext, ContractCallResults, Multicall } from 'ethereum-multicall';
+import wmntAbiJson from './assets/json/wmntAbi.json'
 
 interface Product {
   id: string;
@@ -75,34 +75,95 @@ export default function VaultDetails() {
   const [userApy, setUserApy] = useState("");
   const [vaultApy, setVaultApy] = useState("");
   const [holding, setHolding] = useState("");
-  const [userShare, setUserShare] = useState("");
+  const [userShare, setUserShare] = useState(0);
   const [userShareInUsd, setUserShareInUsd] = useState("");
   const [useroverallReturn, setUserOverallReturn] = useState("");
   const [isApproved, setisApproved] = useState(false);
   const [depositAmout, setdepositAmout] = useState(0);
   const [withdrawAmout, setwithdrawAmout] = useState(0);
   const provider = useProvider();
-  const { data: signer, isError, isLoading } = useSigner();
+  const { data: signer } = useSigner();
   const { address, isConnected } = useAccount()
   const [products, setProducts] = useState<Product[]>([]);
   let { vaultAddress } = useParams();
   const [loading, setLoading] = useState(false);
   const balance = useBalance({
-    address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    address: '0x8734110e5e1dcF439c7F549db740E546fea82d66',
   });
   const switchNetwork = useSwitchNetwork();
   const { chain } = useNetwork();
 
-  useEffect(() => {
-    setLoading(true);
-    ProductService.getProductsMini().then(data => setProducts(data));
-    fetchJsonData();
-    if (address) {
-      checkAllowance();
-    }
-    getAllDetails();
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [assetAbiVal, setAssetAbi] = useState(null);
 
-  }, []);
+  useEffect(() => {
+
+    setLoading(true);
+    (async () => {
+      const response = await fetch('/vaultDetails.json');
+      const valutData = await response.json();
+      setValutJsonData(valutData[vaultAddress as string]);
+
+      if (address) {
+        const response = await fetch(valutData[vaultAddress as string].assetAbi);
+        const data = await response.json();
+        console.log("data.abi", data?.abi);
+        setAssetAbi(data?.abi);
+        assetValueUpdate(data?.abi);
+        checkAllowance();
+      }
+      getAllDetails();
+    })();
+  }, [address]);
+
+  // useEffect(() => {
+
+  //   setLoading(true);
+  //   (async () => {
+  //     if (address) {
+  //       const response2 = await fetch('/vaultDetails.json');
+  //       const valutData = await response2.json();
+  //       const response3 = await fetch(valutData[vaultAddress as string].assetAbi);
+  //       const data = await response3.json();
+  //       setAssetAbi(data?.abi);
+  //       assetValueUpdate(data?.abi);
+
+  //     }
+  //   })();
+  // }, []);
+
+  const assetValueUpdate = async (abi?: any) => {
+    const response = await fetch('/vaultDetails.json');
+    const data = await response.json();
+    const valutChainId = data[vaultAddress as string]
+    let localProvider;
+    let vaultContract;
+    if (valutChainId.id === "56") {
+      localProvider = new ethers.providers.JsonRpcProvider(RPCUrl);
+      vaultContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
+    } else {
+      localProvider = new ethers.providers.JsonRpcProvider(mantleRPCUrl);
+      vaultContract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, localProvider.getSigner());
+    }
+
+    const valutAssetAdress = await vaultContract.asset();
+    console.log("valutAssetAdress nna", valutAssetAdress);
+    if (abi) {
+      const asstsContract = getContract(valutAssetAdress, abi, localProvider);
+      const balance = await asstsContract.balanceOf(address);
+      setWalletBalance(Number(ethers.utils.formatEther(balance)));
+    }
+    else {
+      const asstsContract = getContract(valutAssetAdress, assetAbiVal, localProvider);
+      const balance = await asstsContract.balanceOf(address);
+      setWalletBalance(Number(ethers.utils.formatEther(balance)));
+    }
+
+  }
+
+  const showSuccess = (message: string) => {
+    toast.current?.show({ severity: 'success', summary: 'Success', detail: message, life: 3000 });
+  }
 
   const showWarn = (message: string) => {
     toast.current?.show({ severity: 'warn', summary: 'Warning', detail: message, life: 3000 });
@@ -142,7 +203,14 @@ export default function VaultDetails() {
     }
 
 
+
     const valutAssetAdress = await vaultContract.asset();
+    console.log("valutAssetAdress nna", valutAssetAdress);
+
+
+    // const asstsContract = getContract(valutAssetAdress, assetAbiVal, localProvider);
+    // const balance = await asstsContract.balanceOf(address);
+    // setWalletBalance(Number(ethers.utils.formatEther(balance)));
 
     const erc20Contract = getContract(valutAssetAdress, erc20Json.abi, localProvider.getSigner())
     const allowance = await erc20Contract.allowance(address, vaultAddress); //address:- login user address  //assetAdress:-valut asset address
@@ -157,14 +225,15 @@ export default function VaultDetails() {
 
 
   const deposit = async () => {
-    if (depositAmout < 0.0001 || depositAmout > maxLimit) {
+    if (depositAmout < 0.0001 || depositAmout > maxLimit || depositAmout > walletBalance) {
       const message = "Please enter a valid amount.";
       showWarn(message);
       return;
     }
-
-    if((deatils.tvl + depositAmout) < tvlCap){
+    debugger
+    if ((Number(deatils.tvl) + Number(depositAmout)) > Number(tvlCap)) {
       showWarn("Vault Capacity Reached");
+      return;
     }
 
     const contract = getContract(vaultAddress as string, riveraAutoCompoundingVaultV2WhitelistedJson.abi, signer);
@@ -177,10 +246,13 @@ export default function VaultDetails() {
     const aprvTxt = await contract.deposit(convertedAmount, address, {
       gasLimit: 800000
     });
-    setLoading(true);
-    await aprvTxt.wait().then((e: any) => {
-      checkAllowance();
-      getAllDetails();
+    //setLoading(true);
+    showWarn("Transaction Pending");
+    await aprvTxt.wait().then(async (e: any) => {
+      await checkAllowance();
+      await getAllDetails();
+      await assetValueUpdate();
+      showSuccess("Transaction Confirmed");
     }).catch((error: any) => {
       setLoading(false);
       showError("Something went wrong");
@@ -207,6 +279,7 @@ export default function VaultDetails() {
     await aprvTxt.wait().then((e: any) => {
       checkAllowance();
       getAllDetails();
+      assetValueUpdate();
     });
   }
 
@@ -236,9 +309,9 @@ export default function VaultDetails() {
 
   const handledepositAmoutChange = (event: any) => {
     console.log("event", event);
-    if(event.target.value > maxLimit){
+    if (event.target.value > maxLimit) {
       setisApproved(false);
-    } else{
+    } else {
       setisApproved(true);
     }
     setdepositAmout(event.target.value);
@@ -330,7 +403,7 @@ export default function VaultDetails() {
       "vaultName": valutJsonData?.displayName,
       "assetName": valutJsonData?.denominationAsset,
       "assetImg": valutJsonData?.assetImg,
-      "tvl": tvl.toString(),
+      "tvl": tvl.toFixed(2),
       "tvlInusd": tvlInUsd.toString(),
       "holding": "",
       "networkImg": valutJsonData?.chainImg,
@@ -368,7 +441,7 @@ export default function VaultDetails() {
       let totalSupply = await vaultContract.totalSupply();
       totalSupply = totalSupply / Math.pow(10, 18);
       const userShareVal = (totalAssets * share) / totalSupply;
-      setUserShare(userShareVal.toFixed(2));
+      setUserShare(userShareVal);
       setUserShareInUsd((userShareVal * convertedPrice).toFixed(2));
 
 
@@ -552,6 +625,22 @@ export default function VaultDetails() {
     window.open(url, '_blank');
   }
 
+  const updateDepositMax = () =>{
+    console.log("max", );
+    if(walletBalance < maxLimit){
+      setdepositAmout(walletBalance);
+    } else {
+      setdepositAmout(maxLimit);
+    }
+   
+  }
+
+  const updateWithdrawMax = () =>{
+    console.log("max", );
+    setwithdrawAmout(userShare);
+   
+  }
+
 
 
   return (
@@ -571,7 +660,7 @@ export default function VaultDetails() {
                     <span><img src={deatils?.networkImg} alt='chain' /></span>
                   </div>
                 </div>
-                <div className='dsp dspWrap mt-3 mb-4 wdth_80'>
+                <div className='dsp dspWrap mt-3 mb-4'>
 
                   {valutJsonData?.isStablePair ?
                     <><div className='trdng_outer'> <span className='trdng_width'><img src={StablePairColorImg} className='ml_8' alt='arrow img' />Stable Pair</span> </div></> : <></>}
@@ -623,7 +712,7 @@ export default function VaultDetails() {
                 <div className='third_section outer_section'>
                   <div className='hdr_txt mb-3'>Overview</div>
                   <div className='dsp_cont'>
-                    <div className='brdr_blck pdng_box'>TVL <div className='mt-2 fnt_wgt_600'>${deatils.tvlInusd}</div></div>
+                    <div className='brdr_blck pdng_box'>TVL <div className='mt-2 fnt_wgt_600'>{deatils.tvl} {deatils?.assetName}</div></div>
                     <div className='brdr_blck pdng_box'>Depositors  <div className='mt-2 fnt_wgt_600'>-</div></div>
                     <div className='brdr_blck pdng_box'>Avg. Monthly Returns <div className='mt-2 txt_clr_grn'>-</div></div>
                     <div className='brdr_blck pdng_box'>Denomination Asset <div className='mt-2 fnt_wgt_600'> <img src={deatils.assetImg} alt='btc img' className='wdth_28' /> {deatils.assetName}</div></div>
@@ -678,11 +767,11 @@ export default function VaultDetails() {
                     {valutJsonData?.risk?.safetyScorePoint.map((data: any) => {
                       return <>
                         <div className='mb-2'>
-                          {data.side === 'up' ?  <img src={upImg} alt='up' /> : <img src={downImg} alt='down' /> }
+                          {data.side === 'up' ? <img src={upImg} alt='up' /> : <img src={downImg} alt='down' />}
                           <span className='opt_67 mrgn_18'>{data.details} </span>
-                          <img src={helpImg} alt='help icon' /> <br /> 
+                          <img src={helpImg} alt='help icon' /> <br />
                           <span className='rvr_sty'>{data.type}</span>
-                          </div>
+                        </div>
                       </>
                     })}
                   </div>
@@ -849,7 +938,7 @@ export default function VaultDetails() {
                     <div className='dsp'>
                       <div>
                         <div className='holding_header'>Your Holdings</div>
-                        <div className='holding_header_inner mb-3'>{userShare} {deatils?.assetName}</div>
+                        <div className='holding_header_inner mb-3'>{userShare.toFixed(4)} {deatils?.assetName}</div>
                       </div>
                       <div className='txtAlgnRight'>
                         <img src={dollarImg} className='dllrImgwdth' alt='dollar' />
@@ -888,13 +977,19 @@ export default function VaultDetails() {
                           name="first_name"
                           value={depositAmout}
                           onChange={handledepositAmoutChange}
-                        /></div>
+                        />
+                        <button className='btn mxBtn' onClick={updateDepositMax}>Max</button>
+                        </div>
                       </div>
-                      {/* <div className='dsp'>
+                      <div className='dsp'>
                         <div>Wallet balance</div>
-                        <div>500 {deatils?.assetName}</div>
-                      </div> */}
-                      <div className='buy_cake mt-1 mb-2'> <a target='_blank' href={deatils?.buyToken} className='clr_prpl'>Buy {deatils?.assetName}</a></div>
+                        <div>{walletBalance.toFixed(2)} {deatils?.assetName}</div>
+                      </div>
+                      <div className='dsp'>
+                        <div className='buy_cake mt-1 mb-2'> <a target='_blank' href={deatils?.buyToken} className='clr_prpl'>Buy {deatils?.assetName}</a></div>
+                        <div className='buy_cake mt-1 mb-2'> <a target='_blank' href='https://fusionx.finance/faucet' className='clr_prpl'>Claim from faucet</a></div>
+                      </div>
+
                       <div className='dsp'>
                         <div>Min. Limit </div>
                         <div>0.0001 {deatils?.assetName}</div>
@@ -950,20 +1045,25 @@ export default function VaultDetails() {
                           name="first_name_2"
                           value={withdrawAmout}
                           onChange={handlewithdrawAmoutChange}
-                        /></div>
+                        />
+                        <button className='btn mxBtn' onClick={updateWithdrawMax}>Max</button>
+                        </div>
                       </div>
-                      {/* <div className='dsp'>
+                      <div className='dsp'>
                         <div>Wallet balance</div>
-                        <div>20.5 {deatils?.assetName}</div>
-                      </div> */}
-                      <div className='buy_cake mt-1 mb-2'><a target='_blank' href={deatils?.buyToken} className='clr_prpl'>Buy {deatils?.assetName}</a></div>
+                        <div>{walletBalance.toFixed(2)} {deatils?.assetName}</div>
+                      </div>
+                      <div className='dsp'>
+                        <div className='buy_cake mt-1 mb-2'> <a target='_blank' href={deatils?.buyToken} className='clr_prpl'>Buy {deatils?.assetName}</a></div>
+                        <div className='buy_cake mt-1 mb-2'> <a target='_blank' href='https://fusionx.finance/faucet' className='clr_prpl'>Claim from faucet</a></div>
+                      </div>
                       <div className='dsp'>
                         <div>Min. Limit </div>
                         <div>0.0001 {deatils?.assetName}</div>
                       </div>
                       <div className='dsp'>
                         <div>Max. Limit</div>
-                        <div>{userShare} {deatils?.assetName}</div>
+                        <div>{userShare.toFixed(2)} {deatils?.assetName}</div>
                       </div>
                       <hr />
                       <div className='dsp'>

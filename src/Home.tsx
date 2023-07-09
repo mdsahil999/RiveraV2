@@ -360,6 +360,43 @@ function Home() {
     window.open(url, '_blank');
   }
 
+  const fnum =(x: any)=> {
+    if(isNaN(x)) return x;
+  
+    if(x < 999) {
+      return x;
+    }
+
+    if(x < 1000) {
+      return (x/1000).toFixed(2) + "K";
+    }
+
+    if(x < 10000) {
+      return (x/1000).toFixed(2) + "K";
+    }
+
+    if(x < 100000) {
+      return (x/1000).toFixed(2) + "K";
+    }
+  
+    if(x < 1000000) {
+      return (x/1000).toFixed(2) + "K";
+    }
+    if( x < 10000000) {
+      return (x/1000000).toFixed(2) + "M";
+    }
+  
+    if(x < 1000000000) {
+      return Math.round((x/1000000)) + "M";
+    }
+  
+    if(x < 1000000000000) {
+      return Math.round((x/1000000000)) + "B";
+    }
+  
+    return "1T+";
+  }
+
 
   return (
     <>
@@ -454,8 +491,8 @@ function Home() {
             <div className='second_section outer_section_first'>
               <div className='dsp_cont'>
                 <div className='wdth_40'>
-                  <div className='holding_header_inner mb-2 redHatFont'>Risk-managed market-making.</div>
-                  <div className='mb-3'>Explore among strategy vaults that suit your risk profile. </div>
+                  <div className='holding_header_inner mb-2 redHatFont'>Liquidity Layer for Mantle</div>
+                  <div className='mb-3'>Supply liquidity across DeFi with our risk-optimized market making strategies. </div>
                   <div><ConnectButton /></div>
                 </div>
                 <div className='wdth_30'>
@@ -525,12 +562,12 @@ function Home() {
                   </div>
 
                   <div className='dsp mb-5'>
-                    <div className='wdth_45'>
+                    <div className='wdth_55'>
                       <div className='mb-1'>TVL</div>
-                      <span className='secondary_color fnt_wgt_600'>{e.tvl.toFixed(2)} {e.assetName}</span>
+                      <span className='secondary_color fnt_wgt_600'>{fnum(Number(e.tvl))} {e.assetName}</span>
                       <div className='d-flex'>
-                        <ProgressBar value={Number(e.percentage)} className='wdth_100' showValue={false}></ProgressBar> 
-                      <div className='prgrs_txt'>{e.tvlcap.toFixed(2)} {e.assetName}</div></div>
+                        <ProgressBar value={Number(e.percentage)} className='wdth_50' showValue={false}></ProgressBar> 
+                      <div className='prgrs_txt'>{fnum(Number(e.tvlcap))} {e.assetName}</div></div>
                     </div>
                     <div>Average APY <br /> <span className='holding_val'>-</span></div>
                     <div>Powered By <br /> <span><img src={e.poweredBy} alt='lock img' className='cashaa logo' /></span></div>
